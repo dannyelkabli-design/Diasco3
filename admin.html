@@ -2,702 +2,1442 @@
 <html lang="nl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Diasco — Medewerkers Portaal</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
 <script src="https://alcdn.msauth.net/browser/2.39.0/js/msal-browser.min.js"></script>
 <style>
-  :root {
-    --teal:#1a7f75; --teal-light:#2da89b; --teal-dark:#0f5c54;
-    --charcoal:#1c2b2a; --white:#ffffff; --accent:#e8a84c;
-    --red:#e05252; --green:#2da87a; --blue:#0072CE;
-  }
-  *{margin:0;padding:0;box-sizing:border-box;}
-  body{font-family:'DM Sans',sans-serif;background:var(--charcoal);color:var(--white);min-height:100vh;}
+:root{
+  --teal:#1a7f75;--teal-light:#2da87a;--teal-dark:#155f58;
+  --charcoal:#1e2a28;--bg:#0d1f1d;--surface:#162320;
+  --surface2:#1d2e2b;--border:rgba(255,255,255,.08);
+  --text:rgba(255,255,255,.9);--muted:rgba(255,255,255,.45);
+  --red:#e05252;--yellow:#f0b429;--green:#2da87a;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
 
-  /* SETUP BANNER */
-  #setup-banner{background:linear-gradient(135deg,rgba(232,168,76,.15),rgba(232,168,76,.05));border-bottom:1px solid rgba(232,168,76,.3);padding:12px 32px;display:flex;align-items:center;gap:12px;font-size:.85rem;color:rgba(255,255,255,.7);}
-  #setup-banner strong{color:var(--accent);}
-  #setup-banner a{color:var(--accent);}
-  .banner-close{margin-left:auto;cursor:pointer;opacity:.5;font-size:18px;}
+/* ── LOGIN ─────────────────────────────────── */
+#login-page{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0f2522,#1c2b2a,#0a3d36);}
+.login-box{background:rgba(255,255,255,.05);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.1);border-radius:24px;padding:52px 48px;width:100%;max-width:420px;animation:fadeUp .5s ease;}
+.login-logo{display:flex;align-items:center;gap:12px;margin-bottom:36px;}
+.login-logo-icon{width:44px;height:44px;background:var(--teal);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:white;}
+.login-logo-text{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:600;}
+.login-box h2{font-family:'Playfair Display',serif;font-size:1.6rem;margin-bottom:6px;}
+.login-box>p{color:var(--muted);font-size:.88rem;margin-bottom:32px;}
+.field{margin-bottom:16px;}
+.field label{display:block;font-size:.82rem;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em;}
+.field input{width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 16px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.95rem;outline:none;transition:border .2s;}
+.field input:focus{border-color:var(--teal);}
+.login-btn{width:100%;background:var(--teal);color:white;border:none;border-radius:10px;padding:15px;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:600;cursor:pointer;margin-top:8px;transition:background .2s;}
+.login-btn:hover{background:var(--teal-light);}
+.login-error{background:rgba(224,82,82,.15);border:1px solid rgba(224,82,82,.3);border-radius:8px;padding:10px 14px;color:#ff8a8a;font-size:.85rem;margin-top:14px;display:none;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
 
-  /* LOGIN */
-  #login-page{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0f2522,#1c2b2a,#0a3d36);position:relative;overflow:hidden;}
-  #login-page::before{content:'';position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(26,127,117,.15),transparent 70%);top:-100px;right:-100px;}
-  .login-box{background:rgba(255,255,255,.05);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.1);border-radius:24px;padding:52px 48px;width:100%;max-width:420px;position:relative;z-index:1;animation:fadeUp .6s ease;}
-  @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
-  .login-logo{display:flex;align-items:center;gap:12px;margin-bottom:36px;}
-  .login-logo-icon{width:44px;height:44px;background:var(--teal);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:22px;font-weight:700;}
-  .login-logo-text{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:600;}
-  .login-box h2{font-family:'Playfair Display',serif;font-size:1.6rem;margin-bottom:6px;}
-  .login-box>p{color:rgba(255,255,255,.5);font-size:.88rem;margin-bottom:32px;}
-  .field{margin-bottom:18px;}
-  .field label{display:block;font-size:.8rem;font-weight:500;color:rgba(255,255,255,.6);margin-bottom:8px;letter-spacing:.05em;text-transform:uppercase;}
-  .field input{width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:14px 16px;color:white;font-family:'DM Sans',sans-serif;font-size:.95rem;outline:none;transition:border-color .2s;}
-  .field input:focus{border-color:var(--teal-light);background:rgba(255,255,255,.1);}
-  .login-btn{width:100%;background:var(--teal);color:white;border:none;border-radius:10px;padding:15px;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:600;cursor:pointer;margin-top:8px;transition:background .2s;}
-  .login-btn:hover{background:var(--teal-light);}
-  .login-error{background:rgba(224,82,82,.15);border:1px solid rgba(224,82,82,.3);border-radius:8px;padding:10px 14px;color:#ff8a8a;font-size:.85rem;margin-top:14px;display:none;}
-  .back-link{display:block;text-align:center;margin-top:24px;color:rgba(255,255,255,.3);font-size:.82rem;text-decoration:none;transition:color .2s;}
-  .back-link:hover{color:rgba(255,255,255,.6);}
+/* ── DASHBOARD ──────────────────────────────── */
+#dashboard{display:none;min-height:100vh;}
 
-  /* DASHBOARD */
-  #dashboard{display:none;min-height:100vh;}
-  .topbar{background:rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.08);padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px);}
-  .topbar-left{display:flex;align-items:center;gap:16px;}
-  .topbar-logo{display:flex;align-items:center;gap:10px;font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:600;}
-  .topbar-logo-icon{width:32px;height:32px;background:var(--teal);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:15px;font-weight:700;}
-  .topbar-badge{background:rgba(26,127,117,.2);color:var(--teal-light);font-size:.72rem;font-weight:600;padding:3px 10px;border-radius:20px;border:1px solid rgba(26,127,117,.3);}
-  .topbar-right{display:flex;align-items:center;gap:12px;}
-  .topbar-user{font-size:.85rem;color:rgba(255,255,255,.6);}
-  .outlook-connect-btn{display:flex;align-items:center;gap:8px;background:rgba(0,114,206,.15);border:1px solid rgba(0,114,206,.3);color:#5aa8e8;border-radius:8px;padding:7px 12px;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;cursor:pointer;transition:all .2s;}
-  .outlook-connect-btn:hover{background:rgba(0,114,206,.25);}
-  .outlook-connect-btn.connected{background:rgba(45,168,122,.15);border-color:rgba(45,168,122,.3);color:var(--green);}
-  .outlook-connect-btn .dot{width:6px;height:6px;border-radius:50%;background:currentColor;}
-  .logout-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.7);border-radius:8px;padding:7px 14px;font-family:'DM Sans',sans-serif;font-size:.82rem;cursor:pointer;transition:all .2s;}
-  .logout-btn:hover{background:rgba(224,82,82,.15);border-color:rgba(224,82,82,.3);color:#ff8a8a;}
+/* Topbar */
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.topbar-logo{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;display:flex;align-items:center;gap:10px;}
+.topbar-logo-icon{width:34px;height:34px;background:var(--teal);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;}
+.topbar-right{display:flex;align-items:center;gap:16px;}
+.topbar-user{font-size:.85rem;color:var(--muted);}
+.topbar-user strong{color:var(--text);}
+.logout-btn{background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;padding:6px 14px;color:var(--muted);font-size:.82rem;cursor:pointer;transition:all .2s;}
+.logout-btn:hover{background:rgba(255,255,255,.1);color:var(--text);}
 
-  /* BODY */
-  .dashboard-body{padding:32px;max-width:1400px;margin:0 auto;}
+/* Tab nav */
+.tab-nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;display:flex;gap:4px;}
+.tab-btn{padding:14px 20px;font-size:.88rem;font-weight:600;color:var(--muted);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;}
+.tab-btn:hover{color:var(--text);}
+.tab-btn.active{color:var(--teal);border-bottom-color:var(--teal);}
 
-  /* STATS */
-  .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px;}
-  .stat-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:20px 24px;}
-  .stat-label{font-size:.78rem;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;}
-  .stat-value{font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;}
-  .stat-sub{font-size:.78rem;color:var(--teal-light);margin-top:4px;}
+/* Content */
+.tab-content{display:none;padding:28px;}
+.tab-content.active{display:block;}
 
-  /* GRID */
-  .main-grid{display:grid;grid-template-columns:1fr 360px;gap:24px;}
-  .panel{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:24px;margin-bottom:20px;}
-  .panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
-  .panel-title{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:600;}
+/* Grid layouts */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+@media(max-width:900px){.grid-2,.grid-3{grid-template-columns:1fr;}}
 
-  /* OUTLOOK PANEL */
-  .outlook-panel{background:linear-gradient(135deg,rgba(0,114,206,.1),rgba(0,114,206,.05));border:1px solid rgba(0,114,206,.2);border-radius:16px;padding:24px;margin-bottom:20px;}
-  .outlook-status-row{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
-  .outlook-logo{width:40px;height:40px;background:var(--blue);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;}
-  .outlook-status-text h3{font-size:.95rem;font-weight:600;margin-bottom:2px;}
-  .outlook-status-text p{font-size:.78rem;color:rgba(255,255,255,.45);}
-  .outlook-actions{display:flex;flex-direction:column;gap:8px;}
-  .outlook-action-btn{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.8);border-radius:8px;padding:10px 14px;font-family:'DM Sans',sans-serif;font-size:.85rem;cursor:pointer;transition:all .2s;text-align:left;width:100%;}
-  .outlook-action-btn:hover{background:rgba(0,114,206,.2);border-color:rgba(0,114,206,.3);color:white;}
-  .outlook-action-btn .icon{font-size:16px;}
+/* Panels */
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:20px;}
+.panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.panel-title{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:600;}
 
-  /* CALENDAR */
-  .calendar-nav{display:flex;align-items:center;gap:12px;}
-  .cal-nav-btn{width:32px;height:32px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:background .2s;}
-  .cal-nav-btn:hover{background:rgba(255,255,255,.12);}
-  #cal-month-label{font-size:.95rem;font-weight:500;min-width:140px;text-align:center;}
-  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
-  .cal-day-name{text-align:center;font-size:.72rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.06em;padding:8px 0;}
-  .cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:8px;font-size:.85rem;cursor:pointer;position:relative;transition:background .15s;color:rgba(255,255,255,.7);}
-  .cal-day:hover{background:rgba(255,255,255,.08);}
-  .cal-day.other-month{color:rgba(255,255,255,.2);}
-  .cal-day.today{background:rgba(26,127,117,.25);color:var(--teal-light);font-weight:600;}
-  .cal-day.selected{background:var(--teal);color:white;font-weight:600;}
-  .cal-day.has-appt::after{content:'';position:absolute;bottom:3px;width:4px;height:4px;border-radius:50%;background:var(--accent);}
-  .cal-day.has-outlook::after{content:'';position:absolute;bottom:3px;width:4px;height:4px;border-radius:50%;background:#5aa8e8;}
+/* Stats */
+.stat-card{background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:20px 24px;display:flex;align-items:center;gap:16px;}
+.stat-icon{width:44px;height:44px;background:rgba(26,127,117,.15);border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;}
+.stat-num{font-size:1.7rem;font-weight:700;line-height:1;}
+.stat-label{font-size:.78rem;color:var(--muted);margin-top:3px;}
 
-  /* SLOTS */
-  .slots-panel{margin-top:20px;}
-  .slots-date-label{font-size:.85rem;color:rgba(255,255,255,.5);margin-bottom:14px;}
-  .slots-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
-  .slot{padding:9px 6px;border-radius:8px;text-align:center;font-size:.78rem;font-weight:500;cursor:pointer;border:1px solid transparent;transition:all .15s;}
-  .slot.free{background:rgba(45,168,122,.1);border-color:rgba(45,168,122,.2);color:var(--green);}
-  .slot.free:hover{background:rgba(45,168,122,.2);}
-  .slot.booked{background:rgba(26,127,117,.2);border-color:rgba(26,127,117,.3);color:var(--teal-light);}
-  .slot.outlook-busy{background:rgba(0,114,206,.15);border-color:rgba(0,114,206,.25);color:#5aa8e8;cursor:default;font-size:.72rem;}
-  .slot.blocked{background:rgba(224,82,82,.1);border-color:rgba(224,82,82,.2);color:rgba(255,255,255,.3);cursor:default;text-decoration:line-through;}
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:9px;font-size:.85rem;font-weight:600;cursor:pointer;border:none;transition:all .15s;}
+.btn-primary{background:var(--teal);color:white;}
+.btn-primary:hover{background:var(--teal-light);}
+.btn-secondary{background:rgba(255,255,255,.07);border:1px solid var(--border);color:var(--text);}
+.btn-secondary:hover{background:rgba(255,255,255,.12);}
+.btn-danger{background:rgba(224,82,82,.15);border:1px solid rgba(224,82,82,.3);color:#ff8a8a;}
+.btn-danger:hover{background:rgba(224,82,82,.25);}
+.btn-sm{padding:6px 12px;font-size:.78rem;}
 
-  /* SIDEBAR */
-  .sidebar{display:flex;flex-direction:column;gap:0;}
-  .appt-item{display:flex;gap:12px;align-items:flex-start;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.06);}
-  .appt-item:last-child{border-bottom:none;}
-  .appt-time-badge{background:rgba(26,127,117,.15);border:1px solid rgba(26,127,117,.25);border-radius:8px;padding:6px 10px;font-size:.78rem;font-weight:600;color:var(--teal-light);white-space:nowrap;min-width:60px;text-align:center;}
-  .appt-time-badge.outlook-badge{background:rgba(0,114,206,.15);border-color:rgba(0,114,206,.25);color:#5aa8e8;}
-  .appt-info{flex:1;}
-  .appt-name{font-size:.9rem;font-weight:600;margin-bottom:2px;}
-  .appt-treatment{font-size:.78rem;color:rgba(255,255,255,.45);}
-  .appt-sync-badge{font-size:.65rem;background:rgba(0,114,206,.2);color:#5aa8e8;border-radius:4px;padding:1px 5px;margin-left:6px;vertical-align:middle;}
-  .appt-actions{display:flex;gap:6px;}
-  .appt-btn{width:28px;height:28px;border-radius:6px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:rgba(255,255,255,.5);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all .15s;}
-  .appt-btn:hover{background:rgba(224,82,82,.15);color:#ff8a8a;}
-  .appt-btn.confirm:hover{background:rgba(45,168,122,.15);color:var(--green);}
+/* Calendar */
+.cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.cal-header button{background:rgba(255,255,255,.07);border:1px solid var(--border);border-radius:8px;width:32px;height:32px;color:var(--text);cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;}
+.cal-header button:hover{background:rgba(255,255,255,.12);}
+.cal-month{font-family:'Playfair Display',serif;font-size:1rem;font-weight:600;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+.cal-day-name{text-align:center;font-size:.72rem;font-weight:600;color:var(--muted);padding:6px 0;text-transform:uppercase;}
+.cal-day{text-align:center;padding:7px 4px;border-radius:7px;font-size:.85rem;cursor:pointer;transition:all .15s;position:relative;}
+.cal-day:hover{background:rgba(255,255,255,.07);}
+.cal-day.today{color:var(--teal);font-weight:700;}
+.cal-day.selected{background:var(--teal)!important;color:white!important;font-weight:700;}
+.cal-day.has-appt::after{content:'';position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:5px;height:5px;border-radius:50%;background:var(--teal-light);}
+.cal-day.has-outlook::after{background:var(--yellow);}
+.cal-day.other-month{color:rgba(255,255,255,.2);}
+.cal-day.selected::after{background:rgba(255,255,255,.7);}
 
-  /* FORM */
-  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
-  .form-field{margin-bottom:12px;}
-  .form-field label{display:block;font-size:.75rem;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;}
-  .form-field input,.form-field select,.form-field textarea{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:10px 12px;color:white;font-family:'DM Sans',sans-serif;font-size:.88rem;outline:none;transition:border-color .2s;}
-  .form-field select option{background:#1c2b2a;}
-  .form-field input:focus,.form-field select:focus,.form-field textarea:focus{border-color:var(--teal-light);}
-  .form-field textarea{resize:vertical;min-height:60px;}
-  .submit-btn{width:100%;background:var(--teal);color:white;border:none;border-radius:8px;padding:11px;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:background .2s;margin-top:4px;}
-  .submit-btn:hover{background:var(--teal-light);}
-  .sync-checkbox-row{display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:.82rem;color:rgba(255,255,255,.5);}
-  .sync-checkbox-row input{width:auto;}
-  .sync-checkbox-row span{color:#5aa8e8;}
+/* Slots */
+.slots-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:7px;margin-top:12px;}
+.slot{padding:8px 4px;border-radius:8px;font-size:.82rem;font-weight:600;text-align:center;border:1px solid transparent;cursor:pointer;transition:all .15s;position:relative;}
+.slot.free{background:rgba(45,168,122,.08);border-color:rgba(45,168,122,.2);color:var(--teal-light);}
+.slot.free:hover{background:rgba(45,168,122,.2);}
+.slot.booked{background:rgba(26,127,117,.15);border-color:rgba(26,127,117,.3);color:rgba(255,255,255,.6);cursor:default;}
+.slot.blocked{background:rgba(224,82,82,.08);border-color:rgba(224,82,82,.2);color:rgba(224,82,82,.6);cursor:pointer;}
+.slot.blocked:hover{background:rgba(224,82,82,.15);}
+.slot.outlook-busy{background:rgba(240,180,41,.08);border-color:rgba(240,180,41,.2);color:var(--yellow);cursor:default;font-size:.75rem;}
+.slot.weekend{background:rgba(255,255,255,.03);border-color:transparent;color:rgba(255,255,255,.2);cursor:not-allowed;}
 
-  /* MODAL */
-  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:1000;display:none;}
-  .modal{background:#1e2f2e;border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:28px;width:420px;max-width:90vw;animation:fadeUp .25s ease;}
-  .modal h3{font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:6px;}
-  .modal p{color:rgba(255,255,255,.5);font-size:.85rem;margin-bottom:16px;}
-  .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:16px;}
-  .modal-cancel{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.6);border-radius:8px;padding:9px 18px;font-family:'DM Sans',sans-serif;font-size:.88rem;cursor:pointer;}
-  .modal-confirm{background:var(--red);border:none;color:white;border-radius:8px;padding:9px 18px;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;}
-  .modal-save{background:var(--teal);border:none;color:white;border-radius:8px;padding:9px 18px;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;}
+/* Appointment items */
+.appt-item{display:flex;align-items:center;gap:12px;padding:12px 16px;background:rgba(255,255,255,.04);border-radius:11px;border:1px solid var(--border);margin-bottom:8px;transition:border .2s;}
+.appt-item:hover{border-color:rgba(255,255,255,.15);}
+.appt-time-badge{background:var(--teal);color:white;border-radius:8px;padding:5px 10px;font-size:.82rem;font-weight:700;white-space:nowrap;}
+.appt-time-badge.outlook-badge{background:rgba(0,114,206,.6);}
+.appt-info{flex:1;min-width:0;}
+.appt-name{font-weight:600;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.appt-treatment{font-size:.78rem;color:var(--muted);margin-top:2px;}
+.appt-sync-badge{background:rgba(0,114,206,.2);color:#5bb8f5;border-radius:4px;padding:1px 6px;font-size:.7rem;font-weight:600;margin-left:6px;}
+.appt-actions{display:flex;gap:6px;flex-shrink:0;}
+.appt-btn{width:28px;height:28px;border-radius:7px;border:1px solid var(--border);background:rgba(255,255,255,.05);color:var(--muted);cursor:pointer;font-size:.85rem;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.appt-btn:hover{background:rgba(255,255,255,.12);color:var(--text);}
+.appt-btn.danger:hover{background:rgba(224,82,82,.2);border-color:rgba(224,82,82,.4);color:var(--red);}
 
-  .toast{position:fixed;bottom:28px;right:28px;background:#1e3a38;border:1px solid rgba(45,168,122,.3);color:white;padding:14px 20px;border-radius:10px;font-size:.88rem;z-index:2000;display:none;animation:fadeUp .3s ease;max-width:320px;}
-  .spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.2);border-top-color:white;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:6px;}
-  @keyframes spin{to{transform:rotate(360deg)}}
+/* Day view */
+.day-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;}
+.day-nav{display:flex;align-items:center;gap:10px;}
+.day-nav button{background:rgba(255,255,255,.07);border:1px solid var(--border);border-radius:8px;padding:6px 14px;color:var(--text);cursor:pointer;font-size:.88rem;transition:all .15s;}
+.day-nav button:hover{background:rgba(255,255,255,.12);}
+.day-title{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;}
+.day-timeline{display:flex;flex-direction:column;gap:4px;}
+.timeline-row{display:grid;grid-template-columns:60px 1fr;gap:12px;align-items:stretch;min-height:52px;}
+.timeline-time{font-size:.78rem;color:var(--muted);padding-top:14px;text-align:right;font-weight:600;}
+.timeline-cell{border-radius:10px;padding:10px 14px;transition:all .15s;position:relative;}
+.timeline-cell.free{background:rgba(45,168,122,.04);border:1px dashed rgba(45,168,122,.15);cursor:pointer;}
+.timeline-cell.free:hover{background:rgba(45,168,122,.1);border-color:var(--teal);}
+.timeline-cell.blocked{background:rgba(224,82,82,.06);border:1px solid rgba(224,82,82,.15);cursor:pointer;}
+.timeline-cell.blocked:hover{background:rgba(224,82,82,.12);}
+.timeline-cell.booked{background:rgba(26,127,117,.12);border:1px solid rgba(26,127,117,.25);}
+.timeline-cell.outlook{background:rgba(0,114,206,.1);border:1px solid rgba(0,114,206,.2);}
+.timeline-cell.weekend{background:rgba(255,255,255,.02);border:1px solid transparent;cursor:not-allowed;}
+.cell-name{font-weight:600;font-size:.88rem;}
+.cell-sub{font-size:.75rem;color:var(--muted);margin-top:2px;}
+.cell-free-label{font-size:.78rem;color:rgba(45,168,122,.5);}
+.cell-blocked-label{font-size:.78rem;color:rgba(224,82,82,.6);}
+.cell-actions{position:absolute;right:10px;top:50%;transform:translateY(-50%);display:flex;gap:5px;opacity:0;transition:opacity .15s;}
+.timeline-cell:hover .cell-actions{opacity:1;}
 
-  code{background:rgba(255,255,255,.1);padding:2px 6px;border-radius:4px;font-size:.82rem;}
-  .setup-steps{font-size:.82rem;color:rgba(255,255,255,.55);line-height:1.9;margin-bottom:4px;}
-  .setup-steps a{color:#5aa8e8;}
+/* Forms */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.form-row.single{grid-template-columns:1fr;}
+.form-group label{display:block;font-size:.78rem;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em;}
+.form-group input,.form-group select,.form-group textarea{width:100%;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:9px;padding:10px 13px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.88rem;outline:none;transition:border .2s;}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--teal);}
+.form-group select option{background:var(--surface);}
+.form-group textarea{resize:vertical;min-height:70px;}
+.checkbox-row{display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--muted);margin-bottom:14px;}
+.checkbox-row input{width:16px;height:16px;accent-color:var(--teal);}
 
-  @media(max-width:1100px){.main-grid{grid-template-columns:1fr;}.stats-row{grid-template-columns:repeat(2,1fr);}}
-  @media(max-width:600px){.dashboard-body{padding:16px;}.slots-grid{grid-template-columns:repeat(3,1fr);}}
+/* Outlook panel */
+.outlook-panel{background:linear-gradient(135deg,rgba(0,114,206,.1),rgba(0,114,206,.05));border:1px solid rgba(0,114,206,.2);border-radius:16px;padding:24px;margin-bottom:20px;}
+.outlook-btn{display:flex;align-items:center;gap:10px;background:rgba(0,114,206,.15);border:1px solid rgba(0,114,206,.3);border-radius:10px;padding:10px 16px;color:var(--text);font-size:.88rem;font-weight:600;cursor:pointer;transition:all .2s;}
+.outlook-btn:hover,.outlook-btn.connected{background:rgba(0,114,206,.25);}
+.outlook-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
+
+/* Account cards */
+.account-card{background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:20px;display:flex;align-items:center;gap:16px;}
+.account-avatar{width:44px;height:44px;background:var(--teal);border-radius:11px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;flex-shrink:0;}
+.account-info{flex:1;}
+.account-name{font-weight:600;font-size:.95rem;}
+.account-role{font-size:.78rem;color:var(--muted);margin-top:2px;}
+.role-badge{display:inline-block;background:rgba(26,127,117,.2);color:var(--teal-light);border-radius:5px;padding:2px 8px;font-size:.72rem;font-weight:600;margin-top:4px;}
+.role-badge.admin{background:rgba(240,180,41,.15);color:var(--yellow);}
+
+/* Modals */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:1000;backdrop-filter:blur(4px);}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:32px;max-width:480px;width:90%;animation:fadeUp .3s ease;}
+.modal h3{font-family:'Playfair Display',serif;font-size:1.3rem;margin-bottom:8px;}
+.modal p{color:var(--muted);font-size:.88rem;margin-bottom:24px;line-height:1.6;}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;}
+
+/* Badge / tag */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:.75rem;font-weight:600;}
+.badge-green{background:rgba(45,168,122,.15);color:var(--green);}
+.badge-red{background:rgba(224,82,82,.15);color:var(--red);}
+.badge-yellow{background:rgba(240,180,41,.15);color:var(--yellow);}
+
+/* Toast */
+#toast{position:fixed;bottom:24px;right:24px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 20px;font-size:.88rem;font-weight:500;z-index:9999;display:none;max-width:340px;animation:fadeUp .3s ease;box-shadow:0 8px 32px rgba(0,0,0,.3);}
+#toast.error{border-color:rgba(224,82,82,.3);background:rgba(224,82,82,.1);}
+
+/* Setup banner */
+.setup-banner{background:rgba(240,180,41,.1);border:1px solid rgba(240,180,41,.2);border-radius:12px;padding:14px 20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.setup-banner p{font-size:.85rem;color:var(--yellow);}
 </style>
 </head>
 <body>
 
-<div id="setup-banner">
-  ⚙️ <strong>Outlook Sync instellen:</strong> Klik hier om jouw Azure Client ID in te voeren voor automatische Outlook sync.
-  <a href="#" onclick="openSetup();return false;">Configureren →</a>
-  <span class="banner-close" onclick="this.parentElement.style.display='none'">×</span>
-</div>
-
-<!-- LOGIN -->
+<!-- ── LOGIN ──────────────────────────────────────────── -->
 <div id="login-page">
   <div class="login-box">
     <div class="login-logo">
       <div class="login-logo-icon">D</div>
-      <span class="login-logo-text">Diasco</span>
+      <span class="login-logo-text">Diasco Portaal</span>
     </div>
     <h2>Welkom terug</h2>
-    <p>Log in op het medewerkers portaal</p>
+    <p>Log in om het medewerkers dashboard te openen.</p>
     <div class="field"><label>Gebruikersnaam</label><input type="text" id="login-user" placeholder="gebruikersnaam" autocomplete="username"></div>
     <div class="field"><label>Wachtwoord</label><input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password"></div>
     <button class="login-btn" onclick="doLogin()">Inloggen →</button>
     <div class="login-error" id="login-error">Onjuiste gebruikersnaam of wachtwoord</div>
-    <a href="index.html" class="back-link">← Terug naar website</a>
   </div>
 </div>
 
-<!-- DASHBOARD -->
+<!-- ── DASHBOARD ──────────────────────────────────────── -->
 <div id="dashboard">
+
+  <!-- Topbar -->
   <div class="topbar">
-    <div class="topbar-left">
-      <div class="topbar-logo"><div class="topbar-logo-icon">D</div>Diasco</div>
-      <span class="topbar-badge">Medewerkers Portaal</span>
+    <div class="topbar-logo">
+      <div class="topbar-logo-icon">D</div>
+      Diasco Portaal
     </div>
     <div class="topbar-right">
-      <button class="outlook-connect-btn" id="outlook-connect-btn" onclick="toggleOutlook()">
-        <span class="dot"></span><span id="outlook-btn-label">Outlook verbinden</span>
-      </button>
-      <span class="topbar-user" id="topbar-username"></span>
+      <span class="topbar-user">Ingelogd als <strong id="topbar-username"></strong></span>
       <button class="logout-btn" onclick="doLogout()">Uitloggen</button>
     </div>
   </div>
 
-  <div class="dashboard-body">
-    <div class="stats-row">
-      <div class="stat-card"><div class="stat-label">Vandaag</div><div class="stat-value" id="stat-today">0</div><div class="stat-sub">afspraken</div></div>
-      <div class="stat-card"><div class="stat-label">Deze week</div><div class="stat-value" id="stat-week">0</div><div class="stat-sub">afspraken</div></div>
-      <div class="stat-card"><div class="stat-label">Deze maand</div><div class="stat-value" id="stat-month">0</div><div class="stat-sub">afspraken</div></div>
-      <div class="stat-card"><div class="stat-label">Outlook</div><div class="stat-value" id="stat-outlook-count" style="font-size:1.4rem">—</div><div class="stat-sub" id="stat-outlook-label">Niet verbonden</div></div>
+  <!-- Tab nav -->
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('overzicht')">📊 Overzicht</button>
+    <button class="tab-btn" onclick="switchTab('dagplanning')">📅 Dagplanning</button>
+    <button class="tab-btn" onclick="switchTab('afspraken')">📋 Alle Afspraken</button>
+    <button class="tab-btn" onclick="switchTab('tijdslots')">🔒 Tijdslots Beheer</button>
+    <button class="tab-btn" onclick="switchTab('accounts')">👥 Accounts</button>
+    <button class="tab-btn" onclick="switchTab('instellingen')">⚙️ Instellingen</button>
+  </div>
+
+  <!-- ══════════════════════ TAB: OVERZICHT ══════════════════════ -->
+  <div id="tab-overzicht" class="tab-content active">
+
+    <!-- Setup banner -->
+    <div class="setup-banner" id="setup-banner">
+      <p>⚠️ <strong>Outlook niet geconfigureerd.</strong> Voeg een Azure Client ID in via Instellingen voor agenda-synchronisatie.</p>
+      <button class="btn btn-secondary btn-sm" onclick="switchTab('instellingen')">Configureren →</button>
     </div>
 
-    <div class="main-grid">
-      <div>
-        <!-- Outlook panel -->
-        <div class="outlook-panel">
-          <div class="outlook-status-row">
-            <div class="outlook-logo">📅</div>
-            <div class="outlook-status-text">
-              <h3 id="outlook-panel-title">Outlook Agenda Sync</h3>
-              <p id="outlook-panel-sub">Verbind met jouw Microsoft Outlook voor live synchronisatie</p>
-            </div>
-          </div>
-          <div class="outlook-actions">
-            <button class="outlook-action-btn" id="btn-connect-outlook" onclick="connectOutlook()">
-              <span class="icon">🔗</span> Verbinden met Outlook / Microsoft 365
-            </button>
-            <button class="outlook-action-btn" id="btn-sync-now" onclick="syncFromOutlook()" style="display:none">
-              <span class="icon">🔄</span> <span id="sync-label">Nu synchroniseren</span>
-            </button>
-            <button class="outlook-action-btn" id="btn-settings" onclick="openSetup()">
-              <span class="icon">⚙️</span> Azure instellingen <span style="font-size:.75rem;color:rgba(255,255,255,.35);margin-left:auto" id="client-id-preview"></span>
-            </button>
-            <button class="outlook-action-btn" id="btn-disconnect" onclick="disconnectOutlook()" style="display:none;color:rgba(255,100,100,.7);">
-              <span class="icon">✕</span> Verbinding verbreken
-            </button>
+    <!-- Stats -->
+    <div class="grid-3" style="margin-bottom:20px;">
+      <div class="stat-card">
+        <div class="stat-icon">📅</div>
+        <div><div class="stat-num" id="stat-today">0</div><div class="stat-label">Afspraken vandaag</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📆</div>
+        <div><div class="stat-num" id="stat-week">0</div><div class="stat-label">Deze week</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🗓️</div>
+        <div><div class="stat-num" id="stat-month">0</div><div class="stat-label">Deze maand</div></div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <!-- Calendar -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Agenda</span>
+          <div style="display:flex;gap:6px;">
+            <button class="btn btn-secondary btn-sm" onclick="changeMonth(-1)">‹</button>
+            <span id="cal-month-label" style="padding:6px 12px;font-size:.85rem;font-weight:600;"></span>
+            <button class="btn btn-secondary btn-sm" onclick="changeMonth(1)">›</button>
           </div>
         </div>
-
-        <!-- Calendar -->
-        <div class="panel" style="margin-bottom:0">
-          <div class="panel-header">
-            <span class="panel-title">Agenda</span>
-            <div class="calendar-nav">
-              <button class="cal-nav-btn" onclick="changeMonth(-1)">‹</button>
-              <span id="cal-month-label"></span>
-              <button class="cal-nav-btn" onclick="changeMonth(1)">›</button>
-            </div>
-          </div>
-          <div class="cal-grid" id="cal-grid"></div>
-          <div class="slots-panel">
-            <div class="slots-date-label" id="slots-date-label">Selecteer een dag</div>
-            <div class="slots-grid" id="slots-grid"></div>
-          </div>
+        <div class="cal-grid" id="cal-grid"></div>
+        <div style="margin-top:16px;display:flex;gap:14px;font-size:.75rem;color:var(--muted);">
+          <span>🟢 Diasco afspraak</span>
+          <span>🟡 Outlook bezet</span>
         </div>
       </div>
 
-      <!-- SIDEBAR -->
-      <div class="sidebar">
-        <div class="panel">
+      <!-- Today appointments -->
+      <div style="display:flex;flex-direction:column;gap:20px;">
+        <div class="panel" style="flex:1;">
           <div class="panel-header">
             <span class="panel-title">Afspraken vandaag</span>
-            <span id="sync-spinner" style="display:none"><span class="spinner"></span></span>
+            <button class="btn btn-secondary btn-sm" onclick="switchTab('dagplanning')">Dagplanning →</button>
           </div>
           <div id="todays-appts"></div>
         </div>
 
-        <div class="panel" style="margin-bottom:0">
-          <div class="panel-header"><span class="panel-title">Nieuwe afspraak</span></div>
+        <!-- Quick add -->
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title">Snel afspraak toevoegen</span></div>
           <div class="form-row">
-            <div class="form-field"><label>Naam patiënt</label><input type="text" id="new-name" placeholder="Volledige naam"></div>
-            <div class="form-field"><label>Telefoon</label><input type="tel" id="new-phone" placeholder="06-12345678"></div>
+            <div class="form-group"><label>Naam patiënt</label><input type="text" id="new-name" placeholder="Volledige naam"></div>
+            <div class="form-group"><label>Telefoon</label><input type="text" id="new-phone" placeholder="06-..."></div>
           </div>
           <div class="form-row">
-            <div class="form-field"><label>Datum</label><input type="date" id="new-date"></div>
-            <div class="form-field"><label>Tijd</label>
+            <div class="form-group"><label>Datum</label><input type="date" id="new-date"></div>
+            <div class="form-group"><label>Tijdstip</label>
               <select id="new-time">
-                <option value="">-- tijd --</option>
+                <option value="">Kies tijd...</option>
                 <option>08:00</option><option>08:30</option><option>09:00</option><option>09:30</option>
                 <option>10:00</option><option>10:30</option><option>11:00</option><option>11:30</option>
-                <option>12:00</option><option>13:00</option><option>13:30</option><option>14:00</option>
-                <option>14:30</option><option>15:00</option><option>15:30</option><option>16:00</option>
-                <option>16:30</option><option>17:00</option>
+                <option>12:00</option><option>12:30</option><option>13:00</option><option>13:30</option>
+                <option>14:00</option><option>14:30</option><option>15:00</option><option>15:30</option>
+                <option>16:00</option><option>16:30</option>
               </select>
             </div>
           </div>
-          <div class="form-field"><label>Behandeling</label>
-            <select id="new-treatment">
-              <option value="">-- behandeling --</option>
-              <option>Dry Needling</option><option>Mobilisatie</option><option>Knieartrose</option>
-              <option>Heupprothese revalidatie</option><option>Hijama Cupping</option>
-              <option>Sportrevalidatie</option><option>Personal Training</option>
-              <option>Pijneducatie</option><option>Intake consult</option>
-            </select>
+          <div class="form-row single">
+            <div class="form-group"><label>Behandeling</label>
+              <select id="new-treatment">
+                <option value="">Kies behandeling...</option>
+                <option>Dry Needling</option><option>Mobilisatie</option><option>Knieartrose</option>
+                <option>Heupprothese Revalidatie</option><option>Hijama Cupping</option>
+                <option>Sportrevalidatie</option><option>Personal Training</option><option>Intake / Kennismaking</option>
+              </select>
+            </div>
           </div>
-          <div class="form-field"><label>Notities</label><textarea id="new-notes" placeholder="Optionele notities..."></textarea></div>
-          <div class="sync-checkbox-row">
+          <div class="form-row single">
+            <div class="form-group"><label>Notities (optioneel)</label><textarea id="new-notes" placeholder="Aanvullende info..."></textarea></div>
+          </div>
+          <div class="checkbox-row">
             <input type="checkbox" id="sync-to-outlook" checked>
-            <label for="sync-to-outlook">📅 <span>Ook toevoegen aan Outlook</span></label>
+            <label for="sync-to-outlook">Synchroniseren met Outlook agenda</label>
           </div>
-          <button class="submit-btn" onclick="addAppointment()">+ Afspraak toevoegen</button>
+          <button class="btn btn-primary" style="width:100%;" onclick="addAppointment()">✓ Afspraak toevoegen</button>
         </div>
       </div>
     </div>
   </div>
-</div>
 
-<!-- DELETE MODAL -->
+  <!-- ══════════════════════ TAB: DAGPLANNING ══════════════════════ -->
+  <div id="tab-dagplanning" class="tab-content">
+    <div class="panel">
+      <div class="day-header">
+        <div class="day-nav">
+          <button onclick="changeDay(-1)">← Vorige dag</button>
+          <button onclick="goToday()">Vandaag</button>
+          <button onclick="changeDay(1)">Volgende dag →</button>
+        </div>
+        <h2 class="day-title" id="day-view-title"></h2>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input type="date" id="day-picker" style="background:rgba(255,255,255,.07);border:1px solid var(--border);border-radius:8px;padding:7px 12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.85rem;outline:none;" onchange="goToDate(this.value)">
+          <div style="display:flex;gap:8px;font-size:.75rem;color:var(--muted);align-items:center;">
+            <span style="display:inline-flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;background:rgba(26,127,117,.3);border-radius:3px;display:inline-block;"></span>Geboekt</span>
+            <span style="display:inline-flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;background:rgba(224,82,82,.2);border-radius:3px;display:inline-block;"></span>Geblokkeerd</span>
+            <span style="display:inline-flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;background:rgba(240,180,41,.2);border-radius:3px;display:inline-block;"></span>Outlook</span>
+          </div>
+        </div>
+      </div>
+      <div class="day-timeline" id="day-timeline"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════ TAB: ALLE AFSPRAKEN ══════════════════════ -->
+  <div id="tab-afspraken" class="tab-content">
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Alle afspraken</span>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <input type="text" id="search-appts" placeholder="🔍 Zoek op naam..." style="background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;padding:7px 12px;color:var(--text);font-size:.85rem;outline:none;width:200px;" oninput="renderAllAppts()">
+          <select id="filter-treatment" style="background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;padding:7px 12px;color:var(--text);font-size:.85rem;outline:none;" onchange="renderAllAppts()">
+            <option value="">Alle behandelingen</option>
+            <option>Dry Needling</option><option>Mobilisatie</option><option>Knieartrose</option>
+            <option>Heupprothese Revalidatie</option><option>Hijama Cupping</option>
+            <option>Sportrevalidatie</option><option>Personal Training</option><option>Intake / Kennismaking</option>
+          </select>
+          <select id="filter-period" style="background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;padding:7px 12px;color:var(--text);font-size:.85rem;outline:none;" onchange="renderAllAppts()">
+            <option value="upcoming">Aankomend</option>
+            <option value="today">Vandaag</option>
+            <option value="week">Deze week</option>
+            <option value="all">Alles</option>
+          </select>
+        </div>
+      </div>
+      <div id="all-appts-list"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════ TAB: TIJDSLOTS ══════════════════════ -->
+  <div id="tab-tijdslots" class="tab-content">
+    <div class="grid-2">
+      <!-- Calendar selector -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Selecteer datum</span>
+          <div style="display:flex;gap:6px;">
+            <button class="btn btn-secondary btn-sm" onclick="changeSlotMonth(-1)">‹</button>
+            <span id="slot-month-label" style="padding:6px 12px;font-size:.85rem;font-weight:600;"></span>
+            <button class="btn btn-secondary btn-sm" onclick="changeSlotMonth(1)">›</button>
+          </div>
+        </div>
+        <div class="cal-grid" id="slot-cal-grid"></div>
+        <div style="margin-top:20px;">
+          <div class="panel-header" style="margin-bottom:12px;">
+            <span class="panel-title" style="font-size:.95rem;">Tijdslots — <span id="slots-date-label">selecteer een datum</span></span>
+            <div style="display:flex;gap:6px;">
+              <button class="btn btn-danger btn-sm" onclick="blockAllSlots()">🔒 Dag blokkeren</button>
+              <button class="btn btn-secondary btn-sm" onclick="unblockAllSlots()">🔓 Dag vrijgeven</button>
+            </div>
+          </div>
+          <div class="slots-grid" id="slots-grid"></div>
+        </div>
+      </div>
+
+      <!-- Blocked overview -->
+      <div style="display:flex;flex-direction:column;gap:20px;">
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">Geblokkeerde dagen</span>
+            <button class="btn btn-secondary btn-sm" onclick="renderBlockedOverview()">↻</button>
+          </div>
+          <div id="blocked-overview"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title">Vrije dag / vakantie toevoegen</span></div>
+          <div class="form-row">
+            <div class="form-group"><label>Van</label><input type="date" id="block-from"></div>
+            <div class="form-group"><label>Tot en met</label><input type="date" id="block-to"></div>
+          </div>
+          <div class="form-row single">
+            <div class="form-group"><label>Reden (optioneel)</label><input type="text" id="block-reason" placeholder="bijv. Vakantie, Studiedag..."></div>
+          </div>
+          <button class="btn btn-danger" style="width:100%;" onclick="blockDateRange()">🔒 Periode blokkeren</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════ TAB: ACCOUNTS ══════════════════════ -->
+  <div id="tab-accounts" class="tab-content">
+    <div class="grid-2">
+      <!-- Account list -->
+      <div>
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">Accounts</span>
+            <button class="btn btn-primary btn-sm" onclick="openAddAccount()">+ Account toevoegen</button>
+          </div>
+          <div id="accounts-list" style="display:flex;flex-direction:column;gap:10px;"></div>
+        </div>
+      </div>
+
+      <!-- Edit / change password panel -->
+      <div>
+        <div class="panel" id="edit-account-panel" style="display:none;">
+          <div class="panel-header">
+            <span class="panel-title" id="edit-panel-title">Account bewerken</span>
+            <button class="btn btn-secondary btn-sm" onclick="closeEditPanel()">✕ Sluiten</button>
+          </div>
+          <div class="form-row single">
+            <div class="form-group"><label>Gebruikersnaam</label><input type="text" id="edit-username" placeholder="gebruikersnaam"></div>
+          </div>
+          <div class="form-row single">
+            <div class="form-group"><label>Rol</label>
+              <select id="edit-role">
+                <option value="admin">Beheerder (Admin)</option>
+                <option value="medewerker">Medewerker</option>
+              </select>
+            </div>
+          </div>
+          <div style="border-top:1px solid var(--border);padding-top:18px;margin-top:4px;margin-bottom:18px;">
+            <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">Wachtwoord wijzigen (laat leeg om te behouden)</p>
+            <div class="form-row single">
+              <div class="form-group"><label>Nieuw wachtwoord</label><input type="password" id="edit-newpass" placeholder="Nieuw wachtwoord..."></div>
+            </div>
+            <div class="form-row single">
+              <div class="form-group"><label>Herhaal wachtwoord</label><input type="password" id="edit-confirmpass" placeholder="Nogmaals invoeren..."></div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;">
+            <button class="btn btn-primary" style="flex:1;" onclick="saveAccount()">✓ Opslaan</button>
+            <button class="btn btn-danger" onclick="deleteAccountConfirm()" id="delete-account-btn">🗑 Verwijderen</button>
+          </div>
+        </div>
+
+        <div class="panel" id="add-account-panel" style="display:none;">
+          <div class="panel-header">
+            <span class="panel-title">Nieuw account</span>
+            <button class="btn btn-secondary btn-sm" onclick="closeAddPanel()">✕ Sluiten</button>
+          </div>
+          <div class="form-row single">
+            <div class="form-group"><label>Gebruikersnaam</label><input type="text" id="add-username" placeholder="bijv. fysio_jan"></div>
+          </div>
+          <div class="form-row single">
+            <div class="form-group"><label>Wachtwoord</label><input type="password" id="add-password" placeholder="Wachtwoord..."></div>
+          </div>
+          <div class="form-row single">
+            <div class="form-group"><label>Herhaal wachtwoord</label><input type="password" id="add-confirmpass" placeholder="Nogmaals..."></div>
+          </div>
+          <div class="form-row single">
+            <div class="form-group"><label>Rol</label>
+              <select id="add-role">
+                <option value="medewerker">Medewerker</option>
+                <option value="admin">Beheerder (Admin)</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn btn-primary" style="width:100%;margin-top:4px;" onclick="addAccount()">Account aanmaken</button>
+        </div>
+
+        <div class="panel" style="background:rgba(240,180,41,.05);border-color:rgba(240,180,41,.15);">
+          <div class="panel-title" style="margin-bottom:10px;">🔐 Beveiligingsinfo</div>
+          <p style="font-size:.82rem;color:var(--muted);line-height:1.7;">Wachtwoorden worden lokaal opgeslagen in de browser. Voor productie-gebruik raden wij aan een backend authenticatieservice te gebruiken.<br><br>Maximaal <strong style="color:var(--text);">10 accounts</strong> ondersteund.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════ TAB: INSTELLINGEN ══════════════════════ -->
+  <div id="tab-instellingen" class="tab-content">
+    <div class="grid-2">
+      <!-- Outlook config -->
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">☁️ Outlook Agenda Sync</span></div>
+        <div class="outlook-panel">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+            <div style="width:40px;height:40px;background:rgba(0,114,206,.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;">📧</div>
+            <div>
+              <div id="outlook-panel-title" style="font-weight:600;">Outlook Agenda Sync</div>
+              <div id="outlook-panel-sub" style="font-size:.8rem;color:var(--muted);">Verbind met Microsoft Outlook voor live synchronisatie</div>
+            </div>
+          </div>
+          <div class="outlook-actions">
+            <button class="outlook-btn" id="outlook-connect-btn" onclick="toggleOutlook()">
+              <span id="outlook-btn-label">📧 Verbinden met Outlook</span>
+            </button>
+            <button class="btn btn-secondary btn-sm" id="btn-sync-now" style="display:none;" onclick="syncFromOutlook()">
+              <span id="sync-spinner" style="display:none;">⏳</span>
+              <span id="sync-label">↻ Nu synchroniseren</span>
+            </button>
+            <button class="btn btn-danger btn-sm" id="btn-disconnect" style="display:none;" onclick="disconnectOutlook()">Loskoppelen</button>
+          </div>
+        </div>
+        <div class="form-row single" style="margin-top:8px;">
+          <div class="form-group">
+            <label>Azure Application Client ID</label>
+            <input type="text" id="azure-client-id" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
+            <p style="font-size:.75rem;color:var(--muted);margin-top:5px;">Geconfigureerd: <span id="client-id-preview">—</span></p>
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="saveAzureConfig()">Opslaan</button>
+
+        <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--border);">
+          <p style="font-size:.82rem;font-weight:600;margin-bottom:10px;color:var(--muted);">Azure setup (5 minuten):</p>
+          <ol style="font-size:.8rem;color:var(--muted);line-height:2;padding-left:18px;">
+            <li>Ga naar <strong style="color:var(--text);">portal.azure.com</strong> → App registrations → New registration</li>
+            <li>Naam: <code style="background:rgba(255,255,255,.08);padding:1px 6px;border-radius:4px;">Diasco Portaal</code></li>
+            <li>Redirect URI (SPA): <code style="background:rgba(255,255,255,.08);padding:1px 6px;border-radius:4px;word-break:break-all;" id="redirect-uri-preview"></code></li>
+            <li>API permissions → Microsoft Graph → Delegated → <code style="background:rgba(255,255,255,.08);padding:1px 6px;border-radius:4px;">Calendars.ReadWrite</code></li>
+            <li>Kopieer <strong style="color:var(--text);">Application (client) ID</strong> en plak hierboven</li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- Praktijk info -->
+      <div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title">🏥 Praktijk instellingen</span></div>
+          <div class="form-row single">
+            <div class="form-group"><label>Openingstijd</label>
+              <select id="setting-open">
+                <option value="07:00">07:00</option><option value="07:30">07:30</option>
+                <option value="08:00" selected>08:00</option><option value="08:30">08:30</option><option value="09:00">09:00</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row single">
+            <div class="form-group"><label>Sluitingstijd</label>
+              <select id="setting-close">
+                <option value="16:00">16:00</option><option value="16:30">16:30</option>
+                <option value="17:00" selected>17:00</option><option value="17:30">17:30</option><option value="18:00">18:00</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row single">
+            <div class="form-group"><label>Tijdslot interval</label>
+              <select id="setting-interval">
+                <option value="30" selected>30 minuten</option>
+                <option value="45">45 minuten</option>
+                <option value="60">60 minuten</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="savePraktijkSettings()">Opslaan</button>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title">📊 Statistieken</span></div>
+          <div style="display:flex;flex-direction:column;gap:10px;font-size:.88rem;">
+            <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);">
+              <span style="color:var(--muted);">Totaal afspraken</span><strong id="stat-total">—</strong>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);">
+              <span style="color:var(--muted);">Outlook events</span><strong id="stat-outlook-count">—</strong>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:10px 0;">
+              <span style="color:var(--muted);">Outlook status</span><strong id="stat-outlook-label">Niet verbonden</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /dashboard -->
+
+<!-- ── MODALS ──────────────────────────────────────────── -->
 <div class="modal-overlay" id="delete-modal">
   <div class="modal">
     <h3>Afspraak verwijderen</h3>
-    <p>Weet je zeker? Als Outlook sync actief is, wordt de afspraak ook uit Outlook verwijderd.</p>
+    <p>Weet u zeker dat u deze afspraak wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.</p>
     <div class="modal-actions">
-      <button class="modal-cancel" onclick="closeModal('delete-modal')">Annuleren</button>
-      <button class="modal-confirm" onclick="confirmDelete()">Verwijderen</button>
+      <button class="btn btn-secondary" onclick="closeModal('delete-modal')">Annuleren</button>
+      <button class="btn btn-danger" onclick="confirmDelete()">Verwijderen</button>
     </div>
   </div>
 </div>
 
-<!-- SETUP MODAL -->
-<div class="modal-overlay" id="setup-modal">
-  <div class="modal" style="width:500px;max-width:95vw;">
-    <h3>⚙️ Outlook Sync — Azure instellen</h3>
-    <p>Voer je Microsoft Azure Client ID in. Eenmalig instellen, daarna werkt de sync automatisch.</p>
-    <div class="form-field">
-      <label>Azure App Client ID</label>
-      <input type="text" id="azure-client-id" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" style="font-family:monospace;font-size:.85rem;">
-    </div>
-    <div class="setup-steps">
-      <strong style="color:rgba(255,255,255,.8);">📋 Eenmalige setup (5 minuten):</strong><br>
-      1. Ga naar <a href="https://portal.azure.com" target="_blank">portal.azure.com</a> → log in met je Microsoft account<br>
-      2. Zoek <strong>"App registrations"</strong> → klik <strong>+ New registration</strong><br>
-      3. Naam: <code>Diasco Portaal</code> | Account type: <em>Personal Microsoft accounts</em><br>
-      4. Redirect URI: <code>https://diasco3.vercel.app/admin.html</code> (type: SPA)<br>
-      5. Klik <strong>Register</strong> → kopieer de <strong>Application (client) ID</strong><br>
-      6. Ga naar <strong>API permissions</strong> → Add a permission → Microsoft Graph → Delegated → <strong>Calendars.ReadWrite</strong><br>
-      7. Plak de Client ID hierboven en klik Opslaan
-    </div>
+<div class="modal-overlay" id="delete-account-modal">
+  <div class="modal">
+    <h3>Account verwijderen</h3>
+    <p>Weet u zeker dat u dit account wilt verwijderen? De gebruiker kan niet meer inloggen.</p>
     <div class="modal-actions">
-      <button class="modal-cancel" onclick="closeModal('setup-modal')">Sluiten</button>
-      <button class="modal-save" onclick="saveAzureConfig()">Opslaan</button>
+      <button class="btn btn-secondary" onclick="closeModal('delete-account-modal')">Annuleren</button>
+      <button class="btn btn-danger" onclick="confirmDeleteAccount()">Verwijderen</button>
     </div>
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="modal-overlay" id="block-slot-modal">
+  <div class="modal">
+    <h3 id="block-modal-title">Tijdslot blokkeren</h3>
+    <p id="block-modal-text"></p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('block-slot-modal')">Annuleren</button>
+      <button class="btn btn-danger" id="block-modal-confirm" onclick="">Blokkeren</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
 
 <script>
-// ══ CONFIG ══
-let AZURE_CLIENT_ID = localStorage.getItem('diasco_azure_client_id') || '';
-const REDIRECT_URI = window.location.href.split('?')[0].split('#')[0];
-const GRAPH_SCOPES = ['Calendars.ReadWrite','User.Read'];
-let msalInstance = null, outlookAccount = null;
-let outlookEvents = [], outlookBusySlots = {};
+// ══════════════════════════════════════════════════
+// DATA & STATE
+// ══════════════════════════════════════════════════
 
-// ══ LOCAL DATA ══
-const USERS = { diasco:'admin123', medewerker:'diasco2024' };
+// Accounts — load from localStorage or use defaults
+let accounts = JSON.parse(localStorage.getItem('diasco_accounts') || 'null');
+if (!accounts) {
+  accounts = [
+    { id: 1, username: 'diasco', password: 'admin123', role: 'admin' },
+    { id: 2, username: 'medewerker', password: 'diasco2024', role: 'medewerker' }
+  ];
+  saveAccounts();
+}
+function saveAccounts() { localStorage.setItem('diasco_accounts', JSON.stringify(accounts)); }
+
+// Appointments — merge both keys
 let appointments = (function(){
-  var a1 = JSON.parse(localStorage.getItem('diasco_appts')||'[]');
-  var a2 = JSON.parse(localStorage.getItem('diasco_bookings')||'[]');
-  var merged = a1.concat(a2);
-  var seen = {};
-  return merged.filter(function(b){ if(seen[b.id]) return false; seen[b.id]=true; return true; });
+  var a1 = JSON.parse(localStorage.getItem('diasco_appts') || '[]');
+  var a2 = JSON.parse(localStorage.getItem('diasco_bookings') || '[]');
+  var merged = a1.concat(a2), seen = {};
+  return merged.filter(b => { if (seen[b.id]) return false; seen[b.id] = true; return true; });
 })();
-if(!appointments.length){
-  const t=new Date(), fmt=d=>d.toISOString().split('T')[0], ts=fmt(t);
-  const tom=new Date(t); tom.setDate(t.getDate()+1);
-  appointments=[
-    {id:1,name:'Ahmed El Amrani',phone:'06-12345678',date:ts,time:'09:00',treatment:'Dry Needling',notes:'',outlookEventId:null},
-    {id:2,name:'Fatima Benali',phone:'06-87654321',date:ts,time:'10:30',treatment:'Knieartrose',notes:'Post-operatief',outlookEventId:null},
-    {id:3,name:'Jan de Vries',phone:'06-11223344',date:ts,time:'14:00',treatment:'Mobilisatie',notes:'',outlookEventId:null},
-    {id:4,name:'Sara Yilmaz',phone:'06-55667788',date:fmt(tom),time:'09:30',treatment:'Hijama Cupping',notes:'',outlookEventId:null},
+if (!appointments.length) {
+  const ts = new Date().toISOString().split('T')[0];
+  const tom = new Date(); tom.setDate(tom.getDate() + 1);
+  const ts2 = tom.toISOString().split('T')[0];
+  appointments = [
+    { id: 1, fname: 'Ahmed', lname: 'El Amrani', email: 'ahmed@mail.nl', phone: '06-12345678', date: ts, time: '09:00', treatment: 'Dry Needling', notes: '' },
+    { id: 2, fname: 'Fatima', lname: 'Benali', email: 'fatima@mail.nl', phone: '06-87654321', date: ts, time: '10:30', treatment: 'Knieartrose', notes: 'Post-operatief' },
+    { id: 3, fname: 'Jan', lname: 'de Vries', email: 'jan@mail.nl', phone: '06-11223344', date: ts, time: '14:00', treatment: 'Mobilisatie', notes: '' },
+    { id: 4, fname: 'Sara', lname: 'Yilmaz', email: 'sara@mail.nl', phone: '06-55667788', date: ts2, time: '09:30', treatment: 'Hijama Cupping', notes: '' },
   ];
   saveAppts();
 }
-function saveAppts(){localStorage.setItem('diasco_appts',JSON.stringify(appointments));localStorage.setItem('diasco_bookings',JSON.stringify(appointments));}
-
-// ══ MSAL ══
-function initMSAL(){
-  if(!AZURE_CLIENT_ID||msalInstance)return;
-  try{
-    msalInstance=new msal.PublicClientApplication({
-      auth:{clientId:AZURE_CLIENT_ID,authority:'https://login.microsoftonline.com/common',redirectUri:REDIRECT_URI},
-      cache:{cacheLocation:'localStorage',storeAuthStateInCookie:false}
-    });
-    msalInstance.handleRedirectPromise().then(r=>{
-      if(r){outlookAccount=r.account;msalInstance.setActiveAccount(outlookAccount);onOutlookConnected();}
-      else{const a=msalInstance.getAllAccounts();if(a.length){outlookAccount=a[0];msalInstance.setActiveAccount(outlookAccount);onOutlookConnected();}}
-    }).catch(e=>console.warn('MSAL redirect:',e));
-  }catch(e){console.warn('MSAL init:',e);}
+function saveAppts() {
+  localStorage.setItem('diasco_appts', JSON.stringify(appointments));
+  localStorage.setItem('diasco_bookings', JSON.stringify(appointments));
 }
 
-// ══ AUTH ══
-function doLogin(){
-  const u=document.getElementById('login-user').value.trim(), p=document.getElementById('login-pass').value;
-  if(USERS[u]&&USERS[u]===p){
-    document.getElementById('login-page').style.display='none';
-    document.getElementById('dashboard').style.display='block';
-    document.getElementById('topbar-username').textContent=u;
+// Blocked slots
+let blockedSlots = JSON.parse(localStorage.getItem('diasco_blocked') || '{}');
+// { "2026-03-15": ["09:00","10:00"], "2026-03-20": ["all"] }
+function saveBlocked() { localStorage.setItem('diasco_blocked', JSON.stringify(blockedSlots)); }
+
+// ── Outlook
+let AZURE_CLIENT_ID = localStorage.getItem('diasco_azure_client_id') || '';
+const REDIRECT_URI = window.location.href.split('?')[0].split('#')[0];
+const GRAPH_SCOPES = ['Calendars.ReadWrite', 'User.Read'];
+let msalInstance = null, outlookAccount = null, outlookEvents = [], outlookBusySlots = {};
+
+// ── UI state
+let calDate = new Date(), selectedDate = new Date();
+let slotCalDate = new Date(), selectedSlotDate = new Date();
+let dayViewDate = new Date();
+let currentUser = null, editingAccountId = null;
+let deleteId = null;
+
+const MONTHS = ['Januari','Februari','Maart','April','Mei','Juni','Juli','Augustus','September','Oktober','November','December'];
+const DAYS = ['Ma','Di','Wo','Do','Vr','Za','Zo'];
+const TIMES = ['08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30','12:00','12:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30'];
+
+// ══════════════════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════════════════
+function doLogin() {
+  const u = document.getElementById('login-user').value.trim();
+  const p = document.getElementById('login-pass').value;
+  const acct = accounts.find(a => a.username === u && a.password === p);
+  if (acct) {
+    currentUser = acct;
+    document.getElementById('login-page').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    document.getElementById('topbar-username').textContent = u;
     initDashboard();
-  }else{document.getElementById('login-error').style.display='block';}
-}
-function doLogout(){
-  document.getElementById('dashboard').style.display='none';
-  document.getElementById('login-page').style.display='flex';
-  document.getElementById('login-user').value='';
-  document.getElementById('login-pass').value='';
-  document.getElementById('login-error').style.display='none';
-}
-document.getElementById('login-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
-document.getElementById('login-user').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
-
-// ══ OUTLOOK CONNECT ══
-async function connectOutlook(){
-  if(!AZURE_CLIENT_ID){openSetup();return;}
-  if(!msalInstance)initMSAL();
-  try{
-    showToast('⏳ Outlook venster openen...');
-    const r=await msalInstance.loginPopup({scopes:GRAPH_SCOPES,prompt:'select_account'});
-    outlookAccount=r.account; msalInstance.setActiveAccount(outlookAccount); onOutlookConnected();
-  }catch(e){
-    if(e.errorCode==='popup_window_error'||e.errorCode==='empty_window_error'){
-      msalInstance.loginRedirect({scopes:GRAPH_SCOPES});
-    }else if(e.errorCode!=='user_cancelled'){
-      showToast('❌ Verbinding mislukt: '+((e.message||'').substring(0,60)),true);
-    }
+  } else {
+    document.getElementById('login-error').style.display = 'block';
   }
 }
-
-function onOutlookConnected(){
-  const name=outlookAccount.name||outlookAccount.username;
-  document.getElementById('outlook-btn-label').textContent=name;
-  document.getElementById('outlook-connect-btn').classList.add('connected');
-  document.getElementById('btn-connect-outlook').style.display='none';
-  document.getElementById('btn-sync-now').style.display='flex';
-  document.getElementById('btn-disconnect').style.display='flex';
-  document.getElementById('outlook-panel-title').textContent='✅ Verbonden: '+name;
-  document.getElementById('outlook-panel-sub').textContent='Automatische sync actief — elke 5 minuten';
-  document.getElementById('stat-outlook-label').textContent='Outlook verbonden';
-  showToast('✅ Outlook verbonden als '+name);
-  syncFromOutlook();
+function doLogout() {
+  currentUser = null;
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('login-page').style.display = 'flex';
+  document.getElementById('login-user').value = '';
+  document.getElementById('login-pass').value = '';
+  document.getElementById('login-error').style.display = 'none';
 }
+document.getElementById('login-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+document.getElementById('login-user').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 
-function disconnectOutlook(){
-  if(msalInstance&&outlookAccount){
-    try{msalInstance.logoutPopup({account:outlookAccount});}catch(e){msalInstance.logoutRedirect({account:outlookAccount});}
-  }
-  outlookAccount=null; outlookEvents=[]; outlookBusySlots={};
-  document.getElementById('outlook-btn-label').textContent='Outlook verbinden';
-  document.getElementById('outlook-connect-btn').classList.remove('connected');
-  document.getElementById('btn-connect-outlook').style.display='flex';
-  document.getElementById('btn-sync-now').style.display='none';
-  document.getElementById('btn-disconnect').style.display='none';
-  document.getElementById('outlook-panel-title').textContent='Outlook Agenda Sync';
-  document.getElementById('outlook-panel-sub').textContent='Verbind met jouw Microsoft Outlook voor live synchronisatie';
-  document.getElementById('stat-outlook-label').textContent='Niet verbonden';
-  document.getElementById('stat-outlook-count').textContent='—';
-  renderCalendar(); renderSlots(selectedDate);
-}
-
-function toggleOutlook(){if(outlookAccount)disconnectOutlook();else connectOutlook();}
-
-async function getToken(){
-  if(!msalInstance||!outlookAccount)return null;
-  try{const r=await msalInstance.acquireTokenSilent({scopes:GRAPH_SCOPES,account:outlookAccount});return r.accessToken;}
-  catch(e){try{const r=await msalInstance.acquireTokenPopup({scopes:GRAPH_SCOPES});return r.accessToken;}catch(e2){showToast('❌ Sessie verlopen, log opnieuw in',true);return null;}}
-}
-
-// ══ SYNC FROM OUTLOOK ══
-async function syncFromOutlook(){
-  if(!outlookAccount)return;
-  document.getElementById('sync-spinner').style.display='inline';
-  document.getElementById('sync-label').textContent='Synchroniseren...';
-  const token=await getToken();
-  if(!token){document.getElementById('sync-spinner').style.display='none';return;}
-  try{
-    const now=new Date(), end=new Date(); end.setDate(end.getDate()+60);
-    const r=await fetch(
-      `https://graph.microsoft.com/v1.0/me/calendarView?startDateTime=${now.toISOString()}&endDateTime=${end.toISOString()}&$select=subject,start,end,id&$top=150`,
-      {headers:{Authorization:'Bearer '+token}}
-    );
-    if(!r.ok)throw new Error('Graph '+r.status);
-    const data=await r.json();
-    outlookEvents=data.value||[];
-    outlookBusySlots={};
-    outlookEvents.forEach(ev=>{
-      const date=ev.start.dateTime.split('T')[0];
-      const t=ev.start.dateTime.split('T')[1].substring(0,5);
-      const[h,m]=t.split(':').map(Number);
-      const slot=`${String(h).padStart(2,'0')}:${m<30?'00':'30'}`;
-      if(!outlookBusySlots[date])outlookBusySlots[date]=[];
-      if(!outlookBusySlots[date].includes(slot))outlookBusySlots[date].push(slot);
-    });
-    document.getElementById('stat-outlook-count').textContent=outlookEvents.length;
-    document.getElementById('stat-outlook-label').textContent='Events gesynchroniseerd';
-    showToast('🔄 '+outlookEvents.length+' Outlook events gesynchroniseerd');
-    renderCalendar(); renderSlots(selectedDate); renderTodayAppts();
-  }catch(e){showToast('❌ Sync fout: '+e.message,true);}
-  document.getElementById('sync-spinner').style.display='none';
-  document.getElementById('sync-label').textContent='Nu synchroniseren';
-}
-
-// ══ ADD TO OUTLOOK ══
-async function addToOutlook(appt){
-  const token=await getToken(); if(!token)return null;
-  const start=new Date(appt.date+'T'+appt.time+':00');
-  const end=new Date(start.getTime()+60*60*1000);
-  try{
-    const r=await fetch('https://graph.microsoft.com/v1.0/me/events',{
-      method:'POST',
-      headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},
-      body:JSON.stringify({
-        subject:appt.treatment+' — '+appt.name,
-        body:{contentType:'Text',content:'Patiënt: '+appt.name+'\nTelefoon: '+(appt.phone||'-')+'\nNotities: '+(appt.notes||'-')},
-        start:{dateTime:start.toISOString(),timeZone:'Europe/Amsterdam'},
-        end:{dateTime:end.toISOString(),timeZone:'Europe/Amsterdam'},
-        location:{displayName:'Diasco Fysiotherapie Amsterdam'},
-        categories:['Diasco']
-      })
-    });
-    if(!r.ok)throw new Error('status '+r.status);
-    const ev=await r.json(); return ev.id;
-  }catch(e){showToast('⚠️ Outlook sync mislukt: '+e.message,true);return null;}
-}
-
-async function deleteFromOutlook(eid){
-  if(!eid||!outlookAccount)return;
-  const token=await getToken(); if(!token)return;
-  try{await fetch('https://graph.microsoft.com/v1.0/me/events/'+eid,{method:'DELETE',headers:{Authorization:'Bearer '+token}});}
-  catch(e){console.warn('Outlook delete:',e);}
-}
-
-// ══ CALENDAR ══
-let calDate=new Date(), selectedDate=new Date();
-const MONTHS=['Januari','Februari','Maart','April','Mei','Juni','Juli','Augustus','September','Oktober','November','December'];
-const DAYS=['Ma','Di','Wo','Do','Vr','Za','Zo'];
-const TIMES=['08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30','12:00','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00'];
-
-function initDashboard(){
-  if(AZURE_CLIENT_ID){
-    document.getElementById('setup-banner').style.display='none';
-    document.getElementById('client-id-preview').textContent=AZURE_CLIENT_ID.substring(0,8)+'...';
+// ══════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════
+function initDashboard() {
+  if (AZURE_CLIENT_ID) {
+    document.getElementById('setup-banner').style.display = 'none';
+    document.getElementById('client-id-preview').textContent = AZURE_CLIENT_ID.substring(0, 8) + '...';
     initMSAL();
   }
-  document.getElementById('azure-client-id').value=AZURE_CLIENT_ID;
-  document.getElementById('new-date').value=new Date().toISOString().split('T')[0];
-  renderCalendar(); renderSlots(selectedDate); renderTodayAppts(); updateStats();
+  document.getElementById('azure-client-id').value = AZURE_CLIENT_ID;
+  document.getElementById('new-date').value = new Date().toISOString().split('T')[0];
+  document.getElementById('redirect-uri-preview').textContent = REDIRECT_URI;
+  renderCalendar();
+  renderTodayAppts();
+  updateStats();
+  renderDayView();
+  renderSlotCalendar();
+  renderSlots(selectedSlotDate);
+  renderBlockedOverview();
+  renderAllAppts();
+  renderAccountsList();
 }
 
-function changeMonth(dir){calDate.setMonth(calDate.getMonth()+dir);renderCalendar();}
+// ══════════════════════════════════════════════════
+// TAB SWITCHING
+// ══════════════════════════════════════════════════
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  const tabs = ['overzicht','dagplanning','afspraken','tijdslots','accounts','instellingen'];
+  const idx = tabs.indexOf(tab);
+  document.querySelectorAll('.tab-btn')[idx].classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+  if (tab === 'dagplanning') renderDayView();
+  if (tab === 'afspraken') renderAllAppts();
+  if (tab === 'tijdslots') { renderSlotCalendar(); renderSlots(selectedSlotDate); renderBlockedOverview(); }
+  if (tab === 'accounts') renderAccountsList();
+}
 
-function renderCalendar(){
-  const grid=document.getElementById('cal-grid');
-  document.getElementById('cal-month-label').textContent=MONTHS[calDate.getMonth()]+' '+calDate.getFullYear();
-  grid.innerHTML=DAYS.map(d=>`<div class="cal-day-name">${d}</div>`).join('');
-  const first=new Date(calDate.getFullYear(),calDate.getMonth(),1);
-  let sd=first.getDay(); sd=sd===0?6:sd-1;
-  const dim=new Date(calDate.getFullYear(),calDate.getMonth()+1,0).getDate();
-  const dip=new Date(calDate.getFullYear(),calDate.getMonth(),0).getDate();
-  const today=new Date();
-  for(let i=sd-1;i>=0;i--)grid.innerHTML+=`<div class="cal-day other-month">${dip-i}</div>`;
-  for(let d=1;d<=dim;d++){
-    const ds=`${calDate.getFullYear()}-${String(calDate.getMonth()+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const isT=today.getDate()===d&&today.getMonth()===calDate.getMonth()&&today.getFullYear()===calDate.getFullYear();
-    const isSel=selectedDate.getDate()===d&&selectedDate.getMonth()===calDate.getMonth()&&selectedDate.getFullYear()===calDate.getFullYear();
-    const hasL=appointments.some(a=>a.date===ds);
-    const hasO=outlookBusySlots[ds]&&outlookBusySlots[ds].length>0;
-    let cls='cal-day'+(isT?' today':'')+(isSel?' selected':'')+(hasO?' has-outlook':hasL?' has-appt':'');
-    grid.innerHTML+=`<div class="${cls}" onclick="selectDay(${d})">${d}</div>`;
+// ══════════════════════════════════════════════════
+// OVERVIEW CALENDAR
+// ══════════════════════════════════════════════════
+function changeMonth(dir) { calDate.setMonth(calDate.getMonth() + dir); renderCalendar(); }
+
+function renderCalendar() {
+  const grid = document.getElementById('cal-grid');
+  document.getElementById('cal-month-label').textContent = MONTHS[calDate.getMonth()] + ' ' + calDate.getFullYear();
+  grid.innerHTML = DAYS.map(d => `<div class="cal-day-name">${d}</div>`).join('');
+  const first = new Date(calDate.getFullYear(), calDate.getMonth(), 1);
+  let sd = first.getDay(); sd = sd === 0 ? 6 : sd - 1;
+  const dim = new Date(calDate.getFullYear(), calDate.getMonth() + 1, 0).getDate();
+  const today = new Date();
+  for (let i = sd - 1; i >= 0; i--) grid.innerHTML += `<div class="cal-day other-month"></div>`;
+  for (let d = 1; d <= dim; d++) {
+    const ds = `${calDate.getFullYear()}-${String(calDate.getMonth()+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isT = today.getDate()===d && today.getMonth()===calDate.getMonth() && today.getFullYear()===calDate.getFullYear();
+    const isSel = selectedDate.getDate()===d && selectedDate.getMonth()===calDate.getMonth() && selectedDate.getFullYear()===calDate.getFullYear();
+    const hasL = appointments.some(a => a.date === ds);
+    const hasO = outlookBusySlots[ds] && outlookBusySlots[ds].length > 0;
+    let cls = 'cal-day' + (isT?' today':'') + (isSel?' selected':'') + (hasO?' has-outlook':hasL?' has-appt':'');
+    grid.innerHTML += `<div class="${cls}" onclick="selectOvDay(${d})">${d}</div>`;
   }
-  const rem=(sd+dim)%7; if(rem)for(let i=1;i<=7-rem;i++)grid.innerHTML+=`<div class="cal-day other-month">${i}</div>`;
 }
 
-function selectDay(d){selectedDate=new Date(calDate.getFullYear(),calDate.getMonth(),d);renderCalendar();renderSlots(selectedDate);}
-
-function renderSlots(date){
-  const ds=date.toISOString().split('T')[0];
-  document.getElementById('slots-date-label').textContent=date.toLocaleDateString('nl-NL',{weekday:'long',day:'numeric',month:'long'});
-  const local=appointments.filter(a=>a.date===ds).map(a=>a.time);
-  const busy=outlookBusySlots[ds]||[];
-  const weekend=date.getDay()===0||date.getDay()===6;
-  document.getElementById('slots-grid').innerHTML=TIMES.map(t=>{
-    if(weekend)return`<div class="slot blocked">${t}</div>`;
-    if(local.includes(t))return`<div class="slot booked" title="Diasco afspraak">${t}</div>`;
-    if(busy.includes(t))return`<div class="slot outlook-busy" title="Bezet in Outlook">📅${t}</div>`;
-    return`<div class="slot free" onclick="prefillTime('${ds}','${t}')">${t}</div>`;
-  }).join('');
+function selectOvDay(d) {
+  selectedDate = new Date(calDate.getFullYear(), calDate.getMonth(), d);
+  renderCalendar();
 }
 
-function prefillTime(date,time){
-  document.getElementById('new-date').value=date;
-  document.getElementById('new-time').value=time;
-  document.querySelector('.sidebar').scrollIntoView({behavior:'smooth'});
+// ══════════════════════════════════════════════════
+// TODAY APPOINTMENTS
+// ══════════════════════════════════════════════════
+function apptName(a) {
+  if (a.fname && a.lname) return a.fname + ' ' + a.lname;
+  return a.name || 'Onbekend';
 }
 
-// ══ APPOINTMENTS ══
-function renderTodayAppts(){
-  const ts=new Date().toISOString().split('T')[0];
-  const local=appointments.filter(a=>a.date===ts).sort((a,b)=>a.time.localeCompare(b.time));
-  const outlookToday=(outlookEvents||[]).filter(ev=>ev.start&&ev.start.dateTime&&ev.start.dateTime.startsWith(ts));
-  let html='';
-  local.forEach(a=>{
-    html+=`<div class="appt-item">
+function renderTodayAppts() {
+  const ts = new Date().toISOString().split('T')[0];
+  const local = appointments.filter(a => a.date === ts).sort((a, b) => a.time.localeCompare(b.time));
+  const outlookToday = (outlookEvents || []).filter(ev => ev.start && ev.start.dateTime && ev.start.dateTime.startsWith(ts));
+  let html = '';
+  local.forEach(a => {
+    html += `<div class="appt-item">
       <div class="appt-time-badge">${a.time}</div>
       <div class="appt-info">
-        <div class="appt-name">${a.name}${a.outlookEventId?'<span class="appt-sync-badge">📅 Outlook</span>':''}</div>
-        <div class="appt-treatment">${a.treatment}</div>
+        <div class="appt-name">${apptName(a)}</div>
+        <div class="appt-treatment">${a.treatment}${a.phone ? ' · ' + a.phone : ''}</div>
       </div>
       <div class="appt-actions">
-        <button class="appt-btn confirm" onclick="showToast('✓ Bevestigd voor ${a.name.split(' ')[0]}')">✓</button>
-        <button class="appt-btn" onclick="deleteAppt(${a.id})">✕</button>
+        <button class="appt-btn danger" onclick="deleteAppt(${a.id})" title="Verwijderen">✕</button>
       </div>
     </div>`;
   });
-  outlookToday.forEach(ev=>{
-    if(appointments.some(a=>a.outlookEventId===ev.id))return;
-    const time=ev.start.dateTime.split('T')[1].substring(0,5);
-    html+=`<div class="appt-item">
+  outlookToday.forEach(ev => {
+    if (appointments.some(a => a.outlookEventId === ev.id)) return;
+    const time = ev.start.dateTime.split('T')[1].substring(0, 5);
+    html += `<div class="appt-item">
       <div class="appt-time-badge outlook-badge">${time}</div>
       <div class="appt-info">
-        <div class="appt-name">${ev.subject}<span class="appt-sync-badge">Outlook</span></div>
+        <div class="appt-name">${ev.subject} <span class="appt-sync-badge">Outlook</span></div>
         <div class="appt-treatment">Uit Outlook agenda</div>
       </div>
     </div>`;
   });
-  document.getElementById('todays-appts').innerHTML=html||'<p style="color:rgba(255,255,255,.3);font-size:.85rem;text-align:center;padding:16px 0">Geen afspraken vandaag</p>';
+  document.getElementById('todays-appts').innerHTML = html || '<p style="color:var(--muted);font-size:.85rem;text-align:center;padding:16px 0;">Geen afspraken vandaag</p>';
 }
 
-async function addAppointment(){
-  const name=document.getElementById('new-name').value.trim();
-  const phone=document.getElementById('new-phone').value.trim();
-  const date=document.getElementById('new-date').value;
-  const time=document.getElementById('new-time').value;
-  const treatment=document.getElementById('new-treatment').value;
-  const notes=document.getElementById('new-notes').value;
-  const sync=document.getElementById('sync-to-outlook').checked;
-  if(!name||!date||!time||!treatment){showToast('⚠️ Vul alle verplichte velden in',true);return;}
-  if(appointments.find(a=>a.date===date&&a.time===time)){showToast('⚠️ Tijdslot al bezet',true);return;}
-  const appt={id:Date.now(),name,phone,date,time,treatment,notes,outlookEventId:null};
-  if(sync&&outlookAccount){
+// ══════════════════════════════════════════════════
+// DAY VIEW
+// ══════════════════════════════════════════════════
+function changeDay(dir) {
+  dayViewDate.setDate(dayViewDate.getDate() + dir);
+  renderDayView();
+}
+function goToday() { dayViewDate = new Date(); renderDayView(); }
+function goToDate(val) { dayViewDate = new Date(val); renderDayView(); }
+
+function renderDayView() {
+  const ds = dayViewDate.toISOString().split('T')[0];
+  const dayNames = ['zondag','maandag','dinsdag','woensdag','donderdag','vrijdag','zaterdag'];
+  document.getElementById('day-view-title').textContent =
+    dayNames[dayViewDate.getDay()] + ' ' + dayViewDate.getDate() + ' ' + MONTHS[dayViewDate.getMonth()] + ' ' + dayViewDate.getFullYear();
+  document.getElementById('day-picker').value = ds;
+
+  const isWeekend = dayViewDate.getDay() === 0 || dayViewDate.getDay() === 6;
+  const dayAppts = appointments.filter(a => a.date === ds);
+  const busy = outlookBusySlots[ds] || [];
+  const blocked = blockedSlots[ds] || [];
+  const allBlocked = blocked.includes('all');
+
+  let html = '';
+  TIMES.forEach(t => {
+    const appt = dayAppts.find(a => a.time === t);
+    const isOutlook = busy.includes(t);
+    const isBlocked = allBlocked || blocked.includes(t);
+
+    let cls, inner, actions = '';
+    if (isWeekend) {
+      cls = 'weekend'; inner = '<span class="cell-free-label">Weekend — gesloten</span>';
+    } else if (appt) {
+      cls = 'booked';
+      inner = `<div class="cell-name">${apptName(appt)}</div><div class="cell-sub">${appt.treatment}${appt.phone ? ' · ' + appt.phone : ''}${appt.notes ? ' · ' + appt.notes : ''}</div>`;
+      actions = `<button class="appt-btn danger" onclick="deleteAppt(${appt.id})" title="Verwijderen" style="opacity:1;">✕</button>`;
+    } else if (isBlocked) {
+      cls = 'blocked';
+      inner = `<span class="cell-blocked-label">🔒 Geblokkeerd</span>`;
+      actions = `<button class="appt-btn" onclick="unblockSlot('${ds}','${t}')" title="Vrijgeven" style="opacity:1;font-size:.7rem;">🔓</button>`;
+    } else if (isOutlook) {
+      cls = 'outlook'; inner = `<div class="cell-name">📅 Outlook bezet</div><div class="cell-sub">Bezet in Microsoft agenda</div>`;
+    } else {
+      cls = 'free';
+      inner = `<span class="cell-free-label">Beschikbaar — klik om te blokkeren of in te plannen</span>`;
+      actions = `<button class="appt-btn" onclick="prefillFromDay('${ds}','${t}')" title="Afspraak plannen" style="opacity:1;">+</button>
+                 <button class="appt-btn danger" onclick="blockSlotConfirm('${ds}','${t}')" title="Blokkeren" style="opacity:1;">🔒</button>`;
+    }
+
+    html += `<div class="timeline-row">
+      <div class="timeline-time">${t}</div>
+      <div class="timeline-cell ${cls}">${inner}<div class="cell-actions">${actions}</div></div>
+    </div>`;
+  });
+  document.getElementById('day-timeline').innerHTML = html;
+}
+
+function prefillFromDay(date, time) {
+  switchTab('overzicht');
+  document.getElementById('new-date').value = date;
+  document.getElementById('new-time').value = time;
+  setTimeout(() => document.getElementById('new-name').focus(), 100);
+  showToast('✏️ Tijdstip ' + time + ' ingevuld — voeg patiëntgegevens toe');
+}
+
+// ══════════════════════════════════════════════════
+// ALL APPOINTMENTS
+// ══════════════════════════════════════════════════
+function renderAllAppts() {
+  const search = (document.getElementById('search-appts').value || '').toLowerCase();
+  const treatment = document.getElementById('filter-treatment').value;
+  const period = document.getElementById('filter-period').value;
+  const today = new Date().toISOString().split('T')[0];
+  const now = new Date();
+  const ws = new Date(now); ws.setDate(now.getDate() - now.getDay() + 1);
+  const we = new Date(ws); we.setDate(ws.getDate() + 6);
+
+  let filtered = [...appointments];
+  if (search) filtered = filtered.filter(a => apptName(a).toLowerCase().includes(search) || (a.email||'').toLowerCase().includes(search));
+  if (treatment) filtered = filtered.filter(a => a.treatment === treatment);
+  if (period === 'today') filtered = filtered.filter(a => a.date === today);
+  else if (period === 'week') filtered = filtered.filter(a => { const d = new Date(a.date); return d >= ws && d <= we; });
+  else if (period === 'upcoming') filtered = filtered.filter(a => a.date >= today);
+
+  filtered.sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+
+  if (!filtered.length) {
+    document.getElementById('all-appts-list').innerHTML = '<p style="color:var(--muted);text-align:center;padding:32px;">Geen afspraken gevonden</p>';
+    return;
+  }
+
+  let html = '<div style="display:flex;flex-direction:column;gap:8px;">';
+  let lastDate = '';
+  filtered.forEach(a => {
+    if (a.date !== lastDate) {
+      const d = new Date(a.date);
+      const dayNames = ['zondag','maandag','dinsdag','woensdag','donderdag','vrijdag','zaterdag'];
+      html += `<div style="font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;padding:12px 0 4px;">${dayNames[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}</div>`;
+      lastDate = a.date;
+    }
+    html += `<div class="appt-item" style="grid-template-columns:auto 1fr auto auto;">
+      <div class="appt-time-badge">${a.time}</div>
+      <div class="appt-info">
+        <div class="appt-name">${apptName(a)} <span style="font-size:.78rem;font-weight:400;color:var(--muted);">${a.email || ''}</span></div>
+        <div class="appt-treatment">${a.treatment}${a.phone ? ' · 📞 ' + a.phone : ''}${a.notes ? ' · ' + a.notes : ''}</div>
+      </div>
+      <button class="appt-btn danger" onclick="deleteAppt(${a.id})" title="Verwijderen">✕</button>
+    </div>`;
+  });
+  html += '</div>';
+  document.getElementById('all-appts-list').innerHTML = html;
+}
+
+// ══════════════════════════════════════════════════
+// SLOT CALENDAR (tijdslots tab)
+// ══════════════════════════════════════════════════
+function changeSlotMonth(dir) { slotCalDate.setMonth(slotCalDate.getMonth() + dir); renderSlotCalendar(); }
+
+function renderSlotCalendar() {
+  const grid = document.getElementById('slot-cal-grid');
+  document.getElementById('slot-month-label').textContent = MONTHS[slotCalDate.getMonth()] + ' ' + slotCalDate.getFullYear();
+  grid.innerHTML = DAYS.map(d => `<div class="cal-day-name">${d}</div>`).join('');
+  const first = new Date(slotCalDate.getFullYear(), slotCalDate.getMonth(), 1);
+  let sd = first.getDay(); sd = sd === 0 ? 6 : sd - 1;
+  const dim = new Date(slotCalDate.getFullYear(), slotCalDate.getMonth() + 1, 0).getDate();
+  const today = new Date();
+  for (let i = sd - 1; i >= 0; i--) grid.innerHTML += `<div class="cal-day other-month"></div>`;
+  for (let d = 1; d <= dim; d++) {
+    const ds = `${slotCalDate.getFullYear()}-${String(slotCalDate.getMonth()+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isT = today.getDate()===d && today.getMonth()===slotCalDate.getMonth() && today.getFullYear()===slotCalDate.getFullYear();
+    const isSel = selectedSlotDate.toISOString().split('T')[0] === ds;
+    const isBlocked = blockedSlots[ds] && (blockedSlots[ds].includes('all') || blockedSlots[ds].length > 3);
+    let cls = 'cal-day' + (isT?' today':'') + (isSel?' selected':'') + (isBlocked?' has-outlook':'');
+    grid.innerHTML += `<div class="${cls}" onclick="selectSlotDay(${d})">${d}</div>`;
+  }
+}
+
+function selectSlotDay(d) {
+  selectedSlotDate = new Date(slotCalDate.getFullYear(), slotCalDate.getMonth(), d);
+  renderSlotCalendar();
+  renderSlots(selectedSlotDate);
+}
+
+function renderSlots(date) {
+  const ds = date.toISOString().split('T')[0];
+  const dayNames = ['zondag','maandag','dinsdag','woensdag','donderdag','vrijdag','zaterdag'];
+  document.getElementById('slots-date-label').textContent =
+    dayNames[date.getDay()] + ' ' + date.getDate() + ' ' + MONTHS[date.getMonth()];
+  const dayAppts = appointments.filter(a => a.date === ds).map(a => a.time);
+  const busy = outlookBusySlots[ds] || [];
+  const blocked = blockedSlots[ds] || [];
+  const allBlocked = blocked.includes('all');
+  const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+
+  document.getElementById('slots-grid').innerHTML = TIMES.map(t => {
+    if (isWeekend) return `<div class="slot weekend">${t}</div>`;
+    if (dayAppts.includes(t)) return `<div class="slot booked" title="Geboekt">${t} 📅</div>`;
+    if (allBlocked || blocked.includes(t))
+      return `<div class="slot blocked" onclick="unblockSlot('${ds}','${t}')" title="Klik om vrij te geven">🔒 ${t}</div>`;
+    if (busy.includes(t)) return `<div class="slot outlook-busy" title="Bezet in Outlook">📧 ${t}</div>`;
+    return `<div class="slot free" onclick="blockSlotConfirm('${ds}','${t}')" title="Klik om te blokkeren">${t}</div>`;
+  }).join('');
+}
+
+function blockSlotConfirm(date, time) {
+  const d = new Date(date);
+  const dayNames = ['zondag','maandag','dinsdag','woensdag','donderdag','vrijdag','zaterdag'];
+  document.getElementById('block-modal-title').textContent = 'Tijdslot blokkeren';
+  document.getElementById('block-modal-text').textContent = `Tijdslot ${time} op ${dayNames[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]} blokkeren?`;
+  document.getElementById('block-modal-confirm').onclick = () => { blockSlot(date, time); closeModal('block-slot-modal'); };
+  document.getElementById('block-slot-modal').style.display = 'flex';
+}
+
+function blockSlot(date, time) {
+  if (!blockedSlots[date]) blockedSlots[date] = [];
+  if (!blockedSlots[date].includes(time)) blockedSlots[date].push(time);
+  saveBlocked();
+  renderSlots(selectedSlotDate);
+  renderDayView();
+  showToast('🔒 Tijdslot ' + time + ' geblokkeerd');
+}
+
+function unblockSlot(date, time) {
+  if (!blockedSlots[date]) return;
+  if (blockedSlots[date].includes('all')) {
+    // Unblock all → remove 'all' flag
+    blockedSlots[date] = [];
+  } else {
+    blockedSlots[date] = blockedSlots[date].filter(t => t !== time);
+  }
+  if (!blockedSlots[date].length) delete blockedSlots[date];
+  saveBlocked();
+  renderSlots(selectedSlotDate);
+  renderDayView();
+  renderBlockedOverview();
+  showToast('🔓 Tijdslot ' + time + ' vrijgegeven');
+}
+
+function blockAllSlots() {
+  const ds = selectedSlotDate.toISOString().split('T')[0];
+  blockedSlots[ds] = ['all'];
+  saveBlocked();
+  renderSlots(selectedSlotDate);
+  renderSlotCalendar();
+  renderBlockedOverview();
+  showToast('🔒 Hele dag geblokkeerd');
+}
+
+function unblockAllSlots() {
+  const ds = selectedSlotDate.toISOString().split('T')[0];
+  delete blockedSlots[ds];
+  saveBlocked();
+  renderSlots(selectedSlotDate);
+  renderSlotCalendar();
+  renderBlockedOverview();
+  showToast('🔓 Dag vrijgegeven');
+}
+
+function blockDateRange() {
+  const from = document.getElementById('block-from').value;
+  const to = document.getElementById('block-to').value;
+  const reason = document.getElementById('block-reason').value || 'Geblokkeerd';
+  if (!from || !to) { showToast('⚠️ Vul een van- en tot-datum in', true); return; }
+  if (from > to) { showToast('⚠️ Van-datum moet vóór tot-datum liggen', true); return; }
+  let d = new Date(from);
+  const end = new Date(to);
+  let count = 0;
+  while (d <= end) {
+    const ds = d.toISOString().split('T')[0];
+    blockedSlots[ds] = ['all'];
+    d.setDate(d.getDate() + 1);
+    count++;
+  }
+  saveBlocked();
+  renderSlotCalendar();
+  renderBlockedOverview();
+  showToast(`🔒 ${count} dag(en) geblokkeerd: ${reason}`);
+}
+
+function renderBlockedOverview() {
+  const keys = Object.keys(blockedSlots).sort();
+  if (!keys.length) {
+    document.getElementById('blocked-overview').innerHTML = '<p style="color:var(--muted);font-size:.85rem;text-align:center;padding:16px 0;">Geen geblokkeerde dagen</p>';
+    return;
+  }
+  let html = '<div style="display:flex;flex-direction:column;gap:8px;">';
+  keys.forEach(ds => {
+    const d = new Date(ds);
+    const slots = blockedSlots[ds];
+    const label = slots.includes('all') ? 'Hele dag geblokkeerd' : slots.length + ' slot(s) geblokkeerd';
+    html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:rgba(224,82,82,.06);border:1px solid rgba(224,82,82,.15);border-radius:10px;">
+      <div>
+        <div style="font-size:.88rem;font-weight:600;">${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}</div>
+        <div style="font-size:.75rem;color:rgba(224,82,82,.7);margin-top:2px;">${label}</div>
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="unblockAllSlots2('${ds}')">🔓 Vrijgeven</button>
+    </div>`;
+  });
+  html += '</div>';
+  document.getElementById('blocked-overview').innerHTML = html;
+}
+
+function unblockAllSlots2(ds) {
+  delete blockedSlots[ds];
+  saveBlocked();
+  renderBlockedOverview();
+  renderSlotCalendar();
+  renderSlots(selectedSlotDate);
+  showToast('🔓 ' + ds + ' vrijgegeven');
+}
+
+// ══════════════════════════════════════════════════
+// APPOINTMENTS — ADD / DELETE
+// ══════════════════════════════════════════════════
+async function addAppointment() {
+  const name = document.getElementById('new-name').value.trim();
+  const phone = document.getElementById('new-phone').value.trim();
+  const date = document.getElementById('new-date').value;
+  const time = document.getElementById('new-time').value;
+  const treatment = document.getElementById('new-treatment').value;
+  const notes = document.getElementById('new-notes').value;
+  const sync = document.getElementById('sync-to-outlook').checked;
+  if (!name || !date || !time || !treatment) { showToast('⚠️ Vul alle verplichte velden in', true); return; }
+  if (appointments.find(a => a.date === date && a.time === time)) { showToast('⚠️ Tijdslot al bezet', true); return; }
+  const parts = name.split(' ');
+  const appt = { id: Date.now(), fname: parts[0], lname: parts.slice(1).join(' '), email: '', phone, date, time, treatment, notes, outlookEventId: null };
+  if (sync && outlookAccount) {
     showToast('⏳ Toevoegen aan Outlook...');
-    appt.outlookEventId=await addToOutlook(appt);
-    showToast(appt.outlookEventId?'✅ Opgeslagen + gesynchroniseerd met Outlook':'✅ Opgeslagen (Outlook sync mislukt)');
-  }else{showToast('✅ Afspraak toegevoegd voor '+name);}
-  appointments.push(appt); saveAppts();
-  ['new-name','new-phone','new-notes'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('new-time').value='';
-  document.getElementById('new-treatment').value='';
-  renderCalendar();renderSlots(selectedDate);renderTodayAppts();updateStats();
+    appt.outlookEventId = await addToOutlook(appt);
+  }
+  appointments.push(appt);
+  saveAppts();
+  ['new-name', 'new-phone', 'new-notes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('new-time').value = '';
+  document.getElementById('new-treatment').value = '';
+  renderCalendar(); renderTodayAppts(); updateStats(); renderAllAppts(); renderDayView();
+  showToast('✅ Afspraak toegevoegd voor ' + name);
 }
 
-let deleteId=null;
-function deleteAppt(id){deleteId=id;document.getElementById('delete-modal').style.display='flex';}
-function closeModal(id){document.getElementById(id).style.display='none';if(id==='delete-modal')deleteId=null;}
-
-async function confirmDelete(){
-  const appt=appointments.find(a=>a.id===deleteId);
-  if(appt?.outlookEventId&&outlookAccount){await deleteFromOutlook(appt.outlookEventId);showToast('🗑️ Verwijderd uit portaal + Outlook');}
-  else showToast('🗑️ Afspraak verwijderd');
-  appointments=appointments.filter(a=>a.id!==deleteId);
-  saveAppts();closeModal('delete-modal');
-  renderCalendar();renderSlots(selectedDate);renderTodayAppts();updateStats();
+let deleteId2 = null;
+function deleteAppt(id) { deleteId2 = id; document.getElementById('delete-modal').style.display = 'flex'; }
+function closeModal(id) {
+  document.getElementById(id).style.display = 'none';
+  if (id === 'delete-modal') deleteId2 = null;
+  if (id === 'delete-account-modal') editingAccountId = null;
 }
 
-function updateStats(){
-  const ts=new Date().toISOString().split('T')[0], now=new Date();
-  const ws=new Date(now); ws.setDate(now.getDate()-now.getDay()+1);
-  const we=new Date(ws); we.setDate(ws.getDate()+6);
-  document.getElementById('stat-today').textContent=appointments.filter(a=>a.date===ts).length;
-  document.getElementById('stat-week').textContent=appointments.filter(a=>{const d=new Date(a.date);return d>=ws&&d<=we;}).length;
-  document.getElementById('stat-month').textContent=appointments.filter(a=>{const d=new Date(a.date);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();}).length;
+async function confirmDelete() {
+  const appt = appointments.find(a => a.id === deleteId2);
+  if (appt?.outlookEventId && outlookAccount) await deleteFromOutlook(appt.outlookEventId);
+  appointments = appointments.filter(a => a.id !== deleteId2);
+  saveAppts();
+  closeModal('delete-modal');
+  renderCalendar(); renderTodayAppts(); updateStats(); renderAllAppts(); renderDayView();
+  showToast('🗑️ Afspraak verwijderd');
 }
 
-// ══ SETUP ══
-function openSetup(){document.getElementById('setup-modal').style.display='flex';}
-function saveAzureConfig(){
-  const id=document.getElementById('azure-client-id').value.trim();
-  if(!id||!id.includes('-')){showToast('⚠️ Voer een geldig Client ID in',true);return;}
-  AZURE_CLIENT_ID=id;
-  localStorage.setItem('diasco_azure_client_id',id);
-  msalInstance=null;
-  closeModal('setup-modal');
-  document.getElementById('setup-banner').style.display='none';
-  document.getElementById('client-id-preview').textContent=id.substring(0,8)+'...';
+function updateStats() {
+  const ts = new Date().toISOString().split('T')[0], now = new Date();
+  const ws = new Date(now); ws.setDate(now.getDate() - now.getDay() + 1);
+  const we = new Date(ws); we.setDate(ws.getDate() + 6);
+  document.getElementById('stat-today').textContent = appointments.filter(a => a.date === ts).length;
+  document.getElementById('stat-week').textContent = appointments.filter(a => { const d = new Date(a.date); return d >= ws && d <= we; }).length;
+  document.getElementById('stat-month').textContent = appointments.filter(a => { const d = new Date(a.date); return d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear(); }).length;
+  document.getElementById('stat-total').textContent = appointments.length;
+}
+
+// ══════════════════════════════════════════════════
+// ACCOUNTS MANAGEMENT
+// ══════════════════════════════════════════════════
+function renderAccountsList() {
+  const list = document.getElementById('accounts-list');
+  list.innerHTML = accounts.map(a => `
+    <div class="account-card">
+      <div class="account-avatar">${a.username.charAt(0).toUpperCase()}</div>
+      <div class="account-info">
+        <div class="account-name">${a.username}</div>
+        <div><span class="role-badge ${a.role === 'admin' ? 'admin' : ''}">${a.role === 'admin' ? '👑 Admin' : '👤 Medewerker'}</span></div>
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="editAccount(${a.id})">✏️ Bewerken</button>
+    </div>
+  `).join('');
+}
+
+function editAccount(id) {
+  const a = accounts.find(a => a.id === id);
+  if (!a) return;
+  editingAccountId = id;
+  document.getElementById('edit-username').value = a.username;
+  document.getElementById('edit-role').value = a.role;
+  document.getElementById('edit-newpass').value = '';
+  document.getElementById('edit-confirmpass').value = '';
+  document.getElementById('edit-panel-title').textContent = 'Bewerken: ' + a.username;
+  document.getElementById('delete-account-btn').style.display = accounts.length > 1 ? 'block' : 'none';
+  document.getElementById('edit-account-panel').style.display = 'block';
+  document.getElementById('add-account-panel').style.display = 'none';
+}
+
+function closeEditPanel() {
+  document.getElementById('edit-account-panel').style.display = 'none';
+  editingAccountId = null;
+}
+
+function saveAccount() {
+  if (!editingAccountId) return;
+  const username = document.getElementById('edit-username').value.trim();
+  const role = document.getElementById('edit-role').value;
+  const newpass = document.getElementById('edit-newpass').value;
+  const confirm = document.getElementById('edit-confirmpass').value;
+  if (!username) { showToast('⚠️ Gebruikersnaam mag niet leeg zijn', true); return; }
+  if (accounts.find(a => a.username === username && a.id !== editingAccountId)) {
+    showToast('⚠️ Gebruikersnaam al in gebruik', true); return;
+  }
+  if (newpass) {
+    if (newpass.length < 6) { showToast('⚠️ Wachtwoord minimaal 6 tekens', true); return; }
+    if (newpass !== confirm) { showToast('⚠️ Wachtwoorden komen niet overeen', true); return; }
+  }
+  const idx = accounts.findIndex(a => a.id === editingAccountId);
+  accounts[idx].username = username;
+  accounts[idx].role = role;
+  if (newpass) accounts[idx].password = newpass;
+  // Update current user display
+  if (currentUser && currentUser.id === editingAccountId) {
+    currentUser = accounts[idx];
+    document.getElementById('topbar-username').textContent = username;
+  }
+  saveAccounts();
+  renderAccountsList();
+  closeEditPanel();
+  showToast('✅ Account bijgewerkt' + (newpass ? ' — wachtwoord gewijzigd' : ''));
+}
+
+function openAddAccount() {
+  document.getElementById('add-account-panel').style.display = 'block';
+  document.getElementById('edit-account-panel').style.display = 'none';
+  document.getElementById('add-username').value = '';
+  document.getElementById('add-password').value = '';
+  document.getElementById('add-confirmpass').value = '';
+}
+
+function closeAddPanel() { document.getElementById('add-account-panel').style.display = 'none'; }
+
+function addAccount() {
+  const username = document.getElementById('add-username').value.trim();
+  const password = document.getElementById('add-password').value;
+  const confirm = document.getElementById('add-confirmpass').value;
+  const role = document.getElementById('add-role').value;
+  if (!username) { showToast('⚠️ Vul een gebruikersnaam in', true); return; }
+  if (accounts.find(a => a.username === username)) { showToast('⚠️ Gebruikersnaam al in gebruik', true); return; }
+  if (password.length < 6) { showToast('⚠️ Wachtwoord minimaal 6 tekens', true); return; }
+  if (password !== confirm) { showToast('⚠️ Wachtwoorden komen niet overeen', true); return; }
+  if (accounts.length >= 10) { showToast('⚠️ Maximum 10 accounts bereikt', true); return; }
+  accounts.push({ id: Date.now(), username, password, role });
+  saveAccounts();
+  renderAccountsList();
+  closeAddPanel();
+  showToast('✅ Account aangemaakt: ' + username);
+}
+
+function deleteAccountConfirm() {
+  if (accounts.length <= 1) { showToast('⚠️ Minimaal 1 account vereist', true); return; }
+  if (currentUser && currentUser.id === editingAccountId) { showToast('⚠️ U kunt uw eigen account niet verwijderen', true); return; }
+  document.getElementById('delete-account-modal').style.display = 'flex';
+}
+
+function confirmDeleteAccount() {
+  accounts = accounts.filter(a => a.id !== editingAccountId);
+  saveAccounts();
+  renderAccountsList();
+  closeModal('delete-account-modal');
+  closeEditPanel();
+  showToast('🗑️ Account verwijderd');
+}
+
+// ══════════════════════════════════════════════════
+// OUTLOOK
+// ══════════════════════════════════════════════════
+function initMSAL() {
+  if (!AZURE_CLIENT_ID || msalInstance) return;
+  try {
+    msalInstance = new msal.PublicClientApplication({
+      auth: { clientId: AZURE_CLIENT_ID, authority: 'https://login.microsoftonline.com/common', redirectUri: REDIRECT_URI },
+      cache: { cacheLocation: 'localStorage', storeAuthStateInCookie: false }
+    });
+    msalInstance.handleRedirectPromise().then(r => {
+      if (r) { outlookAccount = r.account; msalInstance.setActiveAccount(outlookAccount); onOutlookConnected(); }
+      else { const a = msalInstance.getAllAccounts(); if (a.length) { outlookAccount = a[0]; msalInstance.setActiveAccount(outlookAccount); onOutlookConnected(); } }
+    }).catch(e => console.warn('MSAL:', e));
+  } catch (e) { console.warn('MSAL init:', e); }
+}
+
+async function connectOutlook() {
+  if (!AZURE_CLIENT_ID) { switchTab('instellingen'); showToast('⚠️ Voer eerst een Azure Client ID in'); return; }
+  if (!msalInstance) initMSAL();
+  try {
+    showToast('⏳ Outlook venster openen...');
+    const r = await msalInstance.loginPopup({ scopes: GRAPH_SCOPES, prompt: 'select_account' });
+    outlookAccount = r.account; msalInstance.setActiveAccount(outlookAccount); onOutlookConnected();
+  } catch (e) {
+    if (e.errorCode === 'popup_window_error') msalInstance.loginRedirect({ scopes: GRAPH_SCOPES });
+    else if (e.errorCode !== 'user_cancelled') showToast('❌ Verbinding mislukt: ' + (e.message || '').substring(0, 60), true);
+  }
+}
+
+function onOutlookConnected() {
+  const name = outlookAccount.name || outlookAccount.username;
+  document.getElementById('outlook-btn-label').textContent = name;
+  document.getElementById('outlook-connect-btn').classList.add('connected');
+  document.getElementById('btn-sync-now').style.display = 'flex';
+  document.getElementById('btn-disconnect').style.display = 'flex';
+  document.getElementById('outlook-panel-title').textContent = '✅ Verbonden: ' + name;
+  document.getElementById('outlook-panel-sub').textContent = 'Automatische sync actief — elke 5 minuten';
+  document.getElementById('stat-outlook-label').textContent = 'Outlook verbonden';
+  showToast('✅ Outlook verbonden als ' + name);
+  syncFromOutlook();
+}
+
+function disconnectOutlook() {
+  if (msalInstance && outlookAccount) {
+    try { msalInstance.logoutPopup({ account: outlookAccount }); } catch (e) { }
+  }
+  outlookAccount = null; outlookEvents = []; outlookBusySlots = {};
+  document.getElementById('outlook-btn-label').textContent = '📧 Verbinden met Outlook';
+  document.getElementById('outlook-connect-btn').classList.remove('connected');
+  document.getElementById('btn-sync-now').style.display = 'none';
+  document.getElementById('btn-disconnect').style.display = 'none';
+  document.getElementById('outlook-panel-title').textContent = 'Outlook Agenda Sync';
+  document.getElementById('outlook-panel-sub').textContent = 'Verbind met Microsoft Outlook voor live synchronisatie';
+  document.getElementById('stat-outlook-label').textContent = 'Niet verbonden';
+  document.getElementById('stat-outlook-count').textContent = '—';
+}
+
+function toggleOutlook() { if (outlookAccount) disconnectOutlook(); else connectOutlook(); }
+
+async function getToken() {
+  if (!msalInstance || !outlookAccount) return null;
+  try { const r = await msalInstance.acquireTokenSilent({ scopes: GRAPH_SCOPES, account: outlookAccount }); return r.accessToken; }
+  catch (e) { try { const r = await msalInstance.acquireTokenPopup({ scopes: GRAPH_SCOPES }); return r.accessToken; } catch (e2) { showToast('❌ Sessie verlopen', true); return null; } }
+}
+
+async function syncFromOutlook() {
+  if (!outlookAccount) return;
+  document.getElementById('sync-spinner').style.display = 'inline';
+  document.getElementById('sync-label').textContent = 'Synchroniseren...';
+  const token = await getToken();
+  if (!token) { document.getElementById('sync-spinner').style.display = 'none'; return; }
+  try {
+    const now = new Date(), end = new Date(); end.setDate(end.getDate() + 60);
+    const r = await fetch(
+      `https://graph.microsoft.com/v1.0/me/calendarView?startDateTime=${now.toISOString()}&endDateTime=${end.toISOString()}&$select=subject,start,end,id&$top=150`,
+      { headers: { Authorization: 'Bearer ' + token } }
+    );
+    if (!r.ok) throw new Error('Graph ' + r.status);
+    const data = await r.json();
+    outlookEvents = data.value || [];
+    outlookBusySlots = {};
+    outlookEvents.forEach(ev => {
+      const date = ev.start.dateTime.split('T')[0];
+      const t = ev.start.dateTime.split('T')[1].substring(0, 5);
+      const [h, m] = t.split(':').map(Number);
+      const slot = `${String(h).padStart(2,'0')}:${m < 30 ? '00' : '30'}`;
+      if (!outlookBusySlots[date]) outlookBusySlots[date] = [];
+      if (!outlookBusySlots[date].includes(slot)) outlookBusySlots[date].push(slot);
+    });
+    document.getElementById('stat-outlook-count').textContent = outlookEvents.length;
+    showToast('🔄 ' + outlookEvents.length + ' Outlook events gesynchroniseerd');
+    renderCalendar(); renderTodayAppts(); renderDayView();
+  } catch (e) { showToast('❌ Sync fout: ' + e.message, true); }
+  document.getElementById('sync-spinner').style.display = 'none';
+  document.getElementById('sync-label').textContent = 'Nu synchroniseren';
+}
+
+async function addToOutlook(appt) {
+  const token = await getToken(); if (!token) return null;
+  const start = new Date(appt.date + 'T' + appt.time + ':00');
+  const end = new Date(start.getTime() + 60 * 60 * 1000);
+  try {
+    const r = await fetch('https://graph.microsoft.com/v1.0/me/events', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        subject: appt.treatment + ' — ' + apptName(appt),
+        body: { contentType: 'Text', content: 'Patiënt: ' + apptName(appt) + '\nTel: ' + (appt.phone || '-') + '\nNotities: ' + (appt.notes || '-') },
+        start: { dateTime: start.toISOString(), timeZone: 'Europe/Amsterdam' },
+        end: { dateTime: end.toISOString(), timeZone: 'Europe/Amsterdam' },
+        location: { displayName: 'Diasco Fysiotherapie Amsterdam' }
+      })
+    });
+    if (!r.ok) throw new Error('status ' + r.status);
+    const ev = await r.json(); return ev.id;
+  } catch (e) { showToast('⚠️ Outlook sync mislukt', true); return null; }
+}
+
+async function deleteFromOutlook(eid) {
+  if (!eid || !outlookAccount) return;
+  const token = await getToken(); if (!token) return;
+  try { await fetch('https://graph.microsoft.com/v1.0/me/events/' + eid, { method: 'DELETE', headers: { Authorization: 'Bearer ' + token } }); }
+  catch (e) { console.warn('Outlook delete:', e); }
+}
+
+// ══════════════════════════════════════════════════
+// SETTINGS
+// ══════════════════════════════════════════════════
+function saveAzureConfig() {
+  const id = document.getElementById('azure-client-id').value.trim();
+  if (!id || !id.includes('-')) { showToast('⚠️ Voer een geldig Client ID in', true); return; }
+  AZURE_CLIENT_ID = id;
+  localStorage.setItem('diasco_azure_client_id', id);
+  msalInstance = null;
+  document.getElementById('setup-banner').style.display = 'none';
+  document.getElementById('client-id-preview').textContent = id.substring(0, 8) + '...';
   initMSAL();
-  showToast('✅ Azure configuratie opgeslagen — klik "Verbinden met Outlook"');
+  showToast('✅ Azure configuratie opgeslagen');
 }
 
-function showToast(msg,isError=false){
-  const t=document.getElementById('toast');
-  t.textContent=msg;
-  t.style.borderColor=isError?'rgba(224,82,82,.3)':'rgba(45,168,122,.3)';
-  t.style.display='block';
+function savePraktijkSettings() {
+  showToast('✅ Instellingen opgeslagen');
+}
+
+// ══════════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════════
+function showToast(msg, isError = false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = isError ? 'error' : '';
+  t.style.display = 'block';
   clearTimeout(window._tt);
-  window._tt=setTimeout(()=>t.style.display='none',3500);
+  window._tt = setTimeout(() => t.style.display = 'none', 3500);
 }
 
-// Auto-sync elke 5 minuten
-setInterval(()=>{if(outlookAccount)syncFromOutlook();},5*60*1000);
+// Auto-sync every 5 min
+setInterval(() => { if (outlookAccount) syncFromOutlook(); }, 5 * 60 * 1000);
 </script>
 </body>
 </html>
