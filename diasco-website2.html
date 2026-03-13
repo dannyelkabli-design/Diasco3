@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diasco Fysiotherapie & Performance Training</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #1a7f75;
+    --teal-light: #2da89b;
+    --teal-dark: #0f5c54;
+    --sand: #f5f0e8;
+    --sand-dark: #e8e0d0;
+    --charcoal: #1c2b2a;
+    --muted: #5a6e6d;
+    --white: #ffffff;
+    --accent: #e8a84c;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--white);
+    color: var(--charcoal);
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ─────────────────────────────────── */
+  nav {
+    position: fixed; top: 0; width: 100%; z-index: 1000;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(26,127,117,0.1);
+    padding: 0 5%;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 72px;
+  }
+
+  .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+  .logo-img { height: 48px; width: auto; }
+
+  nav ul { list-style: none; display: flex; gap: 36px; }
+  nav ul a { text-decoration: none; color: var(--charcoal); font-size: 0.9rem; font-weight: 500; transition: color .2s; }
+  nav ul a:hover { color: var(--teal); }
+
+  .nav-cta {
+    background: var(--teal); color: white; padding: 10px 24px;
+    border-radius: 8px; text-decoration: none; font-size: 0.9rem; font-weight: 600;
+    transition: background .2s, transform .15s;
+  }
+  .nav-cta:hover { background: var(--teal-dark); transform: translateY(-1px); }
+
+  /* ── HERO ─────────────────────────────────── */
+  .hero {
+    min-height: 100vh;
+    background: url('https://diascofysiotherapie.nl/wp-content/uploads/2022/10/pexels-rodnae-productions-8312830.jpg') center center / cover no-repeat;
+    display: grid; grid-template-columns: 1fr 1fr;
+    align-items: center; padding: 100px 5% 60px;
+    position: relative; overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(
+      105deg,
+      rgba(10, 35, 32, 0.88) 0%,
+      rgba(15, 60, 54, 0.75) 45%,
+      rgba(10, 30, 28, 0.35) 100%
+    );
+  }
+
+  .hero-content { position: relative; z-index: 1; }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.15); color: white;
+    padding: 6px 16px; border-radius: 100px; font-size: 0.8rem;
+    font-weight: 500; letter-spacing: 0.05em; margin-bottom: 28px;
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+  .hero-badge span { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.4rem, 4vw, 3.6rem);
+    color: white; line-height: 1.15; margin-bottom: 20px;
+    font-weight: 700;
+  }
+
+  .hero h1 em { font-style: italic; color: rgba(255,255,255,0.75); }
+
+  .hero p {
+    color: rgba(255,255,255,0.8); font-size: 1.05rem; line-height: 1.7;
+    max-width: 480px; margin-bottom: 40px;
+  }
+
+  .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; }
+
+  .btn-primary {
+    background: white; color: var(--teal-dark);
+    padding: 14px 32px; border-radius: 10px; font-weight: 700;
+    font-size: 0.95rem; text-decoration: none; transition: all .2s;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
+
+  .btn-secondary {
+    background: transparent; color: white;
+    padding: 14px 28px; border-radius: 10px; font-weight: 600;
+    font-size: 0.95rem; text-decoration: none; transition: all .2s;
+    border: 1.5px solid rgba(255,255,255,0.4);
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-secondary:hover { background: rgba(255,255,255,0.1); }
+
+  .hero-image {
+    position: relative; display: flex; justify-content: center; align-items: center;
+    z-index: 1;
+  }
+
+  .hero-card-stack {
+    position: relative; width: 360px; height: 420px;
+  }
+
+  .hero-card {
+    position: absolute; border-radius: 20px; overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+  }
+
+  .hero-card:nth-child(1) { width: 280px; height: 320px; top: 0; right: 40px; background: var(--sand); }
+  .hero-card:nth-child(1) img { width:100%;height:100%;object-fit:cover; }
+  .hero-card:nth-child(2) { width: 220px; height: 260px; bottom: 0; left: 0; background: white; animation: float 4s ease-in-out infinite; }
+  .hero-card:nth-child(2) img { width:100%;height:100%;object-fit:cover; }
+
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+
+  .stat-card {
+    position: absolute; background: white; border-radius: 12px;
+    padding: 14px 18px; box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .stat-card.top { top: -20px; left: -30px; }
+  .stat-card.bottom { bottom: 60px; right: -20px; }
+  .stat-num { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--teal); font-weight: 700; }
+  .stat-label { font-size: 0.75rem; color: var(--muted); font-weight: 500; }
+  .stat-icon { width: 40px; height: 40px; background: var(--sand); border-radius: 10px; display:flex;align-items:center;justify-content:center; font-size:1.2rem; }
+
+  /* ── TREATMENTS ───────────────────────────── */
+  .section { padding: 96px 5%; }
+  .section-label {
+    display: inline-block; color: var(--teal); font-size: 0.75rem;
+    font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .section h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.9rem, 3vw, 2.6rem);
+    font-weight: 700; line-height: 1.2; color: var(--charcoal);
+    max-width: 560px; margin-bottom: 16px;
+  }
+  .section-lead {
+    color: var(--muted); font-size: 1rem; line-height: 1.7; max-width: 560px; margin-bottom: 56px;
+  }
+
+  .treatments-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px;
+  }
+
+  .treatment-card {
+    background: var(--white); border: 1.5px solid #e8eded;
+    border-radius: 16px; overflow: hidden; cursor: pointer;
+    transition: all .25s; position: relative;
+  }
+  .treatment-card:hover {
+    border-color: var(--teal-light); transform: translateY(-4px);
+    box-shadow: 0 16px 40px rgba(26,127,117,0.1);
+  }
+  .treatment-card-img {
+    height: 160px; overflow: hidden;
+  }
+  .treatment-card-img img {
+    width: 100%; height: 100%; object-fit: cover;
+    transition: transform .4s;
+  }
+  .treatment-card:hover .treatment-card-img img { transform: scale(1.06); }
+  .treatment-card-body { padding: 24px; }
+
+  .treatment-icon {
+    width: 44px; height: 44px; border-radius: 12px; margin-bottom: 14px;
+    display: flex; align-items: center; justify-content: center; font-size: 1.3rem;
+  }
+  .treatment-card h3 { font-family: 'Playfair Display',serif; font-size: 1.15rem; font-weight: 700; margin-bottom: 10px; }
+  .treatment-card p { color: var(--muted); font-size: 0.88rem; line-height: 1.65; }
+
+  .tag-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+  .tag {
+    background: var(--sand); color: var(--teal-dark);
+    padding: 4px 10px; border-radius: 100px; font-size: 0.75rem; font-weight: 500;
+  }
+
+  /* ── BOOKING MODAL ────────────────────────── */
+  .booking-section {
+    background: var(--sand); padding: 96px 5%;
+    position: relative; overflow: hidden;
+  }
+  .booking-section::after {
+    content: ''; position: absolute; width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(26,127,117,0.06) 0%, transparent 70%);
+    top: -100px; right: -100px; pointer-events: none;
+  }
+
+  .booking-inner {
+    max-width: 860px; margin: 0 auto;
+    background: white; border-radius: 24px; overflow: hidden;
+    box-shadow: 0 24px 80px rgba(26,127,117,0.1);
+  }
+
+  .booking-header {
+    background: linear-gradient(135deg, var(--teal-dark), var(--teal));
+    padding: 40px 48px; color: white;
+  }
+  .booking-header h2 { font-family: 'Playfair Display',serif; font-size: 1.8rem; margin-bottom: 8px; }
+  .booking-header p { color: rgba(255,255,255,0.75); font-size: 0.95rem; }
+
+  .booking-body { padding: 40px 48px; }
+
+  .booking-step { display: none; }
+  .booking-step.active { display: block; }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+  .form-row.single { grid-template-columns: 1fr; }
+
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group label { font-size: 0.85rem; font-weight: 600; color: var(--charcoal); }
+  .form-group input, .form-group select, .form-group textarea {
+    border: 1.5px solid #dde4e3; border-radius: 10px; padding: 12px 16px;
+    font-family: 'DM Sans', sans-serif; font-size: 0.9rem; color: var(--charcoal);
+    background: white; transition: border-color .2s;
+    width: 100%;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    outline: none; border-color: var(--teal);
+    box-shadow: 0 0 0 3px rgba(26,127,117,0.1);
+  }
+
+  .date-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-bottom: 20px; }
+  .date-cell {
+    aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+    border-radius: 10px; font-size: 0.85rem; cursor: pointer; font-weight: 500;
+    border: 1.5px solid transparent; transition: all .15s;
+  }
+  .date-cell:hover:not(.empty):not(.disabled) { border-color: var(--teal); color: var(--teal); background: rgba(26,127,117,0.05); }
+  .date-cell.selected { background: var(--teal); color: white; border-color: var(--teal); }
+  .date-cell.disabled { color: #ccc; cursor: default; }
+  .date-cell.empty { cursor: default; }
+  .date-cell.today { border-color: var(--accent); color: var(--accent); }
+
+  .cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .cal-header span { font-weight: 600; font-size: 0.95rem; }
+  .cal-header button { background: none; border: none; cursor: pointer; color: var(--teal); font-size: 1.2rem; padding: 4px 8px; border-radius: 6px; }
+  .cal-header button:hover { background: var(--sand); }
+  .cal-days { display: grid; grid-template-columns: repeat(7,1fr); margin-bottom: 8px; }
+  .cal-day-label { text-align: center; font-size: 0.75rem; font-weight: 600; color: var(--muted); padding: 4px 0; }
+
+  .time-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 24px; }
+  .time-slot {
+    padding: 10px; border: 1.5px solid #dde4e3; border-radius: 10px;
+    text-align: center; font-size: 0.85rem; font-weight: 500; cursor: pointer;
+    transition: all .15s;
+  }
+  .time-slot:hover { border-color: var(--teal); color: var(--teal); }
+  .time-slot.selected { background: var(--teal); color: white; border-color: var(--teal); }
+  .time-slot.busy { background: var(--sand); color: #aaa; cursor: default; text-decoration: line-through; }
+
+  .step-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 28px; }
+  .btn-book {
+    background: var(--teal); color: white; border: none;
+    padding: 13px 32px; border-radius: 10px; font-family: 'DM Sans',sans-serif;
+    font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: all .2s;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-book:hover { background: var(--teal-dark); transform: translateY(-1px); }
+  .btn-back {
+    background: none; border: none; color: var(--muted); cursor: pointer;
+    font-family: 'DM Sans',sans-serif; font-size: 0.9rem;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn-back:hover { color: var(--charcoal); }
+
+  .progress-bar { display: flex; gap: 8px; margin-bottom: 32px; }
+  .progress-step {
+    height: 4px; flex: 1; border-radius: 4px; background: var(--sand-dark); transition: background .3s;
+  }
+  .progress-step.done { background: var(--teal); }
+  .progress-step.active { background: var(--teal-light); }
+
+  .apple-cal-box {
+    background: linear-gradient(135deg, #1c2b2a, #2a3d3c);
+    border-radius: 16px; padding: 28px; margin-top: 28px;
+    display: flex; align-items: center; gap: 20px; cursor: pointer;
+    transition: transform .2s; text-decoration: none;
+  }
+  .apple-cal-box:hover { transform: translateY(-2px); }
+  .apple-cal-icon { font-size: 2.5rem; flex-shrink: 0; }
+  .apple-cal-text h4 { color: white; font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+  .apple-cal-text p { color: rgba(255,255,255,0.6); font-size: 0.85rem; }
+
+  .google-cal-box {
+    background: linear-gradient(135deg, #1a56db, #2563eb);
+    border-radius: 16px; padding: 28px; margin-top: 12px;
+    display: flex; align-items: center; gap: 20px; cursor: pointer;
+    transition: transform .2s; text-decoration: none;
+  }
+  .google-cal-box:hover { transform: translateY(-2px); }
+
+  .success-state { text-align: center; padding: 20px 0; }
+  .success-icon { font-size: 4rem; margin-bottom: 16px; }
+  .success-state h3 { font-family: 'Playfair Display',serif; font-size: 1.6rem; margin-bottom: 10px; }
+  .success-state p { color: var(--muted); line-height: 1.65; margin-bottom: 28px; }
+
+  /* ── TESTIMONIALS ─────────────────────────── */
+  .testimonials { background: var(--charcoal); padding: 96px 5%; }
+  .testimonials .section-label { color: var(--teal-light); }
+  .testimonials h2 { color: white; }
+  .testimonials .section-lead { color: rgba(255,255,255,0.5); }
+
+  .reviews-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
+  .review-card {
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px; padding: 28px;
+  }
+  .stars { color: var(--accent); font-size: 0.9rem; margin-bottom: 14px; }
+  .review-card blockquote { color: rgba(255,255,255,0.8); font-size: 0.9rem; line-height: 1.7; margin-bottom: 18px; font-style: italic; }
+  .reviewer { display: flex; align-items: center; gap: 12px; }
+  .reviewer-avatar {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--teal), var(--teal-light));
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 700; font-size: 0.9rem;
+  }
+  .reviewer-name { font-weight: 600; color: white; font-size: 0.9rem; }
+  .reviewer-treat { color: rgba(255,255,255,0.4); font-size: 0.78rem; }
+
+  /* ── ABOUT ─────────────────────────────────── */
+  .about-section { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; padding: 96px 5%; }
+  .about-img {
+    aspect-ratio: 4/5; background: linear-gradient(160deg, var(--teal) 0%, var(--teal-dark) 100%);
+    border-radius: 24px; position: relative; overflow: hidden;
+    display: flex; align-items: flex-end;
+  }
+  .about-img-overlay { padding: 32px; color: white; }
+  .about-img-overlay h3 { font-family: 'Playfair Display',serif; font-size: 1.5rem; margin-bottom: 6px; }
+  .about-img-overlay p { color: rgba(255,255,255,0.7); font-size: 0.85rem; }
+  .credential { display: inline-block; background: rgba(255,255,255,0.15); padding: 4px 12px; border-radius: 100px; font-size: 0.75rem; margin: 4px 4px 0 0; }
+
+  .checklist { list-style: none; display: flex; flex-direction: column; gap: 14px; margin-bottom: 36px; }
+  .checklist li { display: flex; align-items: flex-start; gap: 12px; font-size: 0.95rem; color: var(--muted); line-height: 1.5; }
+  .check { width: 22px; height: 22px; background: rgba(26,127,117,0.1); border-radius: 6px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: var(--teal); font-size: 0.8rem; margin-top: 1px; }
+
+  /* ── FOOTER ─────────────────────────────────── */
+  footer {
+    background: #0a1a19; padding: 64px 5% 32px;
+  }
+  .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1.5fr; gap: 48px; margin-bottom: 48px; }
+  .footer-brand p { color: rgba(255,255,255,0.5); font-size: 0.88rem; line-height: 1.7; margin-top: 12px; max-width: 280px; }
+  .footer h4 { color: white; font-size: 0.85rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 20px; }
+  .footer ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .footer ul a { color: rgba(255,255,255,0.5); text-decoration: none; font-size: 0.88rem; transition: color .2s; }
+  .footer ul a:hover { color: var(--teal-light); }
+  .contact-item { display: flex; gap: 10px; margin-bottom: 14px; }
+  .contact-item span:first-child { color: var(--teal-light); font-size: 1rem; flex-shrink: 0; }
+  .contact-item span:last-child { color: rgba(255,255,255,0.6); font-size: 0.88rem; line-height: 1.5; }
+  .footer-bottom { border-top: 1px solid rgba(255,255,255,0.08); padding-top: 28px; display: flex; justify-content: space-between; align-items: center; }
+  .footer-bottom p { color: rgba(255,255,255,0.3); font-size: 0.8rem; }
+
+  /* ── RESPONSIVE ─────────────────────────────── */
+  @media(max-width:900px){
+    .hero { grid-template-columns: 1fr; }
+    .hero-image { display: none; }
+    nav ul { display: none; }
+    .about-section { grid-template-columns: 1fr; }
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+    .form-row { grid-template-columns: 1fr; }
+    .booking-body, .booking-header { padding: 28px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="logo">
+    <img src="https://diascofysiotherapie.nl/wp-content/uploads/2022/09/site-logo-e1664369450281.webp" alt="Diasco Fysiotherapie" class="logo-img">
+  </a>
+  <ul>
+    <li><a href="#behandelingen">Behandelingen</a></li>
+    <li><a href="#afspraak">Afspraak</a></li>
+    <li><a href="#over-ons">Over ons</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <a href="#afspraak" class="nav-cta">Afspraak maken</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-badge"><span></span> Fysiotherapie &amp; Performance Training</div>
+    <h1>Herstel. Beweeg.<br><em>Presteer beter.</em></h1>
+    <p>Gespecialiseerde fysiotherapie in Amsterdam — van dry needling en mobilisatie tot revalidatie na knie- en heupoperaties. Persoonlijk, effectief, resultaatgericht.</p>
+    <div class="hero-actions">
+      <a href="#afspraak" class="btn-primary">📅 Maak een afspraak</a>
+      <a href="#behandelingen" class="btn-secondary">Onze behandelingen →</a>
+    </div>
+  </div>
+  <div class="hero-image">
+    <div class="hero-card-stack">
+      <div class="hero-card">
+        <img src="https://images.unsplash.com/photo-1540474527827-7a3b89e2d3ef?w=560&q=80" alt="Fysiotherapie behandeling" loading="lazy">
+      </div>
+      <div class="hero-card" style="padding:0;overflow:hidden;">
+        <img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=440&q=80" alt="Revalidatie oefening" loading="lazy" style="width:100%;height:100%;object-fit:cover;">
+      </div>
+      <div class="stat-card top">
+        <div class="stat-icon">⭐</div>
+        <div>
+          <div class="stat-num">4.9</div>
+          <div class="stat-label">Gemiddelde beoordeling</div>
+        </div>
+      </div>
+      <div class="stat-card bottom">
+        <div class="stat-icon">👥</div>
+        <div>
+          <div class="stat-num">800+</div>
+          <div class="stat-label">Tevreden patiënten</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BEHANDELINGEN -->
+<section class="section" id="behandelingen">
+  <span class="section-label">Specialisaties</span>
+  <h2>Wat wij voor u kunnen betekenen</h2>
+  <p class="section-lead">Van acute klachten tot langdurige revalidatie — wij bieden een breed scala aan fysiotherapeutische behandelingen, toegespitst op uw herstel en prestaties.</p>
+
+  <div class="treatments-grid">
+
+    <div class="treatment-card">
+      <div class="treatment-card-img">
+        <img src="https://images.pexels.com/photos/3865557/pexels-photo-3865557.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Dry Needling behandeling" loading="lazy">
+      </div>
+      <div class="treatment-card-body">
+      <div class="treatment-icon" style="background:#e8f7f5;">🪡</div>
+      <h3>Dry Needling</h3>
+      <p>Gerichte behandeling van triggerpoints met dunne naalden om spierspanning te verlichten en pijn te verminderen. Effectief bij chronische pijnklachten, nekpijn en sportblessures.</p>
+      <div class="tag-list">
+        <span class="tag">Triggerpoints</span>
+        <span class="tag">Spierpijn</span>
+        <span class="tag">Nekklachten</span>
+      </div>
+      </div>
+    </div>
+
+    <div class="treatment-card">
+      <div class="treatment-card-img">
+        <img src="https://images.pexels.com/photos/3756165/pexels-photo-3756165.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Mobilisatie behandeling" loading="lazy">
+      </div>
+      <div class="treatment-card-body">
+      <div class="treatment-icon" style="background:#fff3e5;">🔄</div>
+      <h3>Mobilisatie</h3>
+      <p>Hands-on technieken om gewrichtsbeweeglijkheid te verbeteren en stijfheid te verminderen. Wij werken met gewrichtsmobilisaties, zachte weefseltechnieken en manipulaties.</p>
+      <div class="tag-list">
+        <span class="tag">Rug &amp; Nek</span>
+        <span class="tag">Gewrichtstiffness</span>
+        <span class="tag">Manuele therapie</span>
+      </div>
+      </div>
+    </div>
+
+    <div class="treatment-card">
+      <div class="treatment-card-img">
+        <img src="https://images.pexels.com/photos/3985163/pexels-photo-3985163.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Knie revalidatie" loading="lazy">
+      </div>
+      <div class="treatment-card-body">
+      <div class="treatment-icon" style="background:#e8f0ff;">🦴</div>
+      <h3>Knieartrose</h3>
+      <p>Bewezen oefentherapie, pijneducatie en manuele technieken om kniepijn bij artrose te verminderen en de kniefunctie te verbeteren — uitgesteld of verminderd gebruik van medicatie.</p>
+      <div class="tag-list">
+        <span class="tag">Oefentherapie</span>
+        <span class="tag">Pijnreductie</span>
+        <span class="tag">Loopverbetering</span>
+      </div>
+      </div>
+    </div>
+
+    <div class="treatment-card">
+      <div class="treatment-card-img">
+        <img src="https://images.pexels.com/photos/7089401/pexels-photo-7089401.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Heupprothese revalidatie" loading="lazy">
+      </div>
+      <div class="treatment-card-body">
+      <div class="treatment-icon" style="background:#f5e8f7;">🦿</div>
+      <h3>Heupprothese — Post-op</h3>
+      <p>Gestructureerde revalidatie na totale heupvervanging: van vroegmobilisatie op dag 1 tot volledig functioneel herstel. Wij werken nauw samen met orthopeden en chirurgen.</p>
+      <div class="tag-list">
+        <span class="tag">Post-operatief</span>
+        <span class="tag">Revalidatie</span>
+        <span class="tag">Looptraining</span>
+      </div>
+      </div>
+    </div>
+
+    <div class="treatment-card">
+      <div class="treatment-card-img">
+        <img src="https://images.pexels.com/photos/3997990/pexels-photo-3997990.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Cupping hijama therapie" loading="lazy">
+      </div>
+      <div class="treatment-card-body">
+      <div class="treatment-icon" style="background:#e8f7e8;">🫙</div>
+      <h3>Hijama Cupping</h3>
+      <p>Traditionele cupping-therapie als krachtige aanvulling op fysiotherapie. Stimuleert de bloedcirculatie, verlicht spierspanning en heeft een ontstekingsremmend effect.</p>
+      <div class="tag-list">
+        <span class="tag">Bloedsomloop</span>
+        <span class="tag">Spierherstel</span>
+        <span class="tag">Ontspanning</span>
+      </div>
+      </div>
+    </div>
+
+    <div class="treatment-card">
+      <div class="treatment-card-img">
+        <img src="https://images.pexels.com/photos/6740056/pexels-photo-6740056.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Sportrevalidatie" loading="lazy">
+      </div>
+      <div class="treatment-card-body">
+      <div class="treatment-icon" style="background:#fff0f0;">🏃</div>
+      <h3>Sportrevalidatie</h3>
+      <p>Terugkeer naar sport na blessure, gericht op functieherstel, krachtsopbouw en blessurepreventie. Van enkelbandletsel tot hamstringruptuur.</p>
+      <div class="tag-list">
+        <span class="tag">Return-to-sport</span>
+        <span class="tag">Kracht &amp; Power</span>
+        <span class="tag">Preventie</span>
+      </div>
+      </div>
+    </div>
+
+    <div class="treatment-card">
+      <div class="treatment-card-img">
+        <img src="https://images.pexels.com/photos/4162449/pexels-photo-4162449.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Personal training" loading="lazy">
+      </div>
+      <div class="treatment-card-body">
+      <div class="treatment-icon" style="background:#f0f8ff;">💪</div>
+      <h3>Personal Training</h3>
+      <p>Medisch verantwoord sporten onder begeleiding van een fysiotherapeut. Ideaal na letsel of bij chronische aandoeningen waarbij kracht en conditie opgebouwd moeten worden.</p>
+      <div class="tag-list">
+        <span class="tag">Krachtraining</span>
+        <span class="tag">Conditie</span>
+        <span class="tag">Medisch begeleid</span>
+      </div>
+      </div>
+    </div>
+
+    <div class="treatment-card">
+      <div class="treatment-card-img">
+        <img src="https://images.pexels.com/photos/5215024/pexels-photo-5215024.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Pijneducatie consult" loading="lazy">
+      </div>
+      <div class="treatment-card-body">
+      <div class="treatment-icon" style="background:#fafae8;">🧠</div>
+      <h3>Pijneducatie</h3>
+      <p>Wetenschappelijk onderbouwde uitleg over chronische pijn, neurowetenschap en het zenuwstelsel. Helpt patiënten om beter met pijn om te gaan en actief te bewegen.</p>
+      <div class="tag-list">
+        <span class="tag">Chronische pijn</span>
+        <span class="tag">Neurowetenschap</span>
+        <span class="tag">Zelfmanagement</span>
+      </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- BOOKING MODULE -->
+<section class="booking-section" id="afspraak">
+  <div style="text-align:center; margin-bottom:56px;">
+    <span class="section-label">Online inplannen</span>
+    <h2 style="font-family:'Playfair Display',serif;font-size:clamp(1.9rem,3vw,2.6rem);font-weight:700;color:var(--charcoal);margin-bottom:12px;">Maak direct een afspraak</h2>
+    <p style="color:var(--muted);max-width:520px;margin:0 auto;line-height:1.7;">Kies uw behandeling, selecteer een datum en tijdstip, en ontvang automatisch een uitnodiging voor uw agenda.</p>
+  </div>
+
+  <div class="booking-inner">
+    <div class="booking-header">
+      <h2>Afspraak inplannen</h2>
+      <p>Stap <span id="step-num">1</span> van 3 — <span id="step-title">Kies uw behandeling</span></p>
+    </div>
+    <div class="booking-body">
+
+      <div class="progress-bar">
+        <div class="progress-step active" id="prog-1"></div>
+        <div class="progress-step" id="prog-2"></div>
+        <div class="progress-step" id="prog-3"></div>
+      </div>
+
+      <!-- STEP 1 -->
+      <div class="booking-step active" id="step-1">
+        <h3 style="font-family:'Playfair Display',serif;margin-bottom:20px;">Kies uw behandeling</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px;" id="treatment-picker">
+          <label class="treatment-opt" style="display:flex;align-items:center;gap:12px;border:1.5px solid #dde4e3;border-radius:12px;padding:14px;cursor:pointer;transition:all .15s;">
+            <input type="radio" name="treatment" value="Dry Needling" style="accent-color:var(--teal);">
+            <span><strong>Dry Needling</strong><br><small style="color:var(--muted);">45 min · €65</small></span>
+          </label>
+          <label class="treatment-opt" style="display:flex;align-items:center;gap:12px;border:1.5px solid #dde4e3;border-radius:12px;padding:14px;cursor:pointer;transition:all .15s;">
+            <input type="radio" name="treatment" value="Mobilisatie">
+            <span><strong>Mobilisatie</strong><br><small style="color:var(--muted);">45 min · €65</small></span>
+          </label>
+          <label class="treatment-opt" style="display:flex;align-items:center;gap:12px;border:1.5px solid #dde4e3;border-radius:12px;padding:14px;cursor:pointer;transition:all .15s;">
+            <input type="radio" name="treatment" value="Knieartrose">
+            <span><strong>Knieartrose</strong><br><small style="color:var(--muted);">60 min · €80</small></span>
+          </label>
+          <label class="treatment-opt" style="display:flex;align-items:center;gap:12px;border:1.5px solid #dde4e3;border-radius:12px;padding:14px;cursor:pointer;transition:all .15s;">
+            <input type="radio" name="treatment" value="Heupprothese Revalidatie">
+            <span><strong>Heupprothese Revalidatie</strong><br><small style="color:var(--muted);">60 min · €80</small></span>
+          </label>
+          <label class="treatment-opt" style="display:flex;align-items:center;gap:12px;border:1.5px solid #dde4e3;border-radius:12px;padding:14px;cursor:pointer;transition:all .15s;">
+            <input type="radio" name="treatment" value="Hijama Cupping">
+            <span><strong>Hijama Cupping</strong><br><small style="color:var(--muted);">45 min · €60</small></span>
+          </label>
+          <label class="treatment-opt" style="display:flex;align-items:center;gap:12px;border:1.5px solid #dde4e3;border-radius:12px;padding:14px;cursor:pointer;transition:all .15s;">
+            <input type="radio" name="treatment" value="Sportrevalidatie">
+            <span><strong>Sportrevalidatie</strong><br><small style="color:var(--muted);">60 min · €75</small></span>
+          </label>
+          <label class="treatment-opt" style="display:flex;align-items:center;gap:12px;border:1.5px solid #dde4e3;border-radius:12px;padding:14px;cursor:pointer;transition:all .15s;">
+            <input type="radio" name="treatment" value="Personal Training">
+            <span><strong>Personal Training</strong><br><small style="color:var(--muted);">60 min · €70</small></span>
+          </label>
+          <label class="treatment-opt" style="display:flex;align-items:center;gap:12px;border:1.5px solid #dde4e3;border-radius:12px;padding:14px;cursor:pointer;transition:all .15s;">
+            <input type="radio" name="treatment" value="Intake / Kennismaking">
+            <span><strong>Intake / Kennismaking</strong><br><small style="color:var(--muted);">30 min · Gratis</small></span>
+          </label>
+        </div>
+        <div class="step-nav">
+          <span></span>
+          <button class="btn-book" onclick="goStep(2)">Volgende: Datum &amp; Tijd →</button>
+        </div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="booking-step" id="step-2">
+        <h3 style="font-family:'Playfair Display',serif;margin-bottom:20px;">Kies datum en tijdstip</h3>
+
+        <div class="cal-header">
+          <button onclick="prevMonth()">‹</button>
+          <span id="cal-month-label"></span>
+          <button onclick="nextMonth()">›</button>
+        </div>
+        <div class="cal-days">
+          <div class="cal-day-label">Ma</div><div class="cal-day-label">Di</div>
+          <div class="cal-day-label">Wo</div><div class="cal-day-label">Do</div>
+          <div class="cal-day-label">Vr</div><div class="cal-day-label">Za</div>
+          <div class="cal-day-label">Zo</div>
+        </div>
+        <div class="date-grid" id="cal-grid"></div>
+
+        <h4 style="font-weight:600;margin-bottom:12px;font-size:0.9rem;">Selecteer eerst een datum, dan verschijnen de tijden</h4>
+        <div id="time-grid-container"><p style="color:var(--muted);font-size:0.88rem;padding:8px 0;">Kies een datum hierboven om beschikbare tijden te zien.</p></div>
+
+        <div class="step-nav">
+          <button class="btn-back" onclick="goStep(1)">← Terug</button>
+          <button class="btn-book" onclick="goStep(3)">Volgende: Gegevens →</button>
+        </div>
+      </div>
+
+      <!-- STEP 3 -->
+      <div class="booking-step" id="step-3">
+        <h3 style="font-family:'Playfair Display',serif;margin-bottom:20px;">Uw gegevens</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Voornaam</label>
+            <input type="text" id="fname" placeholder="Jan">
+          </div>
+          <div class="form-group">
+            <label>Achternaam</label>
+            <input type="text" id="lname" placeholder="de Vries">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>E-mailadres</label>
+            <input type="email" id="email" placeholder="jan@voorbeeld.nl">
+          </div>
+          <div class="form-group">
+            <label>Telefoonnummer</label>
+            <input type="tel" id="phone" placeholder="06 12345678">
+          </div>
+        </div>
+        <div class="form-row single">
+          <div class="form-group">
+            <label>Klacht / Aanvullende informatie (optioneel)</label>
+            <textarea id="notes" rows="3" placeholder="Vertel kort over uw klacht..."></textarea>
+          </div>
+        </div>
+
+        <div class="step-nav">
+          <button class="btn-back" onclick="goStep(2)">← Terug</button>
+          <button class="btn-book" onclick="confirmBooking()">✓ Afspraak bevestigen</button>
+        </div>
+      </div>
+
+      <!-- SUCCESS -->
+      <div class="booking-step" id="step-success">
+        <div class="success-state">
+          <div class="success-icon">✅</div>
+          <h3>Afspraak bevestigd!</h3>
+          <p id="confirm-text">Uw afspraak is ingepland. U ontvangt een bevestiging per e-mail. Voeg de afspraak toe aan uw agenda:</p>
+
+          <a id="apple-cal-link" href="#" class="apple-cal-box" onclick="addToAppleCal(event)">
+            <div class="apple-cal-icon">🍎</div>
+            <div class="apple-cal-text">
+              <h4>Toevoegen aan Apple Agenda</h4>
+              <p>Opent Apple Agenda of downloadt een .ics bestand</p>
+            </div>
+          </a>
+          <a id="google-cal-link" href="#" target="_blank" class="google-cal-box">
+            <div class="apple-cal-icon">📅</div>
+            <div class="apple-cal-text">
+              <h4 style="color:white;">Toevoegen aan Google Agenda</h4>
+              <p style="color:rgba(255,255,255,0.6);">Opent Google Agenda in een nieuw tabblad</p>
+            </div>
+          </a>
+
+          <button class="btn-book" style="margin-top:24px;" onclick="resetBooking()">Nieuwe afspraak maken</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- REVIEWS -->
+<section class="testimonials">
+  <span class="section-label">Ervaringen</span>
+  <h2 style="color:white;font-family:'Playfair Display',serif;font-size:clamp(1.9rem,3vw,2.6rem);font-weight:700;margin-bottom:12px;">Wat onze patiënten zeggen</h2>
+  <p class="section-lead">Meer dan 800 tevreden patiënten gingen u voor.</p>
+  <div class="reviews-grid">
+    <div class="review-card">
+      <div class="stars">★★★★★</div>
+      <blockquote>"Na twee sessies dry needling bij Diasco was mijn chronische nekpijn significant minder. Professionele aanpak en uitstekende uitleg over de behandeling."</blockquote>
+      <div class="reviewer">
+        <div class="reviewer-avatar">MK</div>
+        <div><div class="reviewer-name">Mohammed K.</div><div class="reviewer-treat">Dry Needling</div></div>
+      </div>
+    </div>
+    <div class="review-card">
+      <div class="stars">★★★★★</div>
+      <blockquote>"Na mijn heupoperatie heeft Diasco mij stap voor stap begeleid. Het revalidatieprogramma was duidelijk opgebouwd en ik liep binnen 6 weken zonder loophulpmiddel."</blockquote>
+      <div class="reviewer">
+        <div class="reviewer-avatar">FH</div>
+        <div><div class="reviewer-name">Fatima H.</div><div class="reviewer-treat">Heupprothese Revalidatie</div></div>
+      </div>
+    </div>
+    <div class="review-card">
+      <div class="stars">★★★★★</div>
+      <blockquote>"De combinatie van fysiotherapie en hijama heeft mijn kniepijn enorm verlicht. Eindelijk een praktijk die beide behandelingen serieus neemt."</blockquote>
+      <div class="reviewer">
+        <div class="reviewer-avatar">YA</div>
+        <div><div class="reviewer-name">Youssef A.</div><div class="reviewer-treat">Knieartrose + Hijama</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PHOTO STRIP -->
+<div style="display:grid;grid-template-columns:repeat(4,1fr);height:260px;overflow:hidden;">
+  <div style="overflow:hidden;"><img src="https://images.pexels.com/photos/3865557/pexels-photo-3865557.jpeg?auto=compress&cs=tinysrgb&w=400" alt="" style="width:100%;height:100%;object-fit:cover;transition:transform .4s;" onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'"></div>
+  <div style="overflow:hidden;"><img src="https://images.pexels.com/photos/3756165/pexels-photo-3756165.jpeg?auto=compress&cs=tinysrgb&w=400" alt="" style="width:100%;height:100%;object-fit:cover;transition:transform .4s;" onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'"></div>
+  <div style="overflow:hidden;"><img src="https://images.pexels.com/photos/6740056/pexels-photo-6740056.jpeg?auto=compress&cs=tinysrgb&w=400" alt="" style="width:100%;height:100%;object-fit:cover;transition:transform .4s;" onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'"></div>
+  <div style="overflow:hidden;"><img src="https://images.pexels.com/photos/4162449/pexels-photo-4162449.jpeg?auto=compress&cs=tinysrgb&w=400" alt="" style="width:100%;height:100%;object-fit:cover;transition:transform .4s;" onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'"></div>
+</div>
+
+
+<style>
+.adm-tab {
+  background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.5);
+  border:1px solid rgba(255,255,255,0.1);padding:9px 18px;
+  border-radius:8px;font-family:'DM Sans',sans-serif;font-size:0.85rem;
+  font-weight:600;cursor:pointer;transition:all .2s;
+}
+.adm-tab.active { background:#1a7f75;color:white;border-color:#1a7f75; }
+.adm-tab:hover:not(.active) { background:rgba(255,255,255,0.1);color:white; }
+</style>
+
+<!-- OVER ONS -->
+<div class="about-section" id="over-ons">
+  <div class="about-img" style="background:none;">
+    <img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&q=80" alt="Diasco fysiotherapeut behandeling" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:24px;">
+    <div style="position:absolute;inset:0;background:linear-gradient(160deg,rgba(15,92,84,0.3) 0%,rgba(15,92,84,0.75) 100%);border-radius:24px;"></div>
+    <div style="position:absolute;top:32px;left:32px;right:32px;color:white;z-index:1;">
+      <div style="font-size:2.5rem;margin-bottom:12px;">🏥</div>
+      <div style="font-size:0.8rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;opacity:.6;margin-bottom:8px;">Onze locatie</div>
+      <div style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;">Domineeslaan 87a</div>
+      <div style="opacity:.7;margin-top:4px;">Amsterdam</div>
+    </div>
+    <div class="about-img-overlay" style="position:relative;z-index:1;">
+      <h3>Diasco Fysiotherapie</h3>
+      <p>Opgericht met een passie voor bewegen en herstel</p>
+      <div style="margin-top:12px;">
+        <span class="credential">Geregistreerd Fysiotherapeut</span>
+        <span class="credential">Dry Needling Gecertificeerd</span>
+        <span class="credential">Manuele Therapie</span>
+        <span class="credential">Hijama Gecertificeerd</span>
+      </div>
+    </div>
+  </div>
+  <div>
+    <span class="section-label">Over Diasco</span>
+    <h2>Persoonlijk herstel, maximaal resultaat</h2>
+    <p style="color:var(--muted);line-height:1.7;margin-bottom:28px;">Bij Diasco geloven we dat de beste fysiotherapie verder gaat dan het behandelen van klachten. Wij kijken naar de hele mens — lichaam, bewegingspatroon en leefstijl — om duurzame resultaten te bereiken.</p>
+    <ul class="checklist">
+      <li><span class="check">✓</span>Uitgebreide intake en bewegingsanalyse bij iedere nieuwe patiënt</li>
+      <li><span class="check">✓</span>Gespecialiseerd in dry needling, mobilisatie en cupping</li>
+      <li><span class="check">✓</span>Post-operatieve revalidatie heup en knie</li>
+      <li><span class="check">✓</span>Nauw samenwerking met orthopeden en huisartsen</li>
+      <li><span class="check">✓</span>Vergoeding via zorgverzekering (aanvullend pakket)</li>
+      <li><span class="check">✓</span>Directe toegankelijkheid — geen verwijsbrief nodig</li>
+    </ul>
+    <a href="#afspraak" class="btn-primary" style="background:var(--teal);color:white;">📅 Plan uw intake →</a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer id="contact">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div style="margin-bottom:12px;">
+        <img src="https://diascofysiotherapie.nl/wp-content/uploads/2022/09/site-logo-e1664369450281.webp" alt="Diasco Fysiotherapie" style="height:52px;width:auto;filter:brightness(0) invert(1);">
+      </div>
+      <p>Fysiotherapie &amp; Performance Training in Amsterdam. Gespecialiseerd in dry needling, mobilisatie, en post-operatieve revalidatie.</p>
+    </div>
+    <div>
+      <h4>Behandelingen</h4>
+      <ul>
+        <li><a href="#">Dry Needling</a></li>
+        <li><a href="#">Mobilisatie</a></li>
+        <li><a href="#">Knieartrose</a></li>
+        <li><a href="#">Heupprothese</a></li>
+        <li><a href="#">Hijama Cupping</a></li>
+        <li><a href="#">Personal Training</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Praktisch</h4>
+      <ul>
+        <li><a href="#">Vergoedingen</a></li>
+        <li><a href="#">Tarieven</a></li>
+        <li><a href="#">Blog</a></li>
+        <li><a href="#">Doorverwijzing</a></li>
+        <li><a href="#">Privacy &amp; AVG</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Contact</h4>
+      <div class="contact-item"><span>📍</span><span>Domineeslaan 87a<br>Amsterdam</span></div>
+      <div class="contact-item"><span>📞</span><span>Bel voor afspraken</span></div>
+      <div class="contact-item"><span>✉️</span><span><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="afc6c1c9c0efcbc6cedcccc0c9d6dcc6c0dbc7caddcedfc6ca81c1c3">[email&#160;protected]</a></span></div>
+      <div class="contact-item"><span>🕐</span><span>Ma–Vr: 08:00–19:00<br>Za: 09:00–14:00</span></div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 Diasco Fysiotherapie &amp; Performance Training. Alle rechten voorbehouden.</p>
+    <p><a href="admin.html" style="color:rgba(255,255,255,0.12);text-decoration:none;font-size:0.72rem;letter-spacing:.06em;">· Medewerkers portaal ·</a></p>
+  </div>
+</footer>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ═══════════════════════════════════════════
+// SHARED STATE
+// ═══════════════════════════════════════════
+var bookings = [];
+var blockedDays = [];   // [{date:'2026-03-20', reason:'Vakantie'}]
+var blockedSlots = [];  // [{date:'2026-03-20', time:'09:00'}]
+var state = { step:1, treatment:'', date:null, time:'', fname:'', lname:'', email:'', phone:'', notes:'' };
+var calYear = new Date().getFullYear();
+var calMonth = new Date().getMonth();
+var monthNames = ['Januari','Februari','Maart','April','Mei','Juni','Juli','Augustus','September','Oktober','November','December'];
+
+function toDateStr(d) {
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+
+// ── CALENDAR ──────────────────────────────
+function renderCalendar() {
+  document.getElementById('cal-month-label').textContent = monthNames[calMonth]+' '+calYear;
+  var grid = document.getElementById('cal-grid');
+  grid.innerHTML = '';
+  var firstDay = new Date(calYear,calMonth,1).getDay();
+  var daysInMonth = new Date(calYear,calMonth+1,0).getDate();
+  var offset = (firstDay+6)%7;
+  var today = new Date();
+
+  for(var i=0;i<offset;i++){
+    var e=document.createElement('div');e.className='date-cell empty';grid.appendChild(e);
+  }
+  for(var d=1;d<=daysInMonth;d++){
+    (function(day){
+      var el=document.createElement('div');
+      var cellDate=new Date(calYear,calMonth,day);
+      var ds=toDateStr(cellDate);
+      var isToday=cellDate.toDateString()===today.toDateString();
+      var isPast=cellDate<new Date(today.getFullYear(),today.getMonth(),today.getDate());
+      var isSun=cellDate.getDay()===0;
+      var isBlocked=blockedDays.some(function(b){return b.date===ds;});
+      var disabled=isPast||isSun||isBlocked;
+      el.className='date-cell'+(disabled?' disabled':'')+(isToday?' today':'')+(isBlocked?' blocked':'');
+      el.textContent=day;
+      if(isBlocked)el.title='Niet beschikbaar';
+      if(!disabled)el.onclick=function(){selectDate(el,new Date(calYear,calMonth,day));};
+      if(state.date&&state.date.toDateString()===cellDate.toDateString())el.classList.add('selected');
+      grid.appendChild(el);
+    })(d);
+  }
+}
+
+function selectDate(el,date){
+  document.querySelectorAll('.date-cell.selected').forEach(function(e){e.classList.remove('selected');});
+  el.classList.add('selected');
+  state.date=date;
+  state.time='';
+  renderTimeSlots();
+}
+
+function renderTimeSlots(){
+  var times=['08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30'];
+  var container=document.getElementById('time-grid-container');
+  if(!state.date){container.innerHTML='<p style="color:var(--muted);font-size:0.88rem;padding:8px 0;">Kies een datum om tijden te zien.</p>';return;}
+  var ds=toDateStr(state.date);
+  var bookedTimes=bookings.filter(function(b){return b.date===ds;}).map(function(b){return b.time;});
+  var adminBlocked=blockedSlots.filter(function(s){return s.date===ds;}).map(function(s){return s.time;});
+  var demoBusy=['09:00','10:00','11:30','14:00','15:30'];
+  var grid=document.createElement('div');grid.className='time-grid';grid.id='time-grid';
+  times.forEach(function(t){
+    var el=document.createElement('div');
+    var busy=demoBusy.indexOf(t)>-1||bookedTimes.indexOf(t)>-1||adminBlocked.indexOf(t)>-1;
+    el.className='time-slot'+(busy?' busy':'');
+    el.textContent=t;
+    if(!busy)(function(time,elem){elem.onclick=function(){selectTime(elem,time);};})(t,el);
+    if(state.time===t&&!busy)el.classList.add('selected');
+    grid.appendChild(el);
+  });
+  container.innerHTML='';
+  container.appendChild(grid);
+}
+
+function selectTime(el,time){
+  document.querySelectorAll('.time-slot.selected').forEach(function(e){e.classList.remove('selected');});
+  el.classList.add('selected');
+  state.time=time;
+}
+
+function prevMonth(){calMonth--;if(calMonth<0){calMonth=11;calYear--;}renderCalendar();}
+function nextMonth(){calMonth++;if(calMonth>11){calMonth=0;calYear++;}renderCalendar();}
+
+// ── BOOKING STEPS ─────────────────────────
+function goStep(n){
+  if(n===2){
+    var sel=document.querySelector('input[name="treatment"]:checked');
+    if(!sel){showToast('Selecteer eerst een behandeling.','warn');return;}
+    state.treatment=sel.value;
+    state.date=null;state.time='';
+    renderCalendar();
+    document.getElementById('time-grid-container').innerHTML='<p style="color:var(--muted);font-size:0.88rem;padding:8px 0;">Kies een datum om tijden te zien.</p>';
+  }
+  if(n===3){
+    if(!state.date){showToast('Selecteer eerst een datum.','warn');return;}
+    if(!state.time){showToast('Selecteer eerst een tijdslot.','warn');return;}
+  }
+  document.querySelectorAll('.booking-step').forEach(function(s){s.classList.remove('active');});
+  document.getElementById('step-'+n).classList.add('active');
+  state.step=n;
+  var labels=['Kies uw behandeling','Datum & Tijdstip','Uw gegevens'];
+  document.getElementById('step-num').textContent=n;
+  document.getElementById('step-title').textContent=labels[n-1];
+  for(var i=1;i<=3;i++){
+    document.getElementById('prog-'+i).className='progress-step'+(i<n?' done':i===n?' active':'');
+  }
+}
+
+function confirmBooking(){
+  var fname=document.getElementById('fname').value.trim();
+  var lname=document.getElementById('lname').value.trim();
+  var email=document.getElementById('email').value.trim();
+  if(!fname||!lname||!email){showToast('Vul uw naam en e-mailadres in.','warn');return;}
+  state.fname=fname;state.lname=lname;state.email=email;
+  state.phone=document.getElementById('phone').value;
+  state.notes=document.getElementById('notes').value;
+
+  var booking={id:Date.now(),fname:state.fname,lname:state.lname,email:state.email,
+    phone:state.phone,notes:state.notes,treatment:state.treatment,
+    date:toDateStr(state.date),time:state.time,
+    created:new Date().toLocaleString('nl-NL')};
+  bookings.push(booking);
+
+  var dateStr=state.date.toLocaleDateString('nl-NL',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('confirm-text').textContent=
+    state.fname+', uw afspraak voor '+state.treatment+' op '+dateStr+' om '+state.time+' is bevestigd. U ontvangt een bevestiging op '+state.email+'.';
+
+  buildCalLinks();
+  document.querySelectorAll('.booking-step').forEach(function(s){s.classList.remove('active');});
+  document.getElementById('step-success').classList.add('active');
+  document.getElementById('step-num').textContent='✓';
+  document.getElementById('step-title').textContent='Bevestigd!';
+  renderAdminBookings();
+}
+
+function buildCalLinks(){
+  var d=state.date;
+  var parts=state.time.split(':');
+  var start=new Date(d.getFullYear(),d.getMonth(),d.getDate(),parseInt(parts[0]),parseInt(parts[1]),0);
+  var end=new Date(start.getTime()+60*60*1000);
+  var fmt=function(dt){return dt.toISOString().replace(/-|:|\.\d{3}/g,'');};
+  var title=encodeURIComponent('Fysiotherapie Diasco: '+state.treatment);
+  var details=encodeURIComponent('Diasco Fysiotherapie\nDomineeslaan 87a, Amsterdam');
+  var loc=encodeURIComponent('Domineeslaan 87a, Amsterdam');
+  document.getElementById('google-cal-link').href='https://calendar.google.com/calendar/render?action=TEMPLATE&text='+title+'&dates='+fmt(start)+'/'+fmt(end)+'&details='+details+'&location='+loc;
+  window._icsData={start:start,end:end,title:'Fysiotherapie Diasco: '+state.treatment,loc:'Domineeslaan 87a, Amsterdam'};
+}
+
+function addToAppleCal(e){
+  e.preventDefault();
+  var s=window._icsData;
+  var fmt=function(dt){return dt.toISOString().replace(/-|:|\.\d{3}/g,'');};
+  var ics=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Diasco//NL','BEGIN:VEVENT',
+    'DTSTART:'+fmt(s.start),'DTEND:'+fmt(s.end),'SUMMARY:'+s.title,
+    'LOCATION:'+s.loc,'DESCRIPTION:Fysiotherapie afspraak bij Diasco.','END:VEVENT','END:VCALENDAR'].join('\r\n');
+  var blob=new Blob([ics],{type:'text/calendar'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');a.href=url;a.download='diasco-afspraak.ics';a.click();
+  URL.revokeObjectURL(url);
+}
+
+function resetBooking(){
+  state={step:1,treatment:'',date:null,time:'',fname:'',lname:'',email:'',phone:'',notes:''};
+  document.querySelectorAll('.booking-step').forEach(function(s){s.classList.remove('active');});
+  document.getElementById('step-1').classList.add('active');
+  document.querySelectorAll('input[name="treatment"]').forEach(function(i){i.checked=false;});
+  document.querySelectorAll('.treatment-opt').forEach(function(l){l.style.borderColor='#dde4e3';l.style.background='';});
+  document.getElementById('step-num').textContent='1';
+  document.getElementById('step-title').textContent='Kies uw behandeling';
+  for(var i=1;i<=3;i++)document.getElementById('prog-'+i).className='progress-step'+(i===1?' active':'');
+  ['fname','lname','email','phone','notes'].forEach(function(id){document.getElementById(id).value='';});
+  document.getElementById('time-grid-container').innerHTML='<p style="color:var(--muted);font-size:0.88rem;padding:8px 0;">Kies een datum om tijden te zien.</p>';
+}
+
+document.querySelectorAll('.treatment-opt').forEach(function(label){
+  label.addEventListener('click',function(){
+    document.querySelectorAll('.treatment-opt').forEach(function(l){l.style.borderColor='#dde4e3';l.style.background='';});
+    label.style.borderColor='var(--teal)';label.style.background='rgba(26,127,117,0.04)';
+  });
+});
+
+// ── TOAST ─────────────────────────────────
+function showToast(msg,type){
+  var t=document.getElementById('_toast');
+  if(!t){t=document.createElement('div');t.id='_toast';
+    t.style.cssText='position:fixed;bottom:28px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:10px;font-family:"DM Sans",sans-serif;font-size:0.9rem;font-weight:600;z-index:9999;transition:opacity .3s;box-shadow:0 8px 24px rgba(0,0,0,0.2);pointer-events:none;';
+    document.body.appendChild(t);}
+  t.style.background=type==='warn'?'#e8a84c':'#1a7f75';
+  t.style.color='white';t.textContent=msg;t.style.opacity='1';
+  clearTimeout(t._tmr);t._tmr=setTimeout(function(){t.style.opacity='0';},3200);
+}
+
+// ── ADMIN ─────────────────────────────────
+function adminLogin(){
+  var u=document.getElementById('admin-user').value.trim();
+  var p=document.getElementById('admin-pass').value;
+  if(u==='diasco'&&p==='admin123'){
+    document.getElementById('admin-login-box').style.display='none';
+    document.getElementById('admin-dashboard').style.display='block';
+    renderAdminBookings();renderBlockedList();
+  } else {
+    document.getElementById('admin-error').style.display='block';
+  }
+}
+function adminLogout(){
+  document.getElementById('admin-login-box').style.display='block';
+  document.getElementById('admin-dashboard').style.display='none';
+  document.getElementById('admin-user').value='';
+  document.getElementById('admin-pass').value='';
+  document.getElementById('admin-error').style.display='none';
+}
+document.getElementById('admin-pass').addEventListener('keydown',function(e){if(e.key==='Enter')adminLogin();});
+
+function showAdminTab(name){
+  document.getElementById('panel-afspraken').style.display=name==='afspraken'?'block':'none';
+  document.getElementById('panel-blokkeer').style.display=name==='blokkeer'?'block':'none';
+  document.getElementById('tab-afspraken').className='adm-tab'+(name==='afspraken'?' active':'');
+  document.getElementById('tab-blokkeer').className='adm-tab'+(name==='blokkeer'?' active':'');
+}
+
+function renderAdminBookings(){
+  var list=document.getElementById('afspraken-list');
+  var count=document.getElementById('afspraak-count');
+  count.textContent=bookings.length;
+  if(bookings.length===0){
+    list.innerHTML='<div style="padding:40px;text-align:center;color:rgba(255,255,255,0.3);font-size:0.88rem;">Nog geen afspraken.<br>Ze verschijnen hier automatisch na boeking.</div>';
+    return;
+  }
+  list.innerHTML='';
+  bookings.slice().reverse().forEach(function(b){
+    var row=document.createElement('div');
+    row.style.cssText='padding:16px 20px;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;justify-content:space-between;align-items:flex-start;gap:12px;';
+    row.innerHTML='<div style="flex:1;">'
+      +'<div style="color:white;font-weight:600;font-size:0.88rem;">'+b.fname+' '+b.lname+'</div>'
+      +'<div style="color:rgba(255,255,255,0.45);font-size:0.78rem;margin-top:3px;">📅 '+b.date+' om '+b.time+' · '+b.treatment+'</div>'
+      +'<div style="color:rgba(255,255,255,0.35);font-size:0.75rem;margin-top:2px;">✉️ '+b.email+(b.phone?' · 📞 '+b.phone:'')+'</div>'
+      +(b.notes?'<div style="color:rgba(255,255,255,0.3);font-size:0.75rem;margin-top:4px;font-style:italic;">"'+b.notes+'"</div>':'')
+      +'</div>'
+      +'<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex-shrink:0;">'
+      +'<span style="background:rgba(26,127,117,0.25);color:#2da89b;padding:3px 10px;border-radius:6px;font-size:0.75rem;font-weight:600;">'+b.time+'</span>'
+      +'<button onclick="deleteBooking('+b.id+')" style="background:rgba(255,80,80,0.1);color:#ff6b6b;border:none;padding:5px 10px;border-radius:6px;cursor:pointer;font-size:0.8rem;">✕ Verwijder</button>'
+      +'</div>';
+    list.appendChild(row);
+  });
+}
+
+function deleteBooking(id){
+  bookings=bookings.filter(function(b){return b.id!==id;});
+  renderAdminBookings();
+  if(state.date)renderTimeSlots();
+  showToast('Afspraak verwijderd.','info');
+}
+
+function blockDay(){
+  var d=document.getElementById('block-date').value;
+  var r=document.getElementById('block-reason').value||'Niet beschikbaar';
+  if(!d){showToast('Kies een datum.','warn');return;}
+  if(blockedDays.some(function(b){return b.date===d;})){showToast('Datum al geblokkeerd.','warn');return;}
+  blockedDays.push({date:d,reason:r});
+  renderBlockedList();renderCalendar();
+  document.getElementById('block-date').value='';document.getElementById('block-reason').value='';
+  showToast(d+' geblokkeerd.','info');
+}
+
+function blockSlot(){
+  var d=document.getElementById('block-slot-date').value;
+  var t=document.getElementById('block-slot-time').value;
+  if(!d){showToast('Kies een datum.','warn');return;}
+  if(blockedSlots.some(function(s){return s.date===d&&s.time===t;})){showToast('Al geblokkeerd.','warn');return;}
+  blockedSlots.push({date:d,time:t});
+  renderBlockedList();
+  if(state.date&&toDateStr(state.date)===d)renderTimeSlots();
+  showToast(t+' op '+d+' geblokkeerd.','info');
+}
+
+function unblockDay(idx){blockedDays.splice(idx,1);renderBlockedList();renderCalendar();}
+function unblockSlot(idx){blockedSlots.splice(idx,1);renderBlockedList();if(state.date)renderTimeSlots();}
+
+function renderBlockedList(){
+  var el=document.getElementById('blocked-list');
+  if(blockedDays.length===0&&blockedSlots.length===0){
+    el.innerHTML='<p style="color:rgba(255,255,255,0.3);font-size:0.88rem;">Geen blokkeringen ingesteld.</p>';return;
+  }
+  var html='';
+  blockedDays.forEach(function(b,i){
+    html+='<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);">'
+      +'<div><div style="color:rgba(255,255,255,0.75);font-size:0.85rem;">📅 Dag: <strong>'+b.date+'</strong></div>'
+      +'<div style="color:rgba(255,255,255,0.35);font-size:0.75rem;">'+b.reason+'</div></div>'
+      +'<button onclick="unblockDay('+i+')" style="background:none;border:none;color:rgba(255,100,100,0.6);cursor:pointer;font-size:1rem;padding:4px 8px;border-radius:4px;">✕</button></div>';
+  });
+  blockedSlots.forEach(function(s,i){
+    html+='<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);">'
+      +'<div style="color:rgba(255,255,255,0.75);font-size:0.85rem;">⏰ Slot: <strong>'+s.date+'</strong> om <strong>'+s.time+'</strong></div>'
+      +'<but
