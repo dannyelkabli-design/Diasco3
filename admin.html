@@ -6,6 +6,7 @@
 <title>Diasco — Medewerkers Portaal</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
 <script src="https://alcdn.msauth.net/browser/2.39.0/js/msal-browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{
   --teal:#1a7f75;--teal-light:#2da87a;--teal-dark:#155f58;
@@ -34,46 +35,56 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .login-error{background:rgba(224,82,82,.15);border:1px solid rgba(224,82,82,.3);border-radius:8px;padding:10px 14px;color:#ff8a8a;font-size:.85rem;margin-top:14px;display:none;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
 
+/* ── SUPABASE SETUP WIZARD ── */
+#supabase-setup{min-height:100vh;display:none;align-items:center;justify-content:center;background:linear-gradient(135deg,#0f2522,#1c2b2a,#0a3d36);}
+.setup-wizard{background:rgba(255,255,255,.05);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.1);border-radius:24px;padding:48px;width:100%;max-width:560px;animation:fadeUp .5s ease;}
+.setup-wizard h2{font-family:'Playfair Display',serif;font-size:1.6rem;margin-bottom:8px;}
+.setup-steps{display:flex;gap:8px;margin:24px 0;}
+.setup-step{flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.1);}
+.setup-step.done{background:var(--teal);}
+.setup-step-content{display:none;}
+.setup-step-content.active{display:block;}
+.setup-code{background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:14px 18px;font-family:monospace;font-size:.82rem;color:#7dd3b0;white-space:pre;overflow-x:auto;margin:12px 0;}
+.setup-input{width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 16px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.92rem;outline:none;margin-bottom:12px;transition:border .2s;}
+.setup-input:focus{border-color:var(--teal);}
+.setup-btn{background:var(--teal);color:white;border:none;border-radius:10px;padding:13px 28px;font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:600;cursor:pointer;transition:background .2s;}
+.setup-btn:hover{background:var(--teal-light);}
+.setup-btn-secondary{background:rgba(255,255,255,.07);border:1px solid var(--border);color:var(--muted);border-radius:10px;padding:13px 28px;font-family:'DM Sans',sans-serif;font-size:.95rem;cursor:pointer;margin-right:10px;}
+
 /* ── DASHBOARD ──────────────────────────────── */
 #dashboard{display:none;min-height:100vh;}
 
-/* Topbar */
 .topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
 .topbar-logo{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;display:flex;align-items:center;gap:10px;}
 .topbar-logo-icon{width:34px;height:34px;background:var(--teal);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;}
 .topbar-right{display:flex;align-items:center;gap:16px;}
 .topbar-user{font-size:.85rem;color:var(--muted);}
 .topbar-user strong{color:var(--text);}
+.db-badge{background:rgba(26,127,117,.2);border:1px solid rgba(26,127,117,.3);border-radius:6px;padding:3px 10px;font-size:.75rem;font-weight:600;color:var(--teal);}
 .logout-btn{background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;padding:6px 14px;color:var(--muted);font-size:.82rem;cursor:pointer;transition:all .2s;}
 .logout-btn:hover{background:rgba(255,255,255,.1);color:var(--text);}
 
-/* Tab nav */
-.tab-nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;display:flex;gap:4px;}
+.tab-nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;display:flex;gap:4px;overflow-x:auto;}
 .tab-btn{padding:14px 20px;font-size:.88rem;font-weight:600;color:var(--muted);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;}
 .tab-btn:hover{color:var(--text);}
 .tab-btn.active{color:var(--teal);border-bottom-color:var(--teal);}
 
-/* Content */
 .tab-content{display:none;padding:28px;}
 .tab-content.active{display:block;}
 
-/* Grid layouts */
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
 .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
 @media(max-width:900px){.grid-2,.grid-3{grid-template-columns:1fr;}}
 
-/* Panels */
 .panel{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:20px;}
 .panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
 .panel-title{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:600;}
 
-/* Stats */
 .stat-card{background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:20px 24px;display:flex;align-items:center;gap:16px;}
 .stat-icon{width:44px;height:44px;background:rgba(26,127,117,.15);border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;}
 .stat-num{font-size:1.7rem;font-weight:700;line-height:1;}
 .stat-label{font-size:.78rem;color:var(--muted);margin-top:3px;}
 
-/* Buttons */
 .btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:9px;font-size:.85rem;font-weight:600;cursor:pointer;border:none;transition:all .15s;}
 .btn-primary{background:var(--teal);color:white;}
 .btn-primary:hover{background:var(--teal-light);}
@@ -83,7 +94,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .btn-danger:hover{background:rgba(224,82,82,.25);}
 .btn-sm{padding:6px 12px;font-size:.78rem;}
 
-/* Calendar */
 .cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
 .cal-header button{background:rgba(255,255,255,.07);border:1px solid var(--border);border-radius:8px;width:32px;height:32px;color:var(--text);cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;}
 .cal-header button:hover{background:rgba(255,255,255,.12);}
@@ -99,104 +109,199 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .cal-day.other-month{color:rgba(255,255,255,.2);}
 .cal-day.selected::after{background:rgba(255,255,255,.7);}
 
-/* Slots */
-.slots-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:7px;margin-top:12px;}
-.slot{padding:8px 4px;border-radius:8px;font-size:.82rem;font-weight:600;text-align:center;border:1px solid transparent;cursor:pointer;transition:all .15s;position:relative;}
-.slot.free{background:rgba(45,168,122,.08);border-color:rgba(45,168,122,.2);color:var(--teal-light);}
-.slot.free:hover{background:rgba(45,168,122,.2);}
-.slot.booked{background:rgba(26,127,117,.15);border-color:rgba(26,127,117,.3);color:rgba(255,255,255,.6);cursor:default;}
-.slot.blocked{background:rgba(224,82,82,.08);border-color:rgba(224,82,82,.2);color:rgba(224,82,82,.6);cursor:pointer;}
-.slot.blocked:hover{background:rgba(224,82,82,.15);}
-.slot.outlook-busy{background:rgba(240,180,41,.08);border-color:rgba(240,180,41,.2);color:var(--yellow);cursor:default;font-size:.75rem;}
-.slot.weekend{background:rgba(255,255,255,.03);border-color:transparent;color:rgba(255,255,255,.2);cursor:not-allowed;}
-
-/* Appointment items */
-.appt-item{display:flex;align-items:center;gap:12px;padding:12px 16px;background:rgba(255,255,255,.04);border-radius:11px;border:1px solid var(--border);margin-bottom:8px;transition:border .2s;}
-.appt-item:hover{border-color:rgba(255,255,255,.15);}
-.appt-time-badge{background:var(--teal);color:white;border-radius:8px;padding:5px 10px;font-size:.82rem;font-weight:700;white-space:nowrap;}
-.appt-time-badge.outlook-badge{background:rgba(0,114,206,.6);}
-.appt-info{flex:1;min-width:0;}
-.appt-name{font-weight:600;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.appt-item{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;padding:12px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;transition:border .15s;}
+.appt-item:hover{border-color:rgba(26,127,117,.3);}
+.appt-time-badge{background:rgba(26,127,117,.15);color:var(--teal);padding:5px 10px;border-radius:7px;font-size:.8rem;font-weight:700;white-space:nowrap;}
+.outlook-badge{background:rgba(0,114,206,.15)!important;color:#6cb4e8!important;}
+.appt-name{font-weight:600;font-size:.9rem;}
 .appt-treatment{font-size:.78rem;color:var(--muted);margin-top:2px;}
-.appt-sync-badge{background:rgba(0,114,206,.2);color:#5bb8f5;border-radius:4px;padding:1px 6px;font-size:.7rem;font-weight:600;margin-left:6px;}
-.appt-actions{display:flex;gap:6px;flex-shrink:0;}
-.appt-btn{width:28px;height:28px;border-radius:7px;border:1px solid var(--border);background:rgba(255,255,255,.05);color:var(--muted);cursor:pointer;font-size:.85rem;display:flex;align-items:center;justify-content:center;transition:all .15s;}
-.appt-btn:hover{background:rgba(255,255,255,.12);color:var(--text);}
-.appt-btn.danger:hover{background:rgba(224,82,82,.2);border-color:rgba(224,82,82,.4);color:var(--red);}
+.appt-actions{display:flex;gap:6px;}
+.appt-btn{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:7px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.78rem;color:var(--muted);transition:all .15s;}
+.appt-btn:hover{background:rgba(255,255,255,.1);color:var(--text);}
+.appt-btn.danger:hover{background:rgba(224,82,82,.2);border-color:rgba(224,82,82,.3);color:#ff8a8a;}
+.appt-sync-badge{background:rgba(0,114,206,.15);color:#6cb4e8;font-size:.68rem;padding:2px 7px;border-radius:5px;vertical-align:middle;margin-left:5px;}
 
-/* Day view */
-.day-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;}
-.day-nav{display:flex;align-items:center;gap:10px;}
-.day-nav button{background:rgba(255,255,255,.07);border:1px solid var(--border);border-radius:8px;padding:6px 14px;color:var(--text);cursor:pointer;font-size:.88rem;transition:all .15s;}
-.day-nav button:hover{background:rgba(255,255,255,.12);}
-.day-title{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;}
-.day-timeline{display:flex;flex-direction:column;gap:4px;}
-.timeline-row{display:grid;grid-template-columns:60px 1fr;gap:12px;align-items:stretch;min-height:52px;}
-.timeline-time{font-size:.78rem;color:var(--muted);padding-top:14px;text-align:right;font-weight:600;}
-.timeline-cell{border-radius:10px;padding:10px 14px;transition:all .15s;position:relative;}
-.timeline-cell.free{background:rgba(45,168,122,.04);border:1px dashed rgba(45,168,122,.15);cursor:pointer;}
-.timeline-cell.free:hover{background:rgba(45,168,122,.1);border-color:var(--teal);}
-.timeline-cell.blocked{background:rgba(224,82,82,.06);border:1px solid rgba(224,82,82,.15);cursor:pointer;}
-.timeline-cell.blocked:hover{background:rgba(224,82,82,.12);}
-.timeline-cell.booked{background:rgba(26,127,117,.12);border:1px solid rgba(26,127,117,.25);}
-.timeline-cell.outlook{background:rgba(0,114,206,.1);border:1px solid rgba(0,114,206,.2);}
-.timeline-cell.weekend{background:rgba(255,255,255,.02);border:1px solid transparent;cursor:not-allowed;}
-.cell-name{font-weight:600;font-size:.88rem;}
-.cell-sub{font-size:.75rem;color:var(--muted);margin-top:2px;}
-.cell-free-label{font-size:.78rem;color:rgba(45,168,122,.5);}
-.cell-blocked-label{font-size:.78rem;color:rgba(224,82,82,.6);}
-.cell-actions{position:absolute;right:10px;top:50%;transform:translateY(-50%);display:flex;gap:5px;opacity:0;transition:opacity .15s;}
-.timeline-cell:hover .cell-actions{opacity:1;}
+/* Setup banner */
+.setup-banner{background:rgba(240,180,41,.08);border:1px solid rgba(240,180,41,.2);border-radius:12px;padding:14px 20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.supa-banner{background:rgba(26,127,117,.08);border:1px solid rgba(26,127,117,.2);border-radius:12px;padding:14px 20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
 
 /* Forms */
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
 .form-row.single{grid-template-columns:1fr;}
-.form-group label{display:block;font-size:.78rem;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em;}
-.form-group input,.form-group select,.form-group textarea{width:100%;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:9px;padding:10px 13px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.88rem;outline:none;transition:border .2s;}
+.form-group label{display:block;font-size:.78rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;}
+.form-group input,.form-group select,.form-group textarea{width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:10px 14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.88rem;outline:none;transition:border .2s;}
 .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--teal);}
-.form-group select option{background:var(--surface);}
-.form-group textarea{resize:vertical;min-height:70px;}
+.form-group select option{background:#1e2a28;color:var(--text);}
+.form-group textarea{resize:vertical;min-height:64px;}
 .checkbox-row{display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--muted);margin-bottom:14px;}
-.checkbox-row input{width:16px;height:16px;accent-color:var(--teal);}
+.checkbox-row input{accent-color:var(--teal);}
 
-/* Outlook panel */
-.outlook-panel{background:linear-gradient(135deg,rgba(0,114,206,.1),rgba(0,114,206,.05));border:1px solid rgba(0,114,206,.2);border-radius:16px;padding:24px;margin-bottom:20px;}
-.outlook-btn{display:flex;align-items:center;gap:10px;background:rgba(0,114,206,.15);border:1px solid rgba(0,114,206,.3);border-radius:10px;padding:10px 16px;color:var(--text);font-size:.88rem;font-weight:600;cursor:pointer;transition:all .2s;}
-.outlook-btn:hover,.outlook-btn.connected{background:rgba(0,114,206,.25);}
-.outlook-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
+/* Day view */
+.day-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px;}
+.day-nav{display:flex;gap:8px;}
+.day-nav button{background:rgba(255,255,255,.07);border:1px solid var(--border);border-radius:9px;padding:8px 16px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.85rem;cursor:pointer;transition:all .15s;}
+.day-nav button:hover{background:rgba(255,255,255,.12);}
+.day-title{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:600;text-transform:capitalize;}
+.timeline-row{display:grid;grid-template-columns:60px 1fr;gap:12px;align-items:stretch;margin-bottom:6px;}
+.timeline-time{font-size:.82rem;font-weight:600;color:var(--muted);text-align:right;padding-top:10px;}
+.timeline-cell{border-radius:10px;padding:10px 14px;min-height:48px;display:flex;align-items:center;justify-content:space-between;transition:all .15s;}
+.timeline-cell.free{background:rgba(255,255,255,.03);border:1px dashed rgba(255,255,255,.07);}
+.timeline-cell.free:hover{background:rgba(26,127,117,.05);border-color:rgba(26,127,117,.2);}
+.timeline-cell.booked{background:rgba(26,127,117,.12);border:1px solid rgba(26,127,117,.25);}
+.timeline-cell.blocked{background:rgba(224,82,82,.08);border:1px solid rgba(224,82,82,.2);}
+.timeline-cell.outlook{background:rgba(0,114,206,.08);border:1px solid rgba(0,114,206,.2);}
+.timeline-cell.weekend{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);color:var(--muted);}
+.cell-free-label{font-size:.78rem;color:rgba(255,255,255,.2);}
+.cell-blocked-label{font-size:.82rem;color:#ff8a8a;}
+.cell-name{font-size:.88rem;font-weight:600;}
+.cell-sub{font-size:.78rem;color:var(--muted);margin-top:2px;}
+.cell-actions{display:flex;gap:6px;flex-shrink:0;margin-left:10px;}
 
-/* Account cards */
-.account-card{background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:20px;display:flex;align-items:center;gap:16px;}
-.account-avatar{width:44px;height:44px;background:var(--teal);border-radius:11px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;flex-shrink:0;}
+/* Slots grid */
+.slots-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px;margin-bottom:16px;}
+.slot{padding:9px 6px;border-radius:9px;font-size:.82rem;font-weight:600;text-align:center;cursor:pointer;transition:all .15s;}
+.slot.free{background:rgba(26,127,117,.1);color:var(--teal);border:1px solid rgba(26,127,117,.2);}
+.slot.free:hover{background:var(--teal);color:white;}
+.slot.blocked{background:rgba(224,82,82,.1);color:#ff8a8a;border:1px solid rgba(224,82,82,.2);}
+.slot.blocked:hover{background:rgba(224,82,82,.2);}
+.slot.booked{background:rgba(255,255,255,.04);color:var(--muted);border:1px solid var(--border);cursor:default;}
+.slot.outlook-busy{background:rgba(0,114,206,.1);color:#6cb4e8;border:1px solid rgba(0,114,206,.15);cursor:default;}
+.slot.weekend{background:rgba(255,255,255,.02);color:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.04);cursor:default;}
+
+/* Outlook */
+.outlook-panel{background:rgba(0,114,206,.06);border:1px solid rgba(0,114,206,.12);border-radius:14px;padding:20px;margin-bottom:16px;}
+.outlook-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;}
+.outlook-btn{background:rgba(0,114,206,.15);border:1px solid rgba(0,114,206,.25);border-radius:9px;padding:10px 20px;color:#6cb4e8;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;transition:all .2s;}
+.outlook-btn:hover{background:rgba(0,114,206,.25);}
+
+/* Accounts */
+.account-card{background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;transition:border .15s;}
+.account-card:hover{border-color:rgba(26,127,117,.3);}
+.account-avatar{width:40px;height:40px;border-radius:10px;background:var(--teal);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:white;flex-shrink:0;}
 .account-info{flex:1;}
-.account-name{font-weight:600;font-size:.95rem;}
-.account-role{font-size:.78rem;color:var(--muted);margin-top:2px;}
-.role-badge{display:inline-block;background:rgba(26,127,117,.2);color:var(--teal-light);border-radius:5px;padding:2px 8px;font-size:.72rem;font-weight:600;margin-top:4px;}
-.role-badge.admin{background:rgba(240,180,41,.15);color:var(--yellow);}
+.account-name{font-weight:600;font-size:.92rem;}
+.account-role{font-size:.75rem;color:var(--muted);margin-top:2px;}
+.role-badge{display:inline-block;padding:2px 10px;border-radius:6px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;}
+.role-admin{background:rgba(240,180,41,.15);color:var(--yellow);}
+.role-medewerker{background:rgba(26,127,117,.15);color:var(--teal);}
+.edit-panel{background:var(--surface2);border:1px solid rgba(26,127,117,.25);border-radius:14px;padding:20px;margin-top:8px;margin-bottom:16px;display:none;animation:fadeUp .2s ease;}
+.edit-panel.open{display:block;}
 
 /* Modals */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:1000;backdrop-filter:blur(4px);}
-.modal{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:32px;max-width:480px;width:90%;animation:fadeUp .3s ease;}
-.modal h3{font-family:'Playfair Display',serif;font-size:1.3rem;margin-bottom:8px;}
-.modal p{color:var(--muted);font-size:.88rem;margin-bottom:24px;line-height:1.6;}
-.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;align-items:center;justify-content:center;}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:32px;max-width:420px;width:90%;}
+.modal h3{font-family:'Playfair Display',serif;font-size:1.2rem;margin-bottom:12px;}
+.modal p{color:var(--muted);font-size:.88rem;line-height:1.6;margin-bottom:20px;}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;}
 
-/* Badge / tag */
-.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:.75rem;font-weight:600;}
-.badge-green{background:rgba(45,168,122,.15);color:var(--green);}
-.badge-red{background:rgba(224,82,82,.15);color:var(--red);}
-.badge-yellow{background:rgba(240,180,41,.15);color:var(--yellow);}
+/* Supabase status */
+.supa-dot{width:8px;height:8px;border-radius:50%;background:#888;display:inline-block;margin-right:6px;flex-shrink:0;}
+.supa-dot.connected{background:var(--green);box-shadow:0 0 6px rgba(45,168,122,.5);}
+.supa-dot.error{background:var(--red);}
 
 /* Toast */
-#toast{position:fixed;bottom:24px;right:24px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 20px;font-size:.88rem;font-weight:500;z-index:9999;display:none;max-width:340px;animation:fadeUp .3s ease;box-shadow:0 8px 32px rgba(0,0,0,.3);}
-#toast.error{border-color:rgba(224,82,82,.3);background:rgba(224,82,82,.1);}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--charcoal);color:white;padding:12px 24px;border-radius:10px;font-size:.9rem;font-weight:500;z-index:9999;transition:transform .3s ease;pointer-events:none;}
+#toast.show{transform:translateX(-50%) translateY(0);}
+#toast.warn{background:#c0392b;}
 
-/* Setup banner */
-.setup-banner{background:rgba(240,180,41,.1);border:1px solid rgba(240,180,41,.2);border-radius:12px;padding:14px 20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
-.setup-banner p{font-size:.85rem;color:var(--yellow);}
+/* Loading spinner */
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.2);border-top-color:white;border-radius:50%;animation:spin .6s linear infinite;margin-right:6px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px;}
 </style>
 </head>
 <body>
+
+<!-- ── SUPABASE SETUP WIZARD ────────────────────────────── -->
+<div id="supabase-setup" style="display:none;">
+  <div class="setup-wizard">
+    <div class="login-logo" style="margin-bottom:24px;">
+      <div class="login-logo-icon">D</div>
+      <span class="login-logo-text">Diasco Portaal</span>
+    </div>
+    <h2>Database instellen</h2>
+    <p style="color:var(--muted);font-size:.88rem;margin-bottom:20px;">Verbind Supabase voor onbeperkte en gedeelde opslag. Eenmalige setup van ~5 minuten.</p>
+    <div class="setup-steps">
+      <div class="setup-step done" id="ws1"></div>
+      <div class="setup-step" id="ws2"></div>
+      <div class="setup-step" id="ws3"></div>
+    </div>
+
+    <!-- STAP 1: URL + Key -->
+    <div class="setup-step-content active" id="setup-stap-1">
+      <h3 style="font-size:1rem;font-weight:600;margin-bottom:12px;">Stap 1 — Supabase project aanmaken</h3>
+      <ol style="color:var(--muted);font-size:.85rem;line-height:2.2;padding-left:20px;margin-bottom:20px;">
+        <li>Ga naar <strong style="color:var(--text);">supabase.com</strong> en maak een gratis account aan</li>
+        <li>Klik <strong style="color:var(--text);">New Project</strong> → geef het een naam (bijv. "diasco")</li>
+        <li>Wacht tot het project klaar is (~1 min)</li>
+        <li>Ga naar <strong style="color:var(--text);">Project Settings → API</strong></li>
+        <li>Kopieer de <strong style="color:var(--text);">Project URL</strong> en <strong style="color:var(--text);">anon public key</strong></li>
+      </ol>
+      <div class="form-group" style="margin-bottom:12px;">
+        <label>Project URL</label>
+        <input class="setup-input" id="supa-url" placeholder="https://xxxxxxxxxxxx.supabase.co">
+      </div>
+      <div class="form-group" style="margin-bottom:20px;">
+        <label>Anon Public Key</label>
+        <input class="setup-input" id="supa-key" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <button class="setup-btn" onclick="setupStap2()">Volgende →</button>
+        <button class="setup-btn-secondary" onclick="skipSetup()">Later instellen</button>
+      </div>
+    </div>
+
+    <!-- STAP 2: SQL aanmaken -->
+    <div class="setup-step-content" id="setup-stap-2">
+      <h3 style="font-size:1rem;font-weight:600;margin-bottom:12px;">Stap 2 — Tabellen aanmaken</h3>
+      <p style="color:var(--muted);font-size:.85rem;margin-bottom:12px;">Kopieer en voer deze SQL uit in de <strong style="color:var(--text);">Supabase SQL Editor</strong>:</p>
+      <div class="setup-code" id="setup-sql-code">-- Afspraken tabel
+CREATE TABLE IF NOT EXISTS afspraken (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  fname text, lname text, email text, phone text,
+  date text NOT NULL, time text NOT NULL,
+  treatment text, notes text,
+  created_at timestamptz DEFAULT now()
+);
+
+-- Geblokkeerde slots tabel
+CREATE TABLE IF NOT EXISTS blocked_slots (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  date text NOT NULL, time text NOT NULL,
+  reason text DEFAULT 'Geblokkeerd',
+  created_at timestamptz DEFAULT now(),
+  UNIQUE(date, time)
+);
+
+-- Row Level Security uitschakelen (intern gebruik)
+ALTER TABLE afspraken ENABLE ROW LEVEL SECURITY;
+ALTER TABLE blocked_slots ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "allow_all" ON afspraken FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "allow_all" ON blocked_slots FOR ALL USING (true) WITH CHECK (true);</div>
+      <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
+        <button class="btn btn-secondary btn-sm" onclick="copySql()">📋 Kopieer SQL</button>
+        <button class="setup-btn" onclick="setupStap3()">Klaar, verbinden →</button>
+        <button class="setup-btn-secondary" onclick="goStap(1)">← Terug</button>
+      </div>
+    </div>
+
+    <!-- STAP 3: Test verbinding -->
+    <div class="setup-step-content" id="setup-stap-3">
+      <h3 style="font-size:1rem;font-weight:600;margin-bottom:12px;">Stap 3 — Verbinding testen</h3>
+      <div id="setup-test-result" style="background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:20px;font-size:.85rem;color:var(--muted);">
+        Klik op "Verbinding testen" om te controleren of alles werkt...
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="setup-btn" onclick="testSupabase()">🔌 Verbinding testen</button>
+        <button class="setup-btn-secondary" onclick="goStap(2)">← Terug</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- ── LOGIN ──────────────────────────────────────────── -->
 <div id="login-page">
@@ -211,44 +316,48 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     <div class="field"><label>Wachtwoord</label><input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password"></div>
     <button class="login-btn" onclick="doLogin()">Inloggen →</button>
     <div class="login-error" id="login-error">Onjuiste gebruikersnaam of wachtwoord</div>
+    <p style="font-size:.75rem;color:var(--muted);margin-top:16px;text-align:center;">
+      <span id="db-status-login">
+        <span class="supa-dot"></span>Database: niet geconfigureerd
+      </span>
+    </p>
   </div>
 </div>
 
 <!-- ── DASHBOARD ──────────────────────────────────────── -->
 <div id="dashboard">
 
-  <!-- Topbar -->
   <div class="topbar">
     <div class="topbar-logo">
       <div class="topbar-logo-icon">D</div>
       Diasco Portaal
     </div>
     <div class="topbar-right">
+      <span class="db-badge" id="topbar-db-badge">💾 localStorage</span>
       <span class="topbar-user">Ingelogd als <strong id="topbar-username"></strong></span>
       <button class="logout-btn" onclick="doLogout()">Uitloggen</button>
     </div>
   </div>
 
-  <!-- Tab nav -->
   <div class="tab-nav">
     <button class="tab-btn active" onclick="switchTab('overzicht')">📊 Overzicht</button>
     <button class="tab-btn" onclick="switchTab('dagplanning')">📅 Dagplanning</button>
     <button class="tab-btn" onclick="switchTab('afspraken')">📋 Alle Afspraken</button>
-    <button class="tab-btn" onclick="switchTab('tijdslots')">🔒 Tijdslots Beheer</button>
+    <button class="tab-btn" onclick="switchTab('tijdslots')">🔒 Tijdslots</button>
     <button class="tab-btn" onclick="switchTab('accounts')">👥 Accounts</button>
     <button class="tab-btn" onclick="switchTab('instellingen')">⚙️ Instellingen</button>
   </div>
 
-  <!-- ══════════════════════ TAB: OVERZICHT ══════════════════════ -->
+  <!-- ══ TAB: OVERZICHT ══ -->
   <div id="tab-overzicht" class="tab-content active">
-
-    <!-- Setup banner -->
+    <div class="supa-banner" id="supa-setup-banner" style="display:none;">
+      <p>🗄️ <strong>Supabase niet geconfigureerd.</strong> Stel een database in voor gedeelde opslag zonder limieten.</p>
+      <button class="btn btn-secondary btn-sm" onclick="openSupaSetup()">Database instellen →</button>
+    </div>
     <div class="setup-banner" id="setup-banner">
-      <p>⚠️ <strong>Outlook niet geconfigureerd.</strong> Voeg een Azure Client ID in via Instellingen voor agenda-synchronisatie.</p>
+      <p>⚠️ <strong>Outlook niet geconfigureerd.</strong> Voeg een Azure Client ID in via Instellingen.</p>
       <button class="btn btn-secondary btn-sm" onclick="switchTab('instellingen')">Configureren →</button>
     </div>
-
-    <!-- Stats -->
     <div class="grid-3" style="margin-bottom:20px;">
       <div class="stat-card">
         <div class="stat-icon">📅</div>
@@ -263,9 +372,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
         <div><div class="stat-num" id="stat-month">0</div><div class="stat-label">Deze maand</div></div>
       </div>
     </div>
-
     <div class="grid-2">
-      <!-- Calendar -->
       <div class="panel">
         <div class="panel-header">
           <span class="panel-title">Agenda</span>
@@ -277,12 +384,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
         </div>
         <div class="cal-grid" id="cal-grid"></div>
         <div style="margin-top:16px;display:flex;gap:14px;font-size:.75rem;color:var(--muted);">
-          <span>🟢 Diasco afspraak</span>
-          <span>🟡 Outlook bezet</span>
+          <span>🟢 Diasco afspraak</span><span>🟡 Outlook bezet</span>
         </div>
       </div>
-
-      <!-- Today appointments -->
       <div style="display:flex;flex-direction:column;gap:20px;">
         <div class="panel" style="flex:1;">
           <div class="panel-header">
@@ -291,13 +395,15 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
           </div>
           <div id="todays-appts"></div>
         </div>
-
-        <!-- Quick add -->
         <div class="panel">
           <div class="panel-header"><span class="panel-title">Snel afspraak toevoegen</span></div>
           <div class="form-row">
-            <div class="form-group"><label>Naam patiënt</label><input type="text" id="new-name" placeholder="Volledige naam"></div>
+            <div class="form-group"><label>Voornaam</label><input type="text" id="new-fname" placeholder="Voornaam"></div>
+            <div class="form-group"><label>Achternaam</label><input type="text" id="new-lname" placeholder="Achternaam"></div>
+          </div>
+          <div class="form-row">
             <div class="form-group"><label>Telefoon</label><input type="text" id="new-phone" placeholder="06-..."></div>
+            <div class="form-group"><label>E-mail</label><input type="email" id="new-email" placeholder="patiënt@mail.nl"></div>
           </div>
           <div class="form-row">
             <div class="form-group"><label>Datum</label><input type="date" id="new-date"></div>
@@ -323,19 +429,19 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
             </div>
           </div>
           <div class="form-row single">
-            <div class="form-group"><label>Notities (optioneel)</label><textarea id="new-notes" placeholder="Aanvullende info..."></textarea></div>
+            <div class="form-group"><label>Notities</label><textarea id="new-notes" placeholder="Aanvullende info..."></textarea></div>
           </div>
           <div class="checkbox-row">
             <input type="checkbox" id="sync-to-outlook" checked>
             <label for="sync-to-outlook">Synchroniseren met Outlook agenda</label>
           </div>
-          <button class="btn btn-primary" style="width:100%;" onclick="addAppointment()">✓ Afspraak toevoegen</button>
+          <button class="btn btn-primary" style="width:100%;" id="add-appt-btn" onclick="addAppointment()">✓ Afspraak toevoegen</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ══════════════════════ TAB: DAGPLANNING ══════════════════════ -->
+  <!-- ══ TAB: DAGPLANNING ══ -->
   <div id="tab-dagplanning" class="tab-content">
     <div class="panel">
       <div class="day-header">
@@ -345,37 +451,46 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
           <button onclick="changeDay(1)">Volgende dag →</button>
         </div>
         <h2 class="day-title" id="day-view-title"></h2>
-        <div style="display:flex;gap:8px;align-items:center;">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
           <input type="date" id="day-picker" style="background:rgba(255,255,255,.07);border:1px solid var(--border);border-radius:8px;padding:7px 12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.85rem;outline:none;" onchange="goToDate(this.value)">
-          <div style="display:flex;gap:8px;font-size:.75rem;color:var(--muted);align-items:center;">
+          <div style="display:flex;gap:10px;font-size:.75rem;color:var(--muted);align-items:center;flex-wrap:wrap;">
             <span style="display:inline-flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;background:rgba(26,127,117,.3);border-radius:3px;display:inline-block;"></span>Geboekt</span>
             <span style="display:inline-flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;background:rgba(224,82,82,.2);border-radius:3px;display:inline-block;"></span>Geblokkeerd</span>
-            <span style="display:inline-flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;background:rgba(240,180,41,.2);border-radius:3px;display:inline-block;"></span>Outlook</span>
+            <span style="display:inline-flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;background:rgba(0,114,206,.2);border-radius:3px;display:inline-block;"></span>Outlook</span>
           </div>
         </div>
       </div>
-      <div class="day-timeline" id="day-timeline"></div>
+      <div id="day-timeline"></div>
     </div>
   </div>
 
-  <!-- ══════════════════════ TAB: ALLE AFSPRAKEN ══════════════════════ -->
+  <!-- ══ TAB: ALLE AFSPRAKEN ══ -->
   <div id="tab-afspraken" class="tab-content">
     <div class="panel">
       <div class="panel-header">
-        <span class="panel-title">Alle afspraken</span>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;">
-          <input type="text" id="search-appts" placeholder="🔍 Zoek op naam..." style="background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;padding:7px 12px;color:var(--text);font-size:.85rem;outline:none;width:200px;" oninput="renderAllAppts()">
-          <select id="filter-treatment" style="background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;padding:7px 12px;color:var(--text);font-size:.85rem;outline:none;" onchange="renderAllAppts()">
+        <span class="panel-title">Alle Afspraken</span>
+        <button class="btn btn-primary btn-sm" onclick="loadAppointments()">↻ Vernieuwen</button>
+      </div>
+      <div class="form-row" style="margin-bottom:16px;">
+        <div class="form-group"><label>Zoeken</label><input type="text" id="search-appts" placeholder="Naam, telefoon, email..." oninput="renderAllAppts()"></div>
+        <div class="form-group"><label>Behandeling</label>
+          <select id="filter-treatment" onchange="renderAllAppts()">
             <option value="">Alle behandelingen</option>
             <option>Dry Needling</option><option>Mobilisatie</option><option>Knieartrose</option>
             <option>Heupprothese Revalidatie</option><option>Hijama Cupping</option>
             <option>Sportrevalidatie</option><option>Personal Training</option><option>Intake / Kennismaking</option>
           </select>
-          <select id="filter-period" style="background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;padding:7px 12px;color:var(--text);font-size:.85rem;outline:none;" onchange="renderAllAppts()">
-            <option value="upcoming">Aankomend</option>
+        </div>
+      </div>
+      <div class="form-row single" style="margin-bottom:20px;">
+        <div class="form-group"><label>Periode</label>
+          <select id="filter-period" onchange="renderAllAppts()">
+            <option value="">Alle</option>
             <option value="today">Vandaag</option>
             <option value="week">Deze week</option>
-            <option value="all">Alles</option>
+            <option value="month">Deze maand</option>
+            <option value="future">Toekomstig</option>
+            <option value="past">Verleden</option>
           </select>
         </div>
       </div>
@@ -383,13 +498,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     </div>
   </div>
 
-  <!-- ══════════════════════ TAB: TIJDSLOTS ══════════════════════ -->
+  <!-- ══ TAB: TIJDSLOTS ══ -->
   <div id="tab-tijdslots" class="tab-content">
     <div class="grid-2">
-      <!-- Calendar selector -->
       <div class="panel">
         <div class="panel-header">
-          <span class="panel-title">Selecteer datum</span>
+          <span class="panel-title">📅 Kalender</span>
           <div style="display:flex;gap:6px;">
             <button class="btn btn-secondary btn-sm" onclick="changeSlotMonth(-1)">‹</button>
             <span id="slot-month-label" style="padding:6px 12px;font-size:.85rem;font-weight:600;"></span>
@@ -397,102 +511,96 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
           </div>
         </div>
         <div class="cal-grid" id="slot-cal-grid"></div>
-        <div style="margin-top:20px;">
-          <div class="panel-header" style="margin-bottom:12px;">
-            <span class="panel-title" style="font-size:.95rem;">Tijdslots — <span id="slots-date-label">selecteer een datum</span></span>
-            <div style="display:flex;gap:6px;">
-              <button class="btn btn-danger btn-sm" onclick="blockAllSlots()">🔒 Dag blokkeren</button>
-              <button class="btn btn-secondary btn-sm" onclick="unblockAllSlots()">🔓 Dag vrijgeven</button>
-            </div>
-          </div>
-          <div class="slots-grid" id="slots-grid"></div>
-        </div>
+        <div style="margin-top:16px;font-size:.75rem;color:var(--muted);">🔴 Grotendeels geblokkeerd</div>
       </div>
-
-      <!-- Blocked overview -->
-      <div style="display:flex;flex-direction:column;gap:20px;">
-        <div class="panel">
-          <div class="panel-header">
-            <span class="panel-title">Geblokkeerde dagen</span>
-            <button class="btn btn-secondary btn-sm" onclick="renderBlockedOverview()">↻</button>
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title" id="slots-date-label">Kies een dag</span>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-danger btn-sm" onclick="blockAllSlots()">🔒 Hele dag</button>
+            <button class="btn btn-secondary btn-sm" onclick="unblockAllSlots()">🔓 Vrijgeven</button>
           </div>
-          <div id="blocked-overview"></div>
         </div>
-        <div class="panel">
-          <div class="panel-header"><span class="panel-title">Vrije dag / vakantie toevoegen</span></div>
-          <div class="form-row">
-            <div class="form-group"><label>Van</label><input type="date" id="block-from"></div>
-            <div class="form-group"><label>Tot en met</label><input type="date" id="block-to"></div>
-          </div>
-          <div class="form-row single">
-            <div class="form-group"><label>Reden (optioneel)</label><input type="text" id="block-reason" placeholder="bijv. Vakantie, Studiedag..."></div>
-          </div>
-          <button class="btn btn-danger" style="width:100%;" onclick="blockDateRange()">🔒 Periode blokkeren</button>
+        <p style="font-size:.78rem;color:var(--muted);margin-bottom:12px;">Klik op een groen slot om te blokkeren · klik op 🔒 om vrij te geven</p>
+        <div class="slots-grid" id="slots-grid"></div>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">📆 Vakantieperiode blokkeren</span></div>
+        <div class="form-row">
+          <div class="form-group"><label>Van</label><input type="date" id="block-from"></div>
+          <div class="form-group"><label>Tot en met</label><input type="date" id="block-to"></div>
         </div>
+        <div class="form-row single">
+          <div class="form-group"><label>Reden (optioneel)</label><input type="text" id="block-reason" placeholder="Vakantie, feestdag..."></div>
+        </div>
+        <button class="btn btn-danger" style="width:100%;" onclick="blockDateRange()">🔒 Periode blokkeren</button>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">📋 Geblokkeerde dagen</span></div>
+        <div id="blocked-overview"></div>
       </div>
     </div>
   </div>
 
-  <!-- ══════════════════════ TAB: ACCOUNTS ══════════════════════ -->
+  <!-- ══ TAB: ACCOUNTS ══ -->
   <div id="tab-accounts" class="tab-content">
     <div class="grid-2">
-      <!-- Account list -->
       <div>
         <div class="panel">
           <div class="panel-header">
-            <span class="panel-title">Accounts</span>
-            <button class="btn btn-primary btn-sm" onclick="openAddAccount()">+ Account toevoegen</button>
+            <span class="panel-title">👥 Accounts</span>
+            <span id="accounts-count-badge" style="font-size:.78rem;color:var(--muted);"></span>
           </div>
-          <div id="accounts-list" style="display:flex;flex-direction:column;gap:10px;"></div>
+          <div id="accounts-list"></div>
+        </div>
+        <div class="panel" style="background:rgba(240,180,41,.05);border-color:rgba(240,180,41,.15);">
+          <div class="panel-title" style="margin-bottom:10px;">🔐 Beveiligingsinfo</div>
+          <p style="font-size:.82rem;color:var(--muted);line-height:1.7;">Accounts worden opgeslagen in de browser (localStorage). Wachtwoorden zijn niet versleuteld — gebruik sterke, unieke wachtwoorden.<br><br>Maximaal <strong style="color:var(--text);">10 accounts</strong> ondersteund.</p>
         </div>
       </div>
-
-      <!-- Edit / change password panel -->
       <div>
-        <div class="panel" id="edit-account-panel" style="display:none;">
-          <div class="panel-header">
-            <span class="panel-title" id="edit-panel-title">Account bewerken</span>
+        <!-- Edit panel -->
+        <div class="edit-panel" id="edit-account-panel">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <span id="edit-panel-title" style="font-weight:600;font-size:.95rem;">Account bewerken</span>
             <button class="btn btn-secondary btn-sm" onclick="closeEditPanel()">✕ Sluiten</button>
           </div>
-          <div class="form-row single">
+          <div class="form-row">
             <div class="form-group"><label>Gebruikersnaam</label><input type="text" id="edit-username" placeholder="gebruikersnaam"></div>
-          </div>
-          <div class="form-row single">
             <div class="form-group"><label>Rol</label>
               <select id="edit-role">
-                <option value="admin">Beheerder (Admin)</option>
                 <option value="medewerker">Medewerker</option>
+                <option value="admin">Beheerder (Admin)</option>
               </select>
             </div>
           </div>
-          <div style="border-top:1px solid var(--border);padding-top:18px;margin-top:4px;margin-bottom:18px;">
-            <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">Wachtwoord wijzigen (laat leeg om te behouden)</p>
-            <div class="form-row single">
-              <div class="form-group"><label>Nieuw wachtwoord</label><input type="password" id="edit-newpass" placeholder="Nieuw wachtwoord..."></div>
-            </div>
-            <div class="form-row single">
-              <div class="form-group"><label>Herhaal wachtwoord</label><input type="password" id="edit-confirmpass" placeholder="Nogmaals invoeren..."></div>
+          <div class="form-row single">
+            <div class="form-group">
+              <label>Nieuw wachtwoord</label>
+              <input type="password" id="edit-password" placeholder="Laat leeg om niet te wijzigen">
             </div>
           </div>
-          <div style="display:flex;gap:10px;">
+          <div class="form-row single">
+            <div class="form-group">
+              <label>Wachtwoord bevestigen</label>
+              <input type="password" id="edit-password2" placeholder="Herhaal nieuw wachtwoord">
+            </div>
+          </div>
+          <div id="edit-pass-error" style="color:#ff8a8a;font-size:.82rem;margin-bottom:10px;display:none;">Wachtwoorden komen niet overeen</div>
+          <div style="display:flex;gap:8px;">
             <button class="btn btn-primary" style="flex:1;" onclick="saveAccount()">✓ Opslaan</button>
-            <button class="btn btn-danger" onclick="deleteAccountConfirm()" id="delete-account-btn">🗑 Verwijderen</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteAccountConfirm(editingAccountId)">Verwijderen</button>
           </div>
         </div>
 
-        <div class="panel" id="add-account-panel" style="display:none;">
-          <div class="panel-header">
-            <span class="panel-title">Nieuw account</span>
-            <button class="btn btn-secondary btn-sm" onclick="closeAddPanel()">✕ Sluiten</button>
-          </div>
-          <div class="form-row single">
-            <div class="form-group"><label>Gebruikersnaam</label><input type="text" id="add-username" placeholder="bijv. fysio_jan"></div>
-          </div>
-          <div class="form-row single">
-            <div class="form-group"><label>Wachtwoord</label><input type="password" id="add-password" placeholder="Wachtwoord..."></div>
-          </div>
-          <div class="form-row single">
-            <div class="form-group"><label>Herhaal wachtwoord</label><input type="password" id="add-confirmpass" placeholder="Nogmaals..."></div>
+        <!-- Add account -->
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title">➕ Account toevoegen</span></div>
+          <div class="form-row">
+            <div class="form-group"><label>Gebruikersnaam</label><input type="text" id="add-username" placeholder="nieuwe gebruikersnaam"></div>
+            <div class="form-group"><label>Wachtwoord</label><input type="password" id="add-password" placeholder="••••••••"></div>
           </div>
           <div class="form-row single">
             <div class="form-group"><label>Rol</label>
@@ -504,106 +612,91 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
           </div>
           <button class="btn btn-primary" style="width:100%;margin-top:4px;" onclick="addAccount()">Account aanmaken</button>
         </div>
-
-        <div class="panel" style="background:rgba(240,180,41,.05);border-color:rgba(240,180,41,.15);">
-          <div class="panel-title" style="margin-bottom:10px;">🔐 Beveiligingsinfo</div>
-          <p style="font-size:.82rem;color:var(--muted);line-height:1.7;">Wachtwoorden worden lokaal opgeslagen in de browser. Voor productie-gebruik raden wij aan een backend authenticatieservice te gebruiken.<br><br>Maximaal <strong style="color:var(--text);">10 accounts</strong> ondersteund.</p>
-        </div>
       </div>
     </div>
   </div>
 
-  <!-- ══════════════════════ TAB: INSTELLINGEN ══════════════════════ -->
+  <!-- ══ TAB: INSTELLINGEN ══ -->
   <div id="tab-instellingen" class="tab-content">
     <div class="grid-2">
-      <!-- Outlook config -->
-      <div class="panel">
-        <div class="panel-header"><span class="panel-title">☁️ Outlook Agenda Sync</span></div>
-        <div class="outlook-panel">
-          <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
-            <div style="width:40px;height:40px;background:rgba(0,114,206,.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;">📧</div>
-            <div>
-              <div id="outlook-panel-title" style="font-weight:600;">Outlook Agenda Sync</div>
-              <div id="outlook-panel-sub" style="font-size:.8rem;color:var(--muted);">Verbind met Microsoft Outlook voor live synchronisatie</div>
-            </div>
-          </div>
-          <div class="outlook-actions">
-            <button class="outlook-btn" id="outlook-connect-btn" onclick="toggleOutlook()">
-              <span id="outlook-btn-label">📧 Verbinden met Outlook</span>
-            </button>
-            <button class="btn btn-secondary btn-sm" id="btn-sync-now" style="display:none;" onclick="syncFromOutlook()">
-              <span id="sync-spinner" style="display:none;">⏳</span>
-              <span id="sync-label">↻ Nu synchroniseren</span>
-            </button>
-            <button class="btn btn-danger btn-sm" id="btn-disconnect" style="display:none;" onclick="disconnectOutlook()">Loskoppelen</button>
-          </div>
+      <!-- Supabase config -->
+      <div class="panel" style="border-color:rgba(26,127,117,.25);">
+        <div class="panel-header"><span class="panel-title">🗄️ Supabase Database</span></div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+          <span class="supa-dot" id="supa-status-dot"></span>
+          <span id="supa-status-label" style="font-size:.88rem;">Niet verbonden</span>
         </div>
-        <div class="form-row single" style="margin-top:8px;">
+        <div class="form-row single" style="margin-bottom:12px;">
           <div class="form-group">
-            <label>Azure Application Client ID</label>
-            <input type="text" id="azure-client-id" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
-            <p style="font-size:.75rem;color:var(--muted);margin-top:5px;">Geconfigureerd: <span id="client-id-preview">—</span></p>
+            <label>Project URL</label>
+            <input type="text" id="supa-url-settings" placeholder="https://xxxx.supabase.co">
           </div>
         </div>
-        <button class="btn btn-primary" onclick="saveAzureConfig()">Opslaan</button>
-
-        <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--border);">
-          <p style="font-size:.82rem;font-weight:600;margin-bottom:10px;color:var(--muted);">Azure setup (5 minuten):</p>
-          <ol style="font-size:.8rem;color:var(--muted);line-height:2;padding-left:18px;">
-            <li>Ga naar <strong style="color:var(--text);">portal.azure.com</strong> → App registrations → New registration</li>
-            <li>Naam: <code style="background:rgba(255,255,255,.08);padding:1px 6px;border-radius:4px;">Diasco Portaal</code></li>
-            <li>Redirect URI (SPA): <code style="background:rgba(255,255,255,.08);padding:1px 6px;border-radius:4px;word-break:break-all;" id="redirect-uri-preview"></code></li>
-            <li>API permissions → Microsoft Graph → Delegated → <code style="background:rgba(255,255,255,.08);padding:1px 6px;border-radius:4px;">Calendars.ReadWrite</code></li>
-            <li>Kopieer <strong style="color:var(--text);">Application (client) ID</strong> en plak hierboven</li>
-          </ol>
+        <div class="form-row single" style="margin-bottom:16px;">
+          <div class="form-group">
+            <label>Anon Public Key</label>
+            <input type="password" id="supa-key-settings" placeholder="eyJ...">
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-primary" onclick="saveSupabaseConfig()">Opslaan & verbinden</button>
+          <button class="btn btn-secondary" onclick="testSupabaseSettings()">🔌 Testen</button>
+          <button class="btn btn-danger btn-sm" onclick="clearSupabaseConfig()">Verwijderen</button>
+        </div>
+        <div id="supa-test-result" style="margin-top:12px;font-size:.82rem;color:var(--muted);display:none;"></div>
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);">
+          <p style="font-size:.8rem;color:var(--muted);line-height:1.8;"><strong style="color:var(--text);">Waarom Supabase?</strong><br>
+          ✓ Gratis tot 500MB / 50.000 afspraken<br>
+          ✓ Gedeeld tussen alle medewerkers<br>
+          ✓ Automatische back-ups<br>
+          ✓ Geen limiet zoals localStorage (5MB)</p>
         </div>
       </div>
 
-      <!-- Praktijk info -->
       <div>
+        <!-- Outlook config -->
         <div class="panel">
-          <div class="panel-header"><span class="panel-title">🏥 Praktijk instellingen</span></div>
-          <div class="form-row single">
-            <div class="form-group"><label>Openingstijd</label>
-              <select id="setting-open">
-                <option value="07:00">07:00</option><option value="07:30">07:30</option>
-                <option value="08:00" selected>08:00</option><option value="08:30">08:30</option><option value="09:00">09:00</option>
-              </select>
+          <div class="panel-header"><span class="panel-title">☁️ Outlook Agenda Sync</span></div>
+          <div class="outlook-panel">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+              <div style="width:40px;height:40px;background:rgba(0,114,206,.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;">📧</div>
+              <div>
+                <div id="outlook-panel-title" style="font-weight:600;">Outlook Agenda Sync</div>
+                <div id="outlook-panel-sub" style="font-size:.8rem;color:var(--muted);">Verbind met Microsoft Outlook</div>
+              </div>
+            </div>
+            <div class="outlook-actions">
+              <button class="outlook-btn" id="outlook-connect-btn" onclick="toggleOutlook()"><span id="outlook-btn-label">📧 Verbinden met Outlook</span></button>
+              <button class="btn btn-secondary btn-sm" id="btn-sync-now" style="display:none;" onclick="syncFromOutlook()"><span id="sync-label">↻ Nu synchroniseren</span></button>
+              <button class="btn btn-danger btn-sm" id="btn-disconnect" style="display:none;" onclick="disconnectOutlook()">Loskoppelen</button>
             </div>
           </div>
-          <div class="form-row single">
+          <div class="form-row single" style="margin-top:8px;">
+            <div class="form-group">
+              <label>Azure Application Client ID</label>
+              <input type="text" id="azure-client-id" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="saveAzureConfig()">Opslaan</button>
+        </div>
+
+        <!-- Praktijk -->
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title">🏥 Praktijk instellingen</span></div>
+          <div class="form-row">
+            <div class="form-group"><label>Openingstijd</label>
+              <select id="setting-open"><option value="07:00">07:00</option><option value="07:30">07:30</option><option value="08:00" selected>08:00</option><option value="08:30">08:30</option><option value="09:00">09:00</option></select>
+            </div>
             <div class="form-group"><label>Sluitingstijd</label>
-              <select id="setting-close">
-                <option value="16:00">16:00</option><option value="16:30">16:30</option>
-                <option value="17:00" selected>17:00</option><option value="17:30">17:30</option><option value="18:00">18:00</option>
-              </select>
+              <select id="setting-close"><option value="16:00">16:00</option><option value="16:30">16:30</option><option value="17:00" selected>17:00</option><option value="17:30">17:30</option><option value="18:00">18:00</option></select>
             </div>
           </div>
           <div class="form-row single">
             <div class="form-group"><label>Tijdslot interval</label>
-              <select id="setting-interval">
-                <option value="30" selected>30 minuten</option>
-                <option value="45">45 minuten</option>
-                <option value="60">60 minuten</option>
-              </select>
+              <select id="setting-interval"><option value="30" selected>30 minuten</option><option value="45">45 minuten</option><option value="60">60 minuten</option></select>
             </div>
           </div>
           <button class="btn btn-primary" onclick="savePraktijkSettings()">Opslaan</button>
-        </div>
-
-        <div class="panel">
-          <div class="panel-header"><span class="panel-title">📊 Statistieken</span></div>
-          <div style="display:flex;flex-direction:column;gap:10px;font-size:.88rem;">
-            <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);">
-              <span style="color:var(--muted);">Totaal afspraken</span><strong id="stat-total">—</strong>
-            </div>
-            <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);">
-              <span style="color:var(--muted);">Outlook events</span><strong id="stat-outlook-count">—</strong>
-            </div>
-            <div style="display:flex;justify-content:space-between;padding:10px 0;">
-              <span style="color:var(--muted);">Outlook status</span><strong id="stat-outlook-label">Niet verbonden</strong>
-            </div>
-          </div>
         </div>
       </div>
     </div>
@@ -611,11 +704,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 
 </div><!-- /dashboard -->
 
-<!-- ── MODALS ──────────────────────────────────────────── -->
+<!-- ── MODALS ── -->
 <div class="modal-overlay" id="delete-modal">
   <div class="modal">
     <h3>Afspraak verwijderen</h3>
-    <p>Weet u zeker dat u deze afspraak wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.</p>
+    <p>Weet u zeker dat u deze afspraak wilt verwijderen? Dit kan niet ongedaan worden gemaakt.</p>
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeModal('delete-modal')">Annuleren</button>
       <button class="btn btn-danger" onclick="confirmDelete()">Verwijderen</button>
@@ -640,7 +733,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     <p id="block-modal-text"></p>
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeModal('block-slot-modal')">Annuleren</button>
-      <button class="btn btn-danger" id="block-modal-confirm" onclick="">Blokkeren</button>
+      <button class="btn btn-danger" id="block-modal-confirm">Blokkeren</button>
     </div>
   </div>
 </div>
@@ -648,11 +741,32 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 <div id="toast"></div>
 
 <script>
-// ══════════════════════════════════════════════════
-// DATA & STATE
-// ══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
+// SUPABASE CLIENT
+// ═══════════════════════════════════════════════════════════
+let supabase = null;
 
-// Accounts — load from localStorage or use defaults
+function initSupabase(url, key) {
+  try {
+    supabase = window.supabase.createClient(url, key);
+    return true;
+  } catch(e) {
+    console.error('Supabase init error:', e);
+    return false;
+  }
+}
+
+async function supabaseAvailable() {
+  if (!supabase) return false;
+  try {
+    const { error } = await supabase.from('afspraken').select('id').limit(1);
+    return !error;
+  } catch { return false; }
+}
+
+// ═══════════════════════════════════════════════════════════
+// ACCOUNTS — localStorage only (portaal access control)
+// ═══════════════════════════════════════════════════════════
 let accounts = JSON.parse(localStorage.getItem('diasco_accounts') || 'null');
 if (!accounts) {
   accounts = [
@@ -663,55 +777,247 @@ if (!accounts) {
 }
 function saveAccounts() { localStorage.setItem('diasco_accounts', JSON.stringify(accounts)); }
 
-// Appointments — merge both keys
-let appointments = (function(){
-  var a1 = JSON.parse(localStorage.getItem('diasco_appts') || '[]');
-  var a2 = JSON.parse(localStorage.getItem('diasco_bookings') || '[]');
-  var merged = a1.concat(a2), seen = {};
-  return merged.filter(b => { if (seen[b.id]) return false; seen[b.id] = true; return true; });
-})();
-if (!appointments.length) {
-  const ts = new Date().toISOString().split('T')[0];
-  const tom = new Date(); tom.setDate(tom.getDate() + 1);
-  const ts2 = tom.toISOString().split('T')[0];
-  appointments = [
-    { id: 1, fname: 'Ahmed', lname: 'El Amrani', email: 'ahmed@mail.nl', phone: '06-12345678', date: ts, time: '09:00', treatment: 'Dry Needling', notes: '' },
-    { id: 2, fname: 'Fatima', lname: 'Benali', email: 'fatima@mail.nl', phone: '06-87654321', date: ts, time: '10:30', treatment: 'Knieartrose', notes: 'Post-operatief' },
-    { id: 3, fname: 'Jan', lname: 'de Vries', email: 'jan@mail.nl', phone: '06-11223344', date: ts, time: '14:00', treatment: 'Mobilisatie', notes: '' },
-    { id: 4, fname: 'Sara', lname: 'Yilmaz', email: 'sara@mail.nl', phone: '06-55667788', date: ts2, time: '09:30', treatment: 'Hijama Cupping', notes: '' },
-  ];
-  saveAppts();
+// ═══════════════════════════════════════════════════════════
+// APPOINTMENTS — Supabase or localStorage fallback
+// ═══════════════════════════════════════════════════════════
+let appointments = [];
+
+async function loadAppointments() {
+  if (await supabaseAvailable()) {
+    const { data, error } = await supabase.from('afspraken').select('*').order('date').order('time');
+    if (!error && data) {
+      appointments = data;
+      // Also sync to localStorage for website booking visibility
+      localStorage.setItem('diasco_appts', JSON.stringify(appointments));
+      localStorage.setItem('diasco_bookings', JSON.stringify(appointments));
+      updateBadge('supabase');
+      return;
+    }
+  }
+  // Fallback: localStorage
+  const a1 = JSON.parse(localStorage.getItem('diasco_appts') || '[]');
+  const a2 = JSON.parse(localStorage.getItem('diasco_bookings') || '[]');
+  const merged = a1.concat(a2), seen = {};
+  appointments = merged.filter(b => { if (seen[b.id]) return false; seen[b.id] = true; return true; });
+  updateBadge('local');
 }
-function saveAppts() {
+
+async function saveAppointment(appt) {
+  if (await supabaseAvailable()) {
+    // Map to Supabase schema
+    const row = {
+      fname: appt.fname || appt.name?.split(' ')[0] || '',
+      lname: appt.lname || appt.name?.split(' ').slice(1).join(' ') || '',
+      email: appt.email || '',
+      phone: appt.phone || '',
+      date: appt.date,
+      time: appt.time,
+      treatment: appt.treatment || '',
+      notes: appt.notes || ''
+    };
+    const { data, error } = await supabase.from('afspraken').insert(row).select().single();
+    if (!error && data) {
+      appointments.push(data);
+      syncToLocal();
+      return data;
+    }
+  }
+  // Fallback: localStorage
+  appt.id = appt.id || Date.now();
+  appointments.push(appt);
+  syncToLocal();
+  return appt;
+}
+
+async function deleteAppointment(id) {
+  if (await supabaseAvailable()) {
+    await supabase.from('afspraken').delete().eq('id', id);
+  }
+  appointments = appointments.filter(a => a.id !== id);
+  syncToLocal();
+}
+
+function syncToLocal() {
   localStorage.setItem('diasco_appts', JSON.stringify(appointments));
   localStorage.setItem('diasco_bookings', JSON.stringify(appointments));
 }
 
-// Blocked slots
-let blockedSlots = JSON.parse(localStorage.getItem('diasco_blocked') || '{}');
-// { "2026-03-15": ["09:00","10:00"], "2026-03-20": ["all"] }
-function saveBlocked() { localStorage.setItem('diasco_blocked', JSON.stringify(blockedSlots)); }
+// ═══════════════════════════════════════════════════════════
+// BLOCKED SLOTS — Supabase or localStorage
+// ═══════════════════════════════════════════════════════════
+let blockedSlots = {}; // { "2026-03-15": ["09:00","10:00"] }
 
-// ── Outlook
+async function loadBlockedSlots() {
+  if (await supabaseAvailable()) {
+    const { data, error } = await supabase.from('blocked_slots').select('*');
+    if (!error && data) {
+      blockedSlots = {};
+      data.forEach(row => {
+        if (!blockedSlots[row.date]) blockedSlots[row.date] = [];
+        blockedSlots[row.date].push(row.time);
+      });
+      return;
+    }
+  }
+  blockedSlots = JSON.parse(localStorage.getItem('diasco_blocked') || '{}');
+}
+
+async function saveBlocked() {
+  localStorage.setItem('diasco_blocked', JSON.stringify(blockedSlots));
+  // We save via individual blockSlot/unblockSlot calls for Supabase
+}
+
+async function persistBlockSlot(date, time) {
+  if (await supabaseAvailable()) {
+    await supabase.from('blocked_slots').upsert({ date, time }, { onConflict: 'date,time' });
+  }
+}
+
+async function persistUnblockSlot(date, time) {
+  if (await supabaseAvailable()) {
+    await supabase.from('blocked_slots').delete().eq('date', date).eq('time', time);
+  }
+}
+
+async function persistBlockAllSlots(date, times) {
+  if (await supabaseAvailable()) {
+    const rows = times.map(t => ({ date, time: t }));
+    await supabase.from('blocked_slots').upsert(rows, { onConflict: 'date,time' });
+  }
+}
+
+async function persistUnblockAllSlots(date) {
+  if (await supabaseAvailable()) {
+    await supabase.from('blocked_slots').delete().eq('date', date);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// BADGE & STATUS
+// ═══════════════════════════════════════════════════════════
+function updateBadge(mode) {
+  const badge = document.getElementById('topbar-db-badge');
+  if (!badge) return;
+  if (mode === 'supabase') {
+    badge.textContent = '🗄️ Supabase';
+    badge.style.background = 'rgba(26,127,117,.25)';
+    badge.style.color = 'var(--teal)';
+    document.getElementById('supa-status-dot').className = 'supa-dot connected';
+    document.getElementById('supa-status-label').textContent = 'Verbonden ✓';
+  } else {
+    badge.textContent = '💾 localStorage';
+    badge.style.background = 'rgba(240,180,41,.15)';
+    badge.style.color = 'var(--yellow)';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// SUPABASE SETUP WIZARD
+// ═══════════════════════════════════════════════════════════
+function openSupaSetup() {
+  document.getElementById('login-page').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('supabase-setup').style.display = 'flex';
+  goStap(1);
+}
+
+function goStap(n) {
+  document.querySelectorAll('.setup-step-content').forEach(el => el.classList.remove('active'));
+  document.getElementById('setup-stap-' + n).classList.add('active');
+  [1,2,3].forEach(i => {
+    document.getElementById('ws'+i).classList.toggle('done', i <= n);
+  });
+}
+
+function setupStap2() {
+  const url = document.getElementById('supa-url').value.trim();
+  const key = document.getElementById('supa-key').value.trim();
+  if (!url || !key) { showToast('⚠️ Vul URL en Key in', true); return; }
+  if (!url.startsWith('https://')) { showToast('⚠️ URL moet beginnen met https://', true); return; }
+  localStorage.setItem('diasco_supa_url', url);
+  localStorage.setItem('diasco_supa_key', key);
+  goStap(2);
+}
+
+function setupStap3() { goStap(3); }
+
+function copySql() {
+  const sql = document.getElementById('setup-sql-code').textContent;
+  navigator.clipboard.writeText(sql).then(() => showToast('📋 SQL gekopieerd!'));
+}
+
+async function testSupabase() {
+  const url = localStorage.getItem('diasco_supa_url') || document.getElementById('supa-url')?.value;
+  const key = localStorage.getItem('diasco_supa_key') || document.getElementById('supa-key')?.value;
+  if (!url || !key) { showToast('⚠️ Geen URL/key gevonden', true); return; }
+
+  const result = document.getElementById('setup-test-result');
+  result.textContent = '⏳ Verbinding testen...';
+  result.style.color = 'var(--muted)';
+
+  if (initSupabase(url, key)) {
+    const ok = await supabaseAvailable();
+    if (ok) {
+      result.innerHTML = '✅ <strong style="color:var(--teal);">Verbinding gelukt!</strong> Uw database is klaar voor gebruik. U kunt nu het portaal gebruiken.';
+      result.style.color = 'var(--teal)';
+      localStorage.setItem('diasco_supa_url', url);
+      localStorage.setItem('diasco_supa_key', key);
+      setTimeout(() => {
+        document.getElementById('supabase-setup').style.display = 'none';
+        document.getElementById('login-page').style.display = 'flex';
+        updateDbStatusLogin();
+        showToast('🗄️ Supabase verbonden!');
+      }, 2000);
+    } else {
+      result.innerHTML = '❌ <strong style="color:#ff8a8a;">Tabellen niet gevonden.</strong> Voer eerst de SQL uit in de Supabase SQL Editor (stap 2).';
+      result.style.color = '#ff8a8a';
+    }
+  } else {
+    result.innerHTML = '❌ <strong style="color:#ff8a8a;">Verbinding mislukt.</strong> Controleer de URL en key.';
+    result.style.color = '#ff8a8a';
+  }
+}
+
+function skipSetup() {
+  document.getElementById('supabase-setup').style.display = 'none';
+  document.getElementById('login-page').style.display = 'flex';
+}
+
+function updateDbStatusLogin() {
+  const url = localStorage.getItem('diasco_supa_url');
+  const el = document.getElementById('db-status-login');
+  if (!el) return;
+  if (url) {
+    el.innerHTML = '<span class="supa-dot connected"></span>Database: Supabase verbonden';
+    el.style.color = 'var(--teal)';
+  } else {
+    el.innerHTML = '<span class="supa-dot"></span>Database: niet geconfigureerd — <a href="#" onclick="openSupaSetup();return false;" style="color:var(--teal);">instellen</a>';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// OUTLOOK / AZURE
+// ═══════════════════════════════════════════════════════════
 let AZURE_CLIENT_ID = localStorage.getItem('diasco_azure_client_id') || '';
 const REDIRECT_URI = window.location.href.split('?')[0].split('#')[0];
-const GRAPH_SCOPES = ['Calendars.ReadWrite', 'User.Read'];
 let msalInstance = null, outlookAccount = null, outlookEvents = [], outlookBusySlots = {};
 
-// ── UI state
+// ═══════════════════════════════════════════════════════════
+// UI STATE
+// ═══════════════════════════════════════════════════════════
 let calDate = new Date(), selectedDate = new Date();
 let slotCalDate = new Date(), selectedSlotDate = new Date();
 let dayViewDate = new Date();
 let currentUser = null, editingAccountId = null;
-let deleteId = null;
+let deleteId = null, deleteAccountId = null;
 
 const MONTHS = ['Januari','Februari','Maart','April','Mei','Juni','Juli','Augustus','September','Oktober','November','December'];
 const DAYS = ['Ma','Di','Wo','Do','Vr','Za','Zo'];
 const TIMES = ['08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30','12:00','12:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30'];
 
-// ══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
 // AUTH
-// ══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
 function doLogin() {
   const u = document.getElementById('login-user').value.trim();
   const p = document.getElementById('login-pass').value;
@@ -726,6 +1032,7 @@ function doLogin() {
     document.getElementById('login-error').style.display = 'block';
   }
 }
+
 function doLogout() {
   currentUser = null;
   document.getElementById('dashboard').style.display = 'none';
@@ -734,21 +1041,37 @@ function doLogout() {
   document.getElementById('login-pass').value = '';
   document.getElementById('login-error').style.display = 'none';
 }
+
 document.getElementById('login-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 document.getElementById('login-user').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 
-// ══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
 // INIT
-// ══════════════════════════════════════════════════
-function initDashboard() {
+// ═══════════════════════════════════════════════════════════
+async function initDashboard() {
+  // Init Supabase if configured
+  const supUrl = localStorage.getItem('diasco_supa_url');
+  const supKey = localStorage.getItem('diasco_supa_key');
+  if (supUrl && supKey) {
+    initSupabase(supUrl, supKey);
+    document.getElementById('supa-url-settings').value = supUrl;
+    document.getElementById('supa-key-settings').value = supKey;
+  } else {
+    document.getElementById('supa-setup-banner').style.display = 'flex';
+  }
+
+  // Outlook
   if (AZURE_CLIENT_ID) {
     document.getElementById('setup-banner').style.display = 'none';
-    document.getElementById('client-id-preview').textContent = AZURE_CLIENT_ID.substring(0, 8) + '...';
     initMSAL();
   }
   document.getElementById('azure-client-id').value = AZURE_CLIENT_ID;
   document.getElementById('new-date').value = new Date().toISOString().split('T')[0];
-  document.getElementById('redirect-uri-preview').textContent = REDIRECT_URI;
+
+  // Load data
+  await loadAppointments();
+  await loadBlockedSlots();
+
   renderCalendar();
   renderTodayAppts();
   updateStats();
@@ -760,11 +1083,11 @@ function initDashboard() {
   renderAccountsList();
 }
 
-// ══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
 // TAB SWITCHING
-// ══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
 function switchTab(tab) {
-  document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
   const tabs = ['overzicht','dagplanning','afspraken','tijdslots','accounts','instellingen'];
   const idx = tabs.indexOf(tab);
@@ -776,9 +1099,9 @@ function switchTab(tab) {
   if (tab === 'accounts') renderAccountsList();
 }
 
-// ══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
 // OVERVIEW CALENDAR
-// ══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
 function changeMonth(dir) { calDate.setMonth(calDate.getMonth() + dir); renderCalendar(); }
 
 function renderCalendar() {
@@ -806,18 +1129,19 @@ function selectOvDay(d) {
   renderCalendar();
 }
 
-// ══════════════════════════════════════════════════
-// TODAY APPOINTMENTS
-// ══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
+// TODAY
+// ═══════════════════════════════════════════════════════════
 function apptName(a) {
   if (a.fname && a.lname) return a.fname + ' ' + a.lname;
+  if (a.fname) return a.fname;
   return a.name || 'Onbekend';
 }
 
 function renderTodayAppts() {
   const ts = new Date().toISOString().split('T')[0];
   const local = appointments.filter(a => a.date === ts).sort((a, b) => a.time.localeCompare(b.time));
-  const outlookToday = (outlookEvents || []).filter(ev => ev.start && ev.start.dateTime && ev.start.dateTime.startsWith(ts));
+  const outlookToday = (outlookEvents || []).filter(ev => ev.start?.dateTime?.startsWith(ts));
   let html = '';
   local.forEach(a => {
     html += `<div class="appt-item">
@@ -827,7 +1151,7 @@ function renderTodayAppts() {
         <div class="appt-treatment">${a.treatment}${a.phone ? ' · ' + a.phone : ''}</div>
       </div>
       <div class="appt-actions">
-        <button class="appt-btn danger" onclick="deleteAppt(${a.id})" title="Verwijderen">✕</button>
+        <button class="appt-btn danger" onclick="deleteAppt('${a.id}')" title="Verwijderen">✕</button>
       </div>
     </div>`;
   });
@@ -845,15 +1169,12 @@ function renderTodayAppts() {
   document.getElementById('todays-appts').innerHTML = html || '<p style="color:var(--muted);font-size:.85rem;text-align:center;padding:16px 0;">Geen afspraken vandaag</p>';
 }
 
-// ══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
 // DAY VIEW
-// ══════════════════════════════════════════════════
-function changeDay(dir) {
-  dayViewDate.setDate(dayViewDate.getDate() + dir);
-  renderDayView();
-}
+// ═══════════════════════════════════════════════════════════
+function changeDay(dir) { dayViewDate.setDate(dayViewDate.getDate() + dir); renderDayView(); }
 function goToday() { dayViewDate = new Date(); renderDayView(); }
-function goToDate(val) { dayViewDate = new Date(val); renderDayView(); }
+function goToDate(val) { dayViewDate = new Date(val + 'T12:00:00'); renderDayView(); }
 
 function renderDayView() {
   const ds = dayViewDate.toISOString().split('T')[0];
@@ -879,17 +1200,17 @@ function renderDayView() {
       cls = 'weekend'; inner = '<span class="cell-free-label">Weekend — gesloten</span>';
     } else if (appt) {
       cls = 'booked';
-      inner = `<div class="cell-name">${apptName(appt)}</div><div class="cell-sub">${appt.treatment}${appt.phone ? ' · ' + appt.phone : ''}${appt.notes ? ' · ' + appt.notes : ''}</div>`;
-      actions = `<button class="appt-btn danger" onclick="deleteAppt(${appt.id})" title="Verwijderen" style="opacity:1;">✕</button>`;
+      inner = `<div><div class="cell-name">${apptName(appt)}</div><div class="cell-sub">${appt.treatment}${appt.phone ? ' · ' + appt.phone : ''}${appt.notes ? ' · ' + appt.notes : ''}</div></div>`;
+      actions = `<button class="appt-btn danger" onclick="deleteAppt('${appt.id}')" title="Verwijderen" style="opacity:1;">✕</button>`;
     } else if (isBlocked) {
       cls = 'blocked';
       inner = `<span class="cell-blocked-label">🔒 Geblokkeerd</span>`;
       actions = `<button class="appt-btn" onclick="unblockSlot('${ds}','${t}')" title="Vrijgeven" style="opacity:1;font-size:.7rem;">🔓</button>`;
     } else if (isOutlook) {
-      cls = 'outlook'; inner = `<div class="cell-name">📅 Outlook bezet</div><div class="cell-sub">Bezet in Microsoft agenda</div>`;
+      cls = 'outlook'; inner = `<div class="cell-name">📅 Outlook bezet</div>`;
     } else {
       cls = 'free';
-      inner = `<span class="cell-free-label">Beschikbaar — klik om te blokkeren of in te plannen</span>`;
+      inner = `<span class="cell-free-label">Beschikbaar</span>`;
       actions = `<button class="appt-btn" onclick="prefillFromDay('${ds}','${t}')" title="Afspraak plannen" style="opacity:1;">+</button>
                  <button class="appt-btn danger" onclick="blockSlotConfirm('${ds}','${t}')" title="Blokkeren" style="opacity:1;">🔒</button>`;
     }
@@ -906,30 +1227,39 @@ function prefillFromDay(date, time) {
   switchTab('overzicht');
   document.getElementById('new-date').value = date;
   document.getElementById('new-time').value = time;
-  setTimeout(() => document.getElementById('new-name').focus(), 100);
-  showToast('✏️ Tijdstip ' + time + ' ingevuld — voeg patiëntgegevens toe');
+  setTimeout(() => document.getElementById('new-fname').focus(), 100);
+  showToast('✏️ Tijdstip ' + time + ' ingevuld');
 }
 
-// ══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
 // ALL APPOINTMENTS
-// ══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
 function renderAllAppts() {
-  const search = (document.getElementById('search-appts').value || '').toLowerCase();
-  const treatment = document.getElementById('filter-treatment').value;
-  const period = document.getElementById('filter-period').value;
+  const search = (document.getElementById('search-appts')?.value || '').toLowerCase();
+  const treatment = document.getElementById('filter-treatment')?.value || '';
+  const period = document.getElementById('filter-period')?.value || '';
   const today = new Date().toISOString().split('T')[0];
   const now = new Date();
-  const ws = new Date(now); ws.setDate(now.getDate() - now.getDay() + 1);
+  const ws = new Date(now); ws.setDate(now.getDate() - ((now.getDay() + 6) % 7));
   const we = new Date(ws); we.setDate(ws.getDate() + 6);
+  const wsStr = ws.toISOString().split('T')[0];
+  const weStr = we.toISOString().split('T')[0];
+  const mStr = today.substring(0, 7);
 
-  let filtered = [...appointments];
-  if (search) filtered = filtered.filter(a => apptName(a).toLowerCase().includes(search) || (a.email||'').toLowerCase().includes(search));
+  let filtered = [...appointments].sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
+
+  if (search) filtered = filtered.filter(a =>
+    apptName(a).toLowerCase().includes(search) ||
+    (a.email || '').toLowerCase().includes(search) ||
+    (a.phone || '').toLowerCase().includes(search) ||
+    (a.treatment || '').toLowerCase().includes(search)
+  );
   if (treatment) filtered = filtered.filter(a => a.treatment === treatment);
   if (period === 'today') filtered = filtered.filter(a => a.date === today);
-  else if (period === 'week') filtered = filtered.filter(a => { const d = new Date(a.date); return d >= ws && d <= we; });
-  else if (period === 'upcoming') filtered = filtered.filter(a => a.date >= today);
-
-  filtered.sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+  else if (period === 'week') filtered = filtered.filter(a => a.date >= wsStr && a.date <= weStr);
+  else if (period === 'month') filtered = filtered.filter(a => a.date.startsWith(mStr));
+  else if (period === 'future') filtered = filtered.filter(a => a.date >= today);
+  else if (period === 'past') filtered = filtered.filter(a => a.date < today);
 
   if (!filtered.length) {
     document.getElementById('all-appts-list').innerHTML = '<p style="color:var(--muted);text-align:center;padding:32px;">Geen afspraken gevonden</p>';
@@ -940,27 +1270,92 @@ function renderAllAppts() {
   let lastDate = '';
   filtered.forEach(a => {
     if (a.date !== lastDate) {
-      const d = new Date(a.date);
+      const d = new Date(a.date + 'T12:00:00');
       const dayNames = ['zondag','maandag','dinsdag','woensdag','donderdag','vrijdag','zaterdag'];
-      html += `<div style="font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;padding:12px 0 4px;">${dayNames[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}</div>`;
+      const isToday = a.date === today;
+      html += `<div style="font-size:.78rem;font-weight:700;color:${isToday?'var(--teal)':'var(--muted)'};text-transform:uppercase;letter-spacing:.06em;padding:12px 0 4px;">${dayNames[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}${isToday?' · Vandaag':''}</div>`;
       lastDate = a.date;
     }
-    html += `<div class="appt-item" style="grid-template-columns:auto 1fr auto auto;">
+    html += `<div class="appt-item" style="grid-template-columns:auto 1fr auto;">
       <div class="appt-time-badge">${a.time}</div>
       <div class="appt-info">
-        <div class="appt-name">${apptName(a)} <span style="font-size:.78rem;font-weight:400;color:var(--muted);">${a.email || ''}</span></div>
-        <div class="appt-treatment">${a.treatment}${a.phone ? ' · 📞 ' + a.phone : ''}${a.notes ? ' · ' + a.notes : ''}</div>
+        <div class="appt-name">${apptName(a)} ${a.email ? '<span style="font-size:.75rem;font-weight:400;color:var(--muted);">' + a.email + '</span>' : ''}</div>
+        <div class="appt-treatment">${a.treatment || '—'}${a.phone ? ' · 📞 ' + a.phone : ''}${a.notes ? ' · ' + a.notes : ''}</div>
       </div>
-      <button class="appt-btn danger" onclick="deleteAppt(${a.id})" title="Verwijderen">✕</button>
+      <button class="appt-btn danger" onclick="deleteAppt('${a.id}')" title="Verwijderen">✕</button>
     </div>`;
   });
   html += '</div>';
   document.getElementById('all-appts-list').innerHTML = html;
 }
 
-// ══════════════════════════════════════════════════
-// SLOT CALENDAR (tijdslots tab)
-// ══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
+// STATS
+// ═══════════════════════════════════════════════════════════
+function updateStats() {
+  const today = new Date().toISOString().split('T')[0];
+  const now = new Date();
+  const ws = new Date(now); ws.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+  const we = new Date(ws); we.setDate(ws.getDate() + 6);
+  const wsStr = ws.toISOString().split('T')[0];
+  const weStr = we.toISOString().split('T')[0];
+  const mStr = today.substring(0, 7);
+
+  document.getElementById('stat-today').textContent = appointments.filter(a => a.date === today).length;
+  document.getElementById('stat-week').textContent = appointments.filter(a => a.date >= wsStr && a.date <= weStr).length;
+  document.getElementById('stat-month').textContent = appointments.filter(a => a.date.startsWith(mStr)).length;
+  if (document.getElementById('stat-total')) document.getElementById('stat-total').textContent = appointments.length;
+}
+
+// ═══════════════════════════════════════════════════════════
+// ADD / DELETE APPOINTMENT
+// ═══════════════════════════════════════════════════════════
+async function addAppointment() {
+  const fname = document.getElementById('new-fname').value.trim();
+  const lname = document.getElementById('new-lname').value.trim();
+  const phone = document.getElementById('new-phone').value.trim();
+  const email = document.getElementById('new-email').value.trim();
+  const date = document.getElementById('new-date').value;
+  const time = document.getElementById('new-time').value;
+  const treatment = document.getElementById('new-treatment').value;
+  const notes = document.getElementById('new-notes').value.trim();
+
+  if (!fname || !date || !time || !treatment) {
+    showToast('⚠️ Vul voornaam, datum, tijd en behandeling in', true); return;
+  }
+
+  const btn = document.getElementById('add-appt-btn');
+  btn.innerHTML = '<span class="spin"></span>Toevoegen...';
+  btn.disabled = true;
+
+  const appt = await saveAppointment({ fname, lname, phone, email, date, time, treatment, notes });
+
+  btn.innerHTML = '✓ Afspraak toevoegen';
+  btn.disabled = false;
+
+  ['new-fname','new-lname','new-phone','new-email','new-notes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('new-time').value = '';
+  document.getElementById('new-treatment').value = '';
+
+  renderCalendar(); renderTodayAppts(); updateStats(); renderAllAppts(); renderDayView();
+  showToast('✓ Afspraak toegevoegd');
+}
+
+function deleteAppt(id) {
+  deleteId = id;
+  document.getElementById('delete-modal').style.display = 'flex';
+}
+
+async function confirmDelete() {
+  closeModal('delete-modal');
+  await deleteAppointment(deleteId);
+  renderCalendar(); renderTodayAppts(); updateStats(); renderAllAppts(); renderDayView();
+  showToast('🗑️ Afspraak verwijderd');
+}
+
+// ═══════════════════════════════════════════════════════════
+// SLOT CALENDAR
+// ═══════════════════════════════════════════════════════════
 function changeSlotMonth(dir) { slotCalDate.setMonth(slotCalDate.getMonth() + dir); renderSlotCalendar(); }
 
 function renderSlotCalendar() {
@@ -1010,7 +1405,7 @@ function renderSlots(date) {
 }
 
 function blockSlotConfirm(date, time) {
-  const d = new Date(date);
+  const d = new Date(date + 'T12:00:00');
   const dayNames = ['zondag','maandag','dinsdag','woensdag','donderdag','vrijdag','zaterdag'];
   document.getElementById('block-modal-title').textContent = 'Tijdslot blokkeren';
   document.getElementById('block-modal-text').textContent = `Tijdslot ${time} op ${dayNames[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]} blokkeren?`;
@@ -1018,70 +1413,68 @@ function blockSlotConfirm(date, time) {
   document.getElementById('block-slot-modal').style.display = 'flex';
 }
 
-function blockSlot(date, time) {
+async function blockSlot(date, time) {
   if (!blockedSlots[date]) blockedSlots[date] = [];
   if (!blockedSlots[date].includes(time)) blockedSlots[date].push(time);
   saveBlocked();
-  renderSlots(selectedSlotDate);
-  renderDayView();
+  await persistBlockSlot(date, time);
+  renderSlots(selectedSlotDate); renderDayView();
   showToast('🔒 Tijdslot ' + time + ' geblokkeerd');
 }
 
-function unblockSlot(date, time) {
+async function unblockSlot(date, time) {
   if (!blockedSlots[date]) return;
   if (blockedSlots[date].includes('all')) {
-    // Unblock all → remove 'all' flag
-    blockedSlots[date] = [];
+    blockedSlots[date] = TIMES.filter(t => t !== time);
+    // Remove all from Supabase and re-add minus this one
+    await persistUnblockAllSlots(date);
+    for (const t of blockedSlots[date]) await persistBlockSlot(date, t);
   } else {
     blockedSlots[date] = blockedSlots[date].filter(t => t !== time);
+    await persistUnblockSlot(date, time);
   }
   if (!blockedSlots[date].length) delete blockedSlots[date];
   saveBlocked();
-  renderSlots(selectedSlotDate);
-  renderDayView();
-  renderBlockedOverview();
+  renderSlots(selectedSlotDate); renderDayView(); renderBlockedOverview();
   showToast('🔓 Tijdslot ' + time + ' vrijgegeven');
 }
 
-function blockAllSlots() {
+async function blockAllSlots() {
   const ds = selectedSlotDate.toISOString().split('T')[0];
   blockedSlots[ds] = ['all'];
   saveBlocked();
-  renderSlots(selectedSlotDate);
-  renderSlotCalendar();
-  renderBlockedOverview();
+  await persistBlockAllSlots(ds, TIMES);
+  renderSlots(selectedSlotDate); renderSlotCalendar(); renderBlockedOverview();
   showToast('🔒 Hele dag geblokkeerd');
 }
 
-function unblockAllSlots() {
+async function unblockAllSlots() {
   const ds = selectedSlotDate.toISOString().split('T')[0];
   delete blockedSlots[ds];
   saveBlocked();
-  renderSlots(selectedSlotDate);
-  renderSlotCalendar();
-  renderBlockedOverview();
+  await persistUnblockAllSlots(ds);
+  renderSlots(selectedSlotDate); renderSlotCalendar(); renderBlockedOverview();
   showToast('🔓 Dag vrijgegeven');
 }
 
-function blockDateRange() {
+async function blockDateRange() {
   const from = document.getElementById('block-from').value;
   const to = document.getElementById('block-to').value;
-  const reason = document.getElementById('block-reason').value || 'Geblokkeerd';
   if (!from || !to) { showToast('⚠️ Vul een van- en tot-datum in', true); return; }
   if (from > to) { showToast('⚠️ Van-datum moet vóór tot-datum liggen', true); return; }
-  let d = new Date(from);
-  const end = new Date(to);
+  let d = new Date(from + 'T12:00:00');
+  const end = new Date(to + 'T12:00:00');
   let count = 0;
   while (d <= end) {
     const ds = d.toISOString().split('T')[0];
     blockedSlots[ds] = ['all'];
+    await persistBlockAllSlots(ds, TIMES);
     d.setDate(d.getDate() + 1);
     count++;
   }
   saveBlocked();
-  renderSlotCalendar();
-  renderBlockedOverview();
-  showToast(`🔒 ${count} dag(en) geblokkeerd: ${reason}`);
+  renderSlotCalendar(); renderBlockedOverview();
+  showToast(`🔒 ${count} dag(en) geblokkeerd`);
 }
 
 function renderBlockedOverview() {
@@ -1092,119 +1485,84 @@ function renderBlockedOverview() {
   }
   let html = '<div style="display:flex;flex-direction:column;gap:8px;">';
   keys.forEach(ds => {
-    const d = new Date(ds);
+    const d = new Date(ds + 'T12:00:00');
     const slots = blockedSlots[ds];
     const label = slots.includes('all') ? 'Hele dag geblokkeerd' : slots.length + ' slot(s) geblokkeerd';
     html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:rgba(224,82,82,.06);border:1px solid rgba(224,82,82,.15);border-radius:10px;">
       <div>
         <div style="font-size:.88rem;font-weight:600;">${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}</div>
-        <div style="font-size:.75rem;color:rgba(224,82,82,.7);margin-top:2px;">${label}</div>
+        <div style="font-size:.75rem;color:#ff8a8a;margin-top:2px;">🔒 ${label}</div>
       </div>
-      <button class="btn btn-secondary btn-sm" onclick="unblockAllSlots2('${ds}')">🔓 Vrijgeven</button>
+      <div style="display:flex;gap:6px;">
+        <button class="appt-btn" onclick="selectSlotAndShow('${ds}')" title="Bekijken" style="font-size:.7rem;">👁</button>
+        <button class="appt-btn danger" onclick="unblockAllSlots2('${ds}')" title="Vrijgeven">🔓</button>
+      </div>
     </div>`;
   });
   html += '</div>';
   document.getElementById('blocked-overview').innerHTML = html;
 }
 
-function unblockAllSlots2(ds) {
-  delete blockedSlots[ds];
-  saveBlocked();
-  renderBlockedOverview();
+function selectSlotAndShow(ds) {
+  selectedSlotDate = new Date(ds + 'T12:00:00');
+  slotCalDate = new Date(ds + 'T12:00:00');
   renderSlotCalendar();
   renderSlots(selectedSlotDate);
-  showToast('🔓 ' + ds + ' vrijgegeven');
 }
 
-// ══════════════════════════════════════════════════
-// APPOINTMENTS — ADD / DELETE
-// ══════════════════════════════════════════════════
-async function addAppointment() {
-  const name = document.getElementById('new-name').value.trim();
-  const phone = document.getElementById('new-phone').value.trim();
-  const date = document.getElementById('new-date').value;
-  const time = document.getElementById('new-time').value;
-  const treatment = document.getElementById('new-treatment').value;
-  const notes = document.getElementById('new-notes').value;
-  const sync = document.getElementById('sync-to-outlook').checked;
-  if (!name || !date || !time || !treatment) { showToast('⚠️ Vul alle verplichte velden in', true); return; }
-  if (appointments.find(a => a.date === date && a.time === time)) { showToast('⚠️ Tijdslot al bezet', true); return; }
-  const parts = name.split(' ');
-  const appt = { id: Date.now(), fname: parts[0], lname: parts.slice(1).join(' '), email: '', phone, date, time, treatment, notes, outlookEventId: null };
-  if (sync && outlookAccount) {
-    showToast('⏳ Toevoegen aan Outlook...');
-    appt.outlookEventId = await addToOutlook(appt);
-  }
-  appointments.push(appt);
-  saveAppts();
-  ['new-name', 'new-phone', 'new-notes'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('new-time').value = '';
-  document.getElementById('new-treatment').value = '';
-  renderCalendar(); renderTodayAppts(); updateStats(); renderAllAppts(); renderDayView();
-  showToast('✅ Afspraak toegevoegd voor ' + name);
+async function unblockAllSlots2(ds) {
+  delete blockedSlots[ds];
+  saveBlocked();
+  await persistUnblockAllSlots(ds);
+  renderSlotCalendar(); renderBlockedOverview();
+  renderSlots(selectedSlotDate);
+  showToast('🔓 Dag ' + ds + ' vrijgegeven');
 }
 
-let deleteId2 = null;
-function deleteAppt(id) { deleteId2 = id; document.getElementById('delete-modal').style.display = 'flex'; }
-function closeModal(id) {
-  document.getElementById(id).style.display = 'none';
-  if (id === 'delete-modal') deleteId2 = null;
-  if (id === 'delete-account-modal') editingAccountId = null;
-}
-
-async function confirmDelete() {
-  const appt = appointments.find(a => a.id === deleteId2);
-  if (appt?.outlookEventId && outlookAccount) await deleteFromOutlook(appt.outlookEventId);
-  appointments = appointments.filter(a => a.id !== deleteId2);
-  saveAppts();
-  closeModal('delete-modal');
-  renderCalendar(); renderTodayAppts(); updateStats(); renderAllAppts(); renderDayView();
-  showToast('🗑️ Afspraak verwijderd');
-}
-
-function updateStats() {
-  const ts = new Date().toISOString().split('T')[0], now = new Date();
-  const ws = new Date(now); ws.setDate(now.getDate() - now.getDay() + 1);
-  const we = new Date(ws); we.setDate(ws.getDate() + 6);
-  document.getElementById('stat-today').textContent = appointments.filter(a => a.date === ts).length;
-  document.getElementById('stat-week').textContent = appointments.filter(a => { const d = new Date(a.date); return d >= ws && d <= we; }).length;
-  document.getElementById('stat-month').textContent = appointments.filter(a => { const d = new Date(a.date); return d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear(); }).length;
-  document.getElementById('stat-total').textContent = appointments.length;
-}
-
-// ══════════════════════════════════════════════════
-// ACCOUNTS MANAGEMENT
-// ══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
+// ACCOUNTS
+// ═══════════════════════════════════════════════════════════
 function renderAccountsList() {
   const list = document.getElementById('accounts-list');
+  const countBadge = document.getElementById('accounts-count-badge');
+  if (countBadge) countBadge.textContent = accounts.length + ' account(s)';
+
+  if (!accounts.length) {
+    list.innerHTML = '<p style="color:var(--muted);text-align:center;padding:16px 0;">Geen accounts</p>';
+    return;
+  }
+
   list.innerHTML = accounts.map(a => `
-    <div class="account-card">
-      <div class="account-avatar">${a.username.charAt(0).toUpperCase()}</div>
+    <div class="account-card" id="account-card-${a.id}">
+      <div class="account-avatar">${a.username[0].toUpperCase()}</div>
       <div class="account-info">
-        <div class="account-name">${a.username}</div>
-        <div><span class="role-badge ${a.role === 'admin' ? 'admin' : ''}">${a.role === 'admin' ? '👑 Admin' : '👤 Medewerker'}</span></div>
+        <div class="account-name">${a.username} ${a.id === currentUser?.id ? '<span style="font-size:.72rem;color:var(--teal);">(jij)</span>' : ''}</div>
+        <div class="account-role"><span class="role-badge role-${a.role}">${a.role === 'admin' ? 'Beheerder' : 'Medewerker'}</span></div>
       </div>
-      <button class="btn btn-secondary btn-sm" onclick="editAccount(${a.id})">✏️ Bewerken</button>
+      <div style="display:flex;gap:6px;">
+        <button class="btn btn-secondary btn-sm" onclick="editAccount(${a.id})">✏️ Bewerken</button>
+        ${a.id !== currentUser?.id ? `<button class="btn btn-danger btn-sm" onclick="deleteAccountConfirm(${a.id})">✕</button>` : ''}
+      </div>
     </div>
   `).join('');
 }
 
 function editAccount(id) {
-  const a = accounts.find(a => a.id === id);
-  if (!a) return;
+  const acct = accounts.find(a => a.id === id);
+  if (!acct) return;
   editingAccountId = id;
-  document.getElementById('edit-username').value = a.username;
-  document.getElementById('edit-role').value = a.role;
-  document.getElementById('edit-newpass').value = '';
-  document.getElementById('edit-confirmpass').value = '';
-  document.getElementById('edit-panel-title').textContent = 'Bewerken: ' + a.username;
-  document.getElementById('delete-account-btn').style.display = accounts.length > 1 ? 'block' : 'none';
-  document.getElementById('edit-account-panel').style.display = 'block';
-  document.getElementById('add-account-panel').style.display = 'none';
+  document.getElementById('edit-username').value = acct.username;
+  document.getElementById('edit-role').value = acct.role;
+  document.getElementById('edit-password').value = '';
+  document.getElementById('edit-password2').value = '';
+  document.getElementById('edit-pass-error').style.display = 'none';
+  document.getElementById('edit-panel-title').textContent = 'Bewerken: ' + acct.username;
+  document.getElementById('edit-account-panel').classList.add('open');
+  document.getElementById('edit-account-panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 function closeEditPanel() {
-  document.getElementById('edit-account-panel').style.display = 'none';
+  document.getElementById('edit-account-panel').classList.remove('open');
   editingAccountId = null;
 }
 
@@ -1212,232 +1570,238 @@ function saveAccount() {
   if (!editingAccountId) return;
   const username = document.getElementById('edit-username').value.trim();
   const role = document.getElementById('edit-role').value;
-  const newpass = document.getElementById('edit-newpass').value;
-  const confirm = document.getElementById('edit-confirmpass').value;
-  if (!username) { showToast('⚠️ Gebruikersnaam mag niet leeg zijn', true); return; }
-  if (accounts.find(a => a.username === username && a.id !== editingAccountId)) {
+  const pw1 = document.getElementById('edit-password').value;
+  const pw2 = document.getElementById('edit-password2').value;
+
+  if (!username) { showToast('⚠️ Vul een gebruikersnaam in', true); return; }
+  if (pw1 && pw1 !== pw2) {
+    document.getElementById('edit-pass-error').style.display = 'block';
+    return;
+  }
+  document.getElementById('edit-pass-error').style.display = 'none';
+
+  // Check duplicate username
+  if (accounts.some(a => a.username === username && a.id !== editingAccountId)) {
     showToast('⚠️ Gebruikersnaam al in gebruik', true); return;
   }
-  if (newpass) {
-    if (newpass.length < 6) { showToast('⚠️ Wachtwoord minimaal 6 tekens', true); return; }
-    if (newpass !== confirm) { showToast('⚠️ Wachtwoorden komen niet overeen', true); return; }
-  }
-  const idx = accounts.findIndex(a => a.id === editingAccountId);
-  accounts[idx].username = username;
-  accounts[idx].role = role;
-  if (newpass) accounts[idx].password = newpass;
-  // Update current user display
+
+  const acct = accounts.find(a => a.id === editingAccountId);
+  acct.username = username;
+  acct.role = role;
+  if (pw1) acct.password = pw1;
+
+  // Update current user if editing self
   if (currentUser && currentUser.id === editingAccountId) {
-    currentUser = accounts[idx];
+    currentUser.username = username;
+    currentUser.role = role;
     document.getElementById('topbar-username').textContent = username;
   }
+
   saveAccounts();
-  renderAccountsList();
   closeEditPanel();
-  showToast('✅ Account bijgewerkt' + (newpass ? ' — wachtwoord gewijzigd' : ''));
-}
-
-function openAddAccount() {
-  document.getElementById('add-account-panel').style.display = 'block';
-  document.getElementById('edit-account-panel').style.display = 'none';
-  document.getElementById('add-username').value = '';
-  document.getElementById('add-password').value = '';
-  document.getElementById('add-confirmpass').value = '';
-}
-
-function closeAddPanel() { document.getElementById('add-account-panel').style.display = 'none'; }
-
-function addAccount() {
-  const username = document.getElementById('add-username').value.trim();
-  const password = document.getElementById('add-password').value;
-  const confirm = document.getElementById('add-confirmpass').value;
-  const role = document.getElementById('add-role').value;
-  if (!username) { showToast('⚠️ Vul een gebruikersnaam in', true); return; }
-  if (accounts.find(a => a.username === username)) { showToast('⚠️ Gebruikersnaam al in gebruik', true); return; }
-  if (password.length < 6) { showToast('⚠️ Wachtwoord minimaal 6 tekens', true); return; }
-  if (password !== confirm) { showToast('⚠️ Wachtwoorden komen niet overeen', true); return; }
-  if (accounts.length >= 10) { showToast('⚠️ Maximum 10 accounts bereikt', true); return; }
-  accounts.push({ id: Date.now(), username, password, role });
-  saveAccounts();
   renderAccountsList();
-  closeAddPanel();
-  showToast('✅ Account aangemaakt: ' + username);
+  showToast('✓ Account bijgewerkt');
 }
 
-function deleteAccountConfirm() {
-  if (accounts.length <= 1) { showToast('⚠️ Minimaal 1 account vereist', true); return; }
-  if (currentUser && currentUser.id === editingAccountId) { showToast('⚠️ U kunt uw eigen account niet verwijderen', true); return; }
+function deleteAccountConfirm(id) {
+  if (id === currentUser?.id) { showToast('⚠️ Je kunt je eigen account niet verwijderen', true); return; }
+  deleteAccountId = id;
   document.getElementById('delete-account-modal').style.display = 'flex';
 }
 
 function confirmDeleteAccount() {
-  accounts = accounts.filter(a => a.id !== editingAccountId);
+  accounts = accounts.filter(a => a.id !== deleteAccountId);
   saveAccounts();
-  renderAccountsList();
   closeModal('delete-account-modal');
   closeEditPanel();
+  renderAccountsList();
   showToast('🗑️ Account verwijderd');
 }
 
-// ══════════════════════════════════════════════════
-// OUTLOOK
-// ══════════════════════════════════════════════════
+function addAccount() {
+  const username = document.getElementById('add-username').value.trim();
+  const password = document.getElementById('add-password').value;
+  const role = document.getElementById('add-role').value;
+  if (!username || !password) { showToast('⚠️ Vul gebruikersnaam en wachtwoord in', true); return; }
+  if (accounts.some(a => a.username === username)) { showToast('⚠️ Gebruikersnaam al in gebruik', true); return; }
+  if (accounts.length >= 10) { showToast('⚠️ Maximum van 10 accounts bereikt', true); return; }
+  const newId = Math.max(...accounts.map(a => a.id), 0) + 1;
+  accounts.push({ id: newId, username, password, role });
+  saveAccounts();
+  document.getElementById('add-username').value = '';
+  document.getElementById('add-password').value = '';
+  renderAccountsList();
+  showToast('✓ Account aangemaakt: ' + username);
+}
+
+// ═══════════════════════════════════════════════════════════
+// SUPABASE SETTINGS TAB
+// ═══════════════════════════════════════════════════════════
+async function saveSupabaseConfig() {
+  const url = document.getElementById('supa-url-settings').value.trim();
+  const key = document.getElementById('supa-key-settings').value.trim();
+  if (!url || !key) { showToast('⚠️ Vul URL en key in', true); return; }
+  localStorage.setItem('diasco_supa_url', url);
+  localStorage.setItem('diasco_supa_key', key);
+  if (initSupabase(url, key)) {
+    const ok = await supabaseAvailable();
+    if (ok) {
+      updateBadge('supabase');
+      document.getElementById('supa-setup-banner').style.display = 'none';
+      await loadAppointments();
+      await loadBlockedSlots();
+      renderCalendar(); renderTodayAppts(); updateStats(); renderAllAppts(); renderDayView();
+      showToast('🗄️ Supabase verbonden & data geladen!');
+    } else {
+      showToast('⚠️ Verbonden maar tabellen niet gevonden. Voer eerst de SQL uit.', true);
+    }
+  } else {
+    showToast('⚠️ Verbinding mislukt. Controleer URL en key.', true);
+  }
+}
+
+async function testSupabaseSettings() {
+  const url = document.getElementById('supa-url-settings').value.trim();
+  const key = document.getElementById('supa-key-settings').value.trim();
+  const result = document.getElementById('supa-test-result');
+  result.style.display = 'block';
+  result.textContent = '⏳ Testen...';
+  if (!url || !key) { result.textContent = '⚠️ Vul URL en key in'; return; }
+  const tmpClient = window.supabase.createClient(url, key);
+  try {
+    const { error } = await tmpClient.from('afspraken').select('id').limit(1);
+    if (!error) {
+      result.innerHTML = '✅ Verbinding geslaagd! Tabellen gevonden.';
+      result.style.color = 'var(--teal)';
+    } else {
+      result.innerHTML = '⚠️ Verbonden maar tabellen niet gevonden. Voer de SQL uit.';
+      result.style.color = 'var(--yellow)';
+    }
+  } catch(e) {
+    result.innerHTML = '❌ Verbinding mislukt: ' + e.message;
+    result.style.color = '#ff8a8a';
+  }
+}
+
+function clearSupabaseConfig() {
+  localStorage.removeItem('diasco_supa_url');
+  localStorage.removeItem('diasco_supa_key');
+  supabase = null;
+  document.getElementById('supa-url-settings').value = '';
+  document.getElementById('supa-key-settings').value = '';
+  document.getElementById('supa-status-dot').className = 'supa-dot';
+  document.getElementById('supa-status-label').textContent = 'Niet verbonden';
+  document.getElementById('supa-test-result').style.display = 'none';
+  updateBadge('local');
+  document.getElementById('supa-setup-banner').style.display = 'flex';
+  showToast('🗑️ Supabase configuratie verwijderd');
+}
+
+// ═══════════════════════════════════════════════════════════
+// OUTLOOK / MSAL
+// ═══════════════════════════════════════════════════════════
 function initMSAL() {
-  if (!AZURE_CLIENT_ID || msalInstance) return;
+  if (!AZURE_CLIENT_ID) return;
   try {
     msalInstance = new msal.PublicClientApplication({
       auth: { clientId: AZURE_CLIENT_ID, authority: 'https://login.microsoftonline.com/common', redirectUri: REDIRECT_URI },
       cache: { cacheLocation: 'localStorage', storeAuthStateInCookie: false }
     });
-    msalInstance.handleRedirectPromise().then(r => {
-      if (r) { outlookAccount = r.account; msalInstance.setActiveAccount(outlookAccount); onOutlookConnected(); }
-      else { const a = msalInstance.getAllAccounts(); if (a.length) { outlookAccount = a[0]; msalInstance.setActiveAccount(outlookAccount); onOutlookConnected(); } }
-    }).catch(e => console.warn('MSAL:', e));
-  } catch (e) { console.warn('MSAL init:', e); }
+    const accounts_ms = msalInstance.getAllAccounts();
+    if (accounts_ms.length > 0) {
+      outlookAccount = accounts_ms[0];
+      document.getElementById('outlook-btn-label').textContent = '📧 Verbonden: ' + outlookAccount.username;
+      document.getElementById('btn-sync-now').style.display = 'inline-flex';
+      document.getElementById('btn-disconnect').style.display = 'inline-flex';
+      document.getElementById('outlook-panel-sub').textContent = '✓ Verbonden met ' + outlookAccount.username;
+      syncFromOutlook();
+    }
+  } catch(e) { console.warn('MSAL init error:', e); }
 }
 
-async function connectOutlook() {
-  if (!AZURE_CLIENT_ID) { switchTab('instellingen'); showToast('⚠️ Voer eerst een Azure Client ID in'); return; }
-  if (!msalInstance) initMSAL();
+async function toggleOutlook() {
+  if (!AZURE_CLIENT_ID) { showToast('⚠️ Sla eerst een Azure Client ID op', true); return; }
+  if (outlookAccount) { disconnectOutlook(); return; }
   try {
-    showToast('⏳ Outlook venster openen...');
-    const r = await msalInstance.loginPopup({ scopes: GRAPH_SCOPES, prompt: 'select_account' });
-    outlookAccount = r.account; msalInstance.setActiveAccount(outlookAccount); onOutlookConnected();
-  } catch (e) {
-    if (e.errorCode === 'popup_window_error') msalInstance.loginRedirect({ scopes: GRAPH_SCOPES });
-    else if (e.errorCode !== 'user_cancelled') showToast('❌ Verbinding mislukt: ' + (e.message || '').substring(0, 60), true);
-  }
-}
-
-function onOutlookConnected() {
-  const name = outlookAccount.name || outlookAccount.username;
-  document.getElementById('outlook-btn-label').textContent = name;
-  document.getElementById('outlook-connect-btn').classList.add('connected');
-  document.getElementById('btn-sync-now').style.display = 'flex';
-  document.getElementById('btn-disconnect').style.display = 'flex';
-  document.getElementById('outlook-panel-title').textContent = '✅ Verbonden: ' + name;
-  document.getElementById('outlook-panel-sub').textContent = 'Automatische sync actief — elke 5 minuten';
-  document.getElementById('stat-outlook-label').textContent = 'Outlook verbonden';
-  showToast('✅ Outlook verbonden als ' + name);
-  syncFromOutlook();
+    const resp = await msalInstance.loginPopup({ scopes: ['Calendars.ReadWrite', 'User.Read'] });
+    outlookAccount = resp.account;
+    document.getElementById('outlook-btn-label').textContent = '📧 Verbonden: ' + outlookAccount.username;
+    document.getElementById('btn-sync-now').style.display = 'inline-flex';
+    document.getElementById('btn-disconnect').style.display = 'inline-flex';
+    document.getElementById('outlook-panel-sub').textContent = '✓ Verbonden';
+    showToast('✓ Outlook verbonden');
+    syncFromOutlook();
+  } catch(e) { showToast('⚠️ Outlook login mislukt', true); }
 }
 
 function disconnectOutlook() {
-  if (msalInstance && outlookAccount) {
-    try { msalInstance.logoutPopup({ account: outlookAccount }); } catch (e) { }
-  }
+  if (msalInstance && outlookAccount) msalInstance.logoutPopup({ account: outlookAccount });
   outlookAccount = null; outlookEvents = []; outlookBusySlots = {};
   document.getElementById('outlook-btn-label').textContent = '📧 Verbinden met Outlook';
-  document.getElementById('outlook-connect-btn').classList.remove('connected');
   document.getElementById('btn-sync-now').style.display = 'none';
   document.getElementById('btn-disconnect').style.display = 'none';
-  document.getElementById('outlook-panel-title').textContent = 'Outlook Agenda Sync';
-  document.getElementById('outlook-panel-sub').textContent = 'Verbind met Microsoft Outlook voor live synchronisatie';
-  document.getElementById('stat-outlook-label').textContent = 'Niet verbonden';
-  document.getElementById('stat-outlook-count').textContent = '—';
-}
-
-function toggleOutlook() { if (outlookAccount) disconnectOutlook(); else connectOutlook(); }
-
-async function getToken() {
-  if (!msalInstance || !outlookAccount) return null;
-  try { const r = await msalInstance.acquireTokenSilent({ scopes: GRAPH_SCOPES, account: outlookAccount }); return r.accessToken; }
-  catch (e) { try { const r = await msalInstance.acquireTokenPopup({ scopes: GRAPH_SCOPES }); return r.accessToken; } catch (e2) { showToast('❌ Sessie verlopen', true); return null; } }
+  document.getElementById('outlook-panel-sub').textContent = 'Verbind met Microsoft Outlook';
+  showToast('Outlook losgekoppeld');
 }
 
 async function syncFromOutlook() {
-  if (!outlookAccount) return;
-  document.getElementById('sync-spinner').style.display = 'inline';
-  document.getElementById('sync-label').textContent = 'Synchroniseren...';
-  const token = await getToken();
-  if (!token) { document.getElementById('sync-spinner').style.display = 'none'; return; }
+  if (!outlookAccount || !msalInstance) return;
   try {
-    const now = new Date(), end = new Date(); end.setDate(end.getDate() + 60);
-    const r = await fetch(
-      `https://graph.microsoft.com/v1.0/me/calendarView?startDateTime=${now.toISOString()}&endDateTime=${end.toISOString()}&$select=subject,start,end,id&$top=150`,
-      { headers: { Authorization: 'Bearer ' + token } }
-    );
-    if (!r.ok) throw new Error('Graph ' + r.status);
-    const data = await r.json();
+    const tokenResp = await msalInstance.acquireTokenSilent({ scopes: ['Calendars.ReadWrite'], account: outlookAccount });
+    const now = new Date().toISOString();
+    const future = new Date(Date.now() + 60*24*60*60*1000).toISOString();
+    const resp = await fetch(`https://graph.microsoft.com/v1.0/me/calendarView?startDateTime=${now}&endDateTime=${future}&$select=id,subject,start,end`, {
+      headers: { Authorization: 'Bearer ' + tokenResp.accessToken }
+    });
+    const data = await resp.json();
     outlookEvents = data.value || [];
     outlookBusySlots = {};
     outlookEvents.forEach(ev => {
-      const date = ev.start.dateTime.split('T')[0];
-      const t = ev.start.dateTime.split('T')[1].substring(0, 5);
-      const [h, m] = t.split(':').map(Number);
-      const slot = `${String(h).padStart(2,'0')}:${m < 30 ? '00' : '30'}`;
-      if (!outlookBusySlots[date]) outlookBusySlots[date] = [];
-      if (!outlookBusySlots[date].includes(slot)) outlookBusySlots[date].push(slot);
+      const ds = ev.start.dateTime.split('T')[0];
+      if (!outlookBusySlots[ds]) outlookBusySlots[ds] = [];
+      const t = ev.start.dateTime.split('T')[1].substring(0,5);
+      outlookBusySlots[ds].push(t);
     });
-    document.getElementById('stat-outlook-count').textContent = outlookEvents.length;
-    showToast('🔄 ' + outlookEvents.length + ' Outlook events gesynchroniseerd');
     renderCalendar(); renderTodayAppts(); renderDayView();
-  } catch (e) { showToast('❌ Sync fout: ' + e.message, true); }
-  document.getElementById('sync-spinner').style.display = 'none';
-  document.getElementById('sync-label').textContent = 'Nu synchroniseren';
+    showToast('↻ Outlook gesynchroniseerd: ' + outlookEvents.length + ' events');
+  } catch(e) { showToast('⚠️ Sync mislukt: ' + e.message, true); }
 }
 
-async function addToOutlook(appt) {
-  const token = await getToken(); if (!token) return null;
-  const start = new Date(appt.date + 'T' + appt.time + ':00');
-  const end = new Date(start.getTime() + 60 * 60 * 1000);
-  try {
-    const r = await fetch('https://graph.microsoft.com/v1.0/me/events', {
-      method: 'POST',
-      headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        subject: appt.treatment + ' — ' + apptName(appt),
-        body: { contentType: 'Text', content: 'Patiënt: ' + apptName(appt) + '\nTel: ' + (appt.phone || '-') + '\nNotities: ' + (appt.notes || '-') },
-        start: { dateTime: start.toISOString(), timeZone: 'Europe/Amsterdam' },
-        end: { dateTime: end.toISOString(), timeZone: 'Europe/Amsterdam' },
-        location: { displayName: 'Diasco Fysiotherapie Amsterdam' }
-      })
-    });
-    if (!r.ok) throw new Error('status ' + r.status);
-    const ev = await r.json(); return ev.id;
-  } catch (e) { showToast('⚠️ Outlook sync mislukt', true); return null; }
-}
-
-async function deleteFromOutlook(eid) {
-  if (!eid || !outlookAccount) return;
-  const token = await getToken(); if (!token) return;
-  try { await fetch('https://graph.microsoft.com/v1.0/me/events/' + eid, { method: 'DELETE', headers: { Authorization: 'Bearer ' + token } }); }
-  catch (e) { console.warn('Outlook delete:', e); }
-}
-
-// ══════════════════════════════════════════════════
-// SETTINGS
-// ══════════════════════════════════════════════════
 function saveAzureConfig() {
-  const id = document.getElementById('azure-client-id').value.trim();
-  if (!id || !id.includes('-')) { showToast('⚠️ Voer een geldig Client ID in', true); return; }
-  AZURE_CLIENT_ID = id;
-  localStorage.setItem('diasco_azure_client_id', id);
-  msalInstance = null;
+  AZURE_CLIENT_ID = document.getElementById('azure-client-id').value.trim();
+  localStorage.setItem('diasco_azure_client_id', AZURE_CLIENT_ID);
   document.getElementById('setup-banner').style.display = 'none';
-  document.getElementById('client-id-preview').textContent = id.substring(0, 8) + '...';
-  initMSAL();
-  showToast('✅ Azure configuratie opgeslagen');
+  if (AZURE_CLIENT_ID) initMSAL();
+  showToast('✓ Azure Client ID opgeslagen');
 }
 
-function savePraktijkSettings() {
-  showToast('✅ Instellingen opgeslagen');
-}
+function savePraktijkSettings() { showToast('✓ Instellingen opgeslagen'); }
 
-// ══════════════════════════════════════════════════
-// TOAST
-// ══════════════════════════════════════════════════
-function showToast(msg, isError = false) {
+// ═══════════════════════════════════════════════════════════
+// MODALS & TOAST
+// ═══════════════════════════════════════════════════════════
+function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+let toastTimer = null;
+function showToast(msg, warn = false) {
   const t = document.getElementById('toast');
   t.textContent = msg;
-  t.className = isError ? 'error' : '';
-  t.style.display = 'block';
-  clearTimeout(window._tt);
-  window._tt = setTimeout(() => t.style.display = 'none', 3500);
+  t.className = 'show' + (warn ? ' warn' : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.className = '', 3000);
 }
 
-// Auto-sync every 5 min
-setInterval(() => { if (outlookAccount) syncFromOutlook(); }, 5 * 60 * 1000);
+// ═══════════════════════════════════════════════════════════
+// STARTUP
+// ═══════════════════════════════════════════════════════════
+(function init() {
+  // Check if Supabase is configured
+  const supUrl = localStorage.getItem('diasco_supa_url');
+  if (!supUrl) {
+    // Show setup link in login screen but don't force wizard
+  }
+  updateDbStatusLogin();
+})();
 </script>
 </body>
 </html>
