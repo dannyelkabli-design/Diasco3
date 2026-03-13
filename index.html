@@ -389,33 +389,31 @@
     .booking-body, .booking-header { padding: 28px 24px; }
   }
 </style>
-
 <style>
-.time-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 8px; margin-bottom: 12px; }
-.time-slot { padding: 7px 4px; border-radius: 8px; font-size: 0.82rem; font-weight: 600; text-align: center; border: none; cursor: default; transition: all .15s; }
-.time-slot.free { background: #e8f5f3; color: var(--teal); cursor: pointer; }
-.time-slot.free:hover { background: var(--teal); color: white; transform: translateY(-1px); }
-.time-slot.selected { background: var(--teal); color: white; }
-.time-slot.booked { background: #f5f5f5; color: #bbb; }
-.time-slot.busy { background: #fff3cd; color: #856404; }
-.time-legend { display: flex; gap: 16px; font-size: 0.78rem; margin-top: 8px; flex-wrap:wrap; }
-.time-legend .leg { display: flex; align-items: center; gap: 4px; }
-.time-legend .leg.free::before { content: ''; display: inline-block; width: 10px; height: 10px; background: #e8f5f3; border-radius: 3px; }
-.time-legend .leg.booked::before { content: ''; display: inline-block; width: 10px; height: 10px; background: #f5f5f5; border-radius: 3px; }
-.time-legend .leg.busy::before { content: ''; display: inline-block; width: 10px; height: 10px; background: #fff3cd; border-radius: 3px; }
-.cal-cell { padding: 8px 0; text-align: center; border-radius: 8px; font-size: 0.88rem; font-weight: 500; }
-.cal-cell.available { cursor: pointer; color: var(--charcoal); }
-.cal-cell.available:hover { background: #e8f5f3; color: var(--teal); }
-.cal-cell.disabled { color: #ccc; cursor: not-allowed; }
-.cal-cell.selected { background: var(--teal) !important; color: white !important; font-weight: 700; }
-.cal-cell.today { font-weight: 700; color: var(--teal); }
-.cal-cell.empty { visibility: hidden; }
-.summary-box { background: #e8f5f3; border-radius: 10px; padding: 14px 18px; font-size: 0.9rem; color: var(--teal); border-left: 3px solid var(--teal); }
-#toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--charcoal); color: white; padding: 12px 24px; border-radius: 10px; font-size: 0.9rem; font-weight: 500; z-index: 9999; transition: transform .3s ease; pointer-events: none; }
-#toast.show { transform: translateX(-50%) translateY(0); }
-#toast.warn { background: #e67e22; }
+.time-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px;margin-bottom:12px}
+.time-slot{padding:7px 4px;border-radius:8px;font-size:.82rem;font-weight:600;text-align:center;border:none;cursor:default;transition:all .15s}
+.time-slot.free{background:#e8f5f3;color:var(--teal);cursor:pointer}
+.time-slot.free:hover{background:var(--teal);color:white;transform:translateY(-1px)}
+.time-slot.selected{background:var(--teal);color:white}
+.time-slot.booked{background:#f5f5f5;color:#bbb}
+.time-slot.busy{background:#fff3cd;color:#856404}
+.time-legend{display:flex;gap:16px;font-size:.78rem;margin-top:8px;flex-wrap:wrap}
+.time-legend .leg.free::before,.time-legend .leg.booked::before,.time-legend .leg.busy::before{content:'';display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px}
+.time-legend .leg.free::before{background:#e8f5f3}
+.time-legend .leg.booked::before{background:#f5f5f5}
+.time-legend .leg.busy::before{background:#fff3cd}
+.cal-cell{padding:8px 0;text-align:center;border-radius:8px;font-size:.88rem;font-weight:500}
+.cal-cell.available{cursor:pointer;color:var(--charcoal)}
+.cal-cell.available:hover{background:#e8f5f3;color:var(--teal)}
+.cal-cell.disabled{color:#ccc;cursor:not-allowed}
+.cal-cell.selected{background:var(--teal)!important;color:white!important;font-weight:700}
+.cal-cell.today{font-weight:700;color:var(--teal)}
+.cal-cell.empty{visibility:hidden}
+.summary-box{background:#e8f5f3;border-radius:10px;padding:14px 18px;font-size:.9rem;color:var(--teal);border-left:3px solid var(--teal)}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--charcoal);color:white;padding:12px 24px;border-radius:10px;font-size:.9rem;font-weight:500;z-index:9999;transition:transform .3s ease;pointer-events:none}
+#toast.show{transform:translateX(-50%) translateY(0)}
+#toast.warn{background:#e67e22}
 </style>
-
 </head>
 <body>
 <div id="toast"></div>
@@ -428,6 +426,7 @@
   <ul>
     <li><a href="#behandelingen">Behandelingen</a></li>
     <li><a href="#vergoedingen">Vergoedingen</a></li>
+    <li><a href="#tarieven">Tarieven</a></li>
     <li><a href="#afspraak">Afspraak</a></li>
     <li><a href="#over-ons">Over ons</a></li>
     <li><a href="#contact">Contact</a></li>
@@ -620,71 +619,187 @@
       <h2 style="font-family:'Playfair Display',serif;font-size:clamp(1.9rem,3vw,2.6rem);font-weight:700;color:var(--charcoal);margin-bottom:12px;">Vergoedingen & Verzekering</h2>
       <p style="color:var(--muted);max-width:560px;margin:0 auto;line-height:1.7;">Fysiotherapie wordt door de meeste zorgverzekeringen (deels) vergoed. Hieronder leest u wat u kunt verwachten.</p>
     </div>
-
-    <!-- Cards row -->
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:28px;margin-bottom:48px;">
-
-      <!-- Card 1: Fysiotherapie -->
       <div style="background:white;border-radius:20px;padding:36px 32px;box-shadow:0 4px 24px rgba(0,0,0,0.06);border-top:4px solid var(--teal);">
         <div style="width:52px;height:52px;background:rgba(26,127,117,0.1);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;margin-bottom:20px;">🏥</div>
         <h3 style="font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:var(--charcoal);margin-bottom:12px;">Fysiotherapie</h3>
-        <p style="color:var(--muted);line-height:1.75;font-size:0.95rem;">Fysiotherapie wordt in Nederland door de meeste zorgverzekeringen vergoed vanuit de <strong>aanvullende verzekering</strong>. Dit betekent dat u een eigen bijdrage betaalt en de verzekering een deel vergoedt.</p>
+        <p style="color:var(--muted);line-height:1.75;font-size:0.95rem;">Fysiotherapie wordt vergoed vanuit de <strong>aanvullende verzekering</strong>. Sommige verzekeringen vergoeden volledig, andere vragen een eigen bijdrage.</p>
         <ul style="list-style:none;padding:0;margin:16px 0 0;display:flex;flex-direction:column;gap:10px;">
-          <li style="display:flex;align-items:flex-start;gap:10px;font-size:0.9rem;color:var(--charcoal);">
-            <span style="color:var(--teal);font-weight:700;margin-top:1px;">✓</span>
-            <span>Sommige verzekeringen vergoeden fysiotherapie <strong>volledig</strong></span>
-          </li>
-          <li style="display:flex;align-items:flex-start;gap:10px;font-size:0.9rem;color:var(--charcoal);">
-            <span style="color:var(--teal);font-weight:700;margin-top:1px;">✓</span>
-            <span>De hoogte van de vergoeding is afhankelijk van uw polis</span>
-          </li>
-          <li style="display:flex;align-items:flex-start;gap:10px;font-size:0.9rem;color:var(--charcoal);">
-            <span style="color:var(--teal);font-weight:700;margin-top:1px;">✓</span>
-            <span>Wij zijn aangesloten bij de meeste zorgverzekeraars</span>
-          </li>
+          <li style="display:flex;gap:10px;font-size:0.9rem;"><span style="color:var(--teal);font-weight:700;">✓</span><span>Vergoeding afhankelijk van uw polis</span></li>
+          <li style="display:flex;gap:10px;font-size:0.9rem;"><span style="color:var(--teal);font-weight:700;">✓</span><span>Aangesloten bij de meeste verzekeraars</span></li>
+          <li style="display:flex;gap:10px;font-size:0.9rem;"><span style="color:var(--teal);font-weight:700;">✓</span><span>Geen verwijzing van huisarts nodig (DTF)</span></li>
         </ul>
       </div>
-
-      <!-- Card 2: Hijama -->
       <div style="background:white;border-radius:20px;padding:36px 32px;box-shadow:0 4px 24px rgba(0,0,0,0.06);border-top:4px solid var(--teal-light);">
         <div style="width:52px;height:52px;background:rgba(26,127,117,0.1);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;margin-bottom:20px;">🩺</div>
         <h3 style="font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:var(--charcoal);margin-bottom:12px;">Hijama Cupping</h3>
-        <p style="color:var(--muted);line-height:1.75;font-size:0.95rem;">Veel verzekeraars vergoeden Hijama. Of dit voor u van toepassing is, hangt af van uw afgesloten verzekering en aanvullend pakket.</p>
+        <p style="color:var(--muted);line-height:1.75;font-size:0.95rem;">Veel verzekeraars vergoeden Hijama, afhankelijk van uw aanvullend pakket.</p>
         <div style="background:#f0faf9;border-radius:12px;padding:16px;margin-top:20px;border-left:3px solid var(--teal);">
-          <p style="color:var(--teal);font-size:0.88rem;font-weight:600;margin:0;">Neem contact met ons op — wij bekijken dan samen of Hijama voor u vergoed wordt.</p>
+          <p style="color:var(--teal);font-size:0.88rem;font-weight:600;margin:0;">Neem contact op — wij controleren samen of Hijama voor u vergoed wordt.</p>
         </div>
       </div>
-
-      <!-- Card 3: Geen verwijzing -->
       <div style="background:white;border-radius:20px;padding:36px 32px;box-shadow:0 4px 24px rgba(0,0,0,0.06);border-top:4px solid #e9d97a;">
         <div style="width:52px;height:52px;background:rgba(233,217,122,0.15);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;margin-bottom:20px;">📋</div>
         <h3 style="font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:var(--charcoal);margin-bottom:12px;">Geen verwijzing nodig</h3>
-        <p style="color:var(--muted);line-height:1.75;font-size:0.95rem;">U hoeft <strong>geen verwijzing</strong> van de huisarts te hebben om bij ons terecht te kunnen. U kunt direct een afspraak maken.</p>
+        <p style="color:var(--muted);line-height:1.75;font-size:0.95rem;">U hoeft <strong>geen verwijzing</strong> van de huisarts. U kunt direct een afspraak inplannen.</p>
         <ul style="list-style:none;padding:0;margin:16px 0 0;display:flex;flex-direction:column;gap:10px;">
-          <li style="display:flex;align-items:flex-start;gap:10px;font-size:0.9rem;color:var(--charcoal);">
-            <span style="color:#b5a017;font-weight:700;margin-top:1px;">✓</span>
-            <span>Direct toegankelijke fysiotherapie (DTF)</span>
-          </li>
-          <li style="display:flex;align-items:flex-start;gap:10px;font-size:0.9rem;color:var(--charcoal);">
-            <span style="color:#b5a017;font-weight:700;margin-top:1px;">✓</span>
-            <span>Wij screenen uw klacht bij het eerste bezoek</span>
-          </li>
+          <li style="display:flex;gap:10px;font-size:0.9rem;"><span style="color:#b5a017;font-weight:700;">✓</span><span>Direct toegankelijke fysiotherapie (DTF)</span></li>
+          <li style="display:flex;gap:10px;font-size:0.9rem;"><span style="color:#b5a017;font-weight:700;">✓</span><span>Wij screenen uw klacht bij het eerste bezoek</span></li>
         </ul>
       </div>
     </div>
-
-    <!-- Bottom CTA banner -->
     <div style="background:linear-gradient(135deg,var(--teal) 0%,var(--teal-dark) 100%);border-radius:20px;padding:40px 48px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:24px;">
       <div>
         <h3 style="font-family:'Playfair Display',serif;color:white;font-size:1.4rem;margin-bottom:8px;">Twijfelt u of uw behandeling vergoed wordt?</h3>
-        <p style="color:rgba(255,255,255,0.8);font-size:0.95rem;max-width:480px;line-height:1.6;">Neem gerust contact met ons op. Wij controleren samen met u de vergoedingsmogelijkheden via uw zorgverzekeraar.</p>
+        <p style="color:rgba(255,255,255,0.8);font-size:0.95rem;max-width:480px;line-height:1.6;">Neem gerust contact met ons op. Wij controleren samen de vergoedingsmogelijkheden.</p>
       </div>
       <a href="#afspraak" class="btn-primary" style="background:white;color:var(--teal);white-space:nowrap;flex-shrink:0;">📞 Neem contact op</a>
     </div>
-
   </div>
 </section>
 
+<section id="tarieven" style="padding:100px 5%;background:white;scroll-margin-top:88px;">
+  <div style="max-width:1080px;margin:0 auto;">
+    <div style="text-align:center;margin-bottom:56px;">
+      <span class="section-label">Transparante Prijzen</span>
+      <h2 style="font-family:'Playfair Display',serif;font-size:clamp(1.9rem,3vw,2.6rem);font-weight:700;color:var(--charcoal);margin-bottom:12px;">Onze Tarieven</h2>
+      <p style="color:var(--muted);max-width:560px;margin:0 auto;line-height:1.7;">Wij hanteren transparante tarieven conform de NZa-richtlijnen. De meeste behandelingen worden (deels) vergoed via uw aanvullende verzekering.</p>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:32px;margin-bottom:48px;">
+
+      <!-- Fysiotherapie tarieven -->
+      <div style="background:#f8fbfb;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.06);">
+        <div style="background:var(--teal);padding:20px 28px;">
+          <h3 style="font-family:'Playfair Display',serif;color:white;font-size:1.2rem;font-weight:700;margin:0;">🏥 Fysiotherapie</h3>
+        </div>
+        <div style="padding:8px 0;">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 28px;border-bottom:1px solid #eef2f1;">
+            <div>
+              <strong style="font-size:0.9rem;color:var(--charcoal);">Reguliere zitting</strong>
+              <span style="color:var(--muted);font-size:0.8rem;display:block;">30 minuten</span>
+            </div>
+            <span style="font-weight:700;color:var(--teal);font-size:1rem;">€ 50</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 28px;border-bottom:1px solid #eef2f1;background:rgba(26,127,117,0.03);">
+            <div>
+              <strong style="font-size:0.9rem;color:var(--charcoal);">Screening</strong>
+              <span style="color:var(--muted);font-size:0.8rem;display:block;">10 minuten</span>
+            </div>
+            <span style="font-weight:700;color:var(--teal);font-size:1rem;">€ 20</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 28px;border-bottom:1px solid #eef2f1;">
+            <div>
+              <strong style="font-size:0.9rem;color:var(--charcoal);">Screening, intake & onderzoek</strong>
+              <span style="color:var(--muted);font-size:0.8rem;display:block;">40 minuten</span>
+            </div>
+            <span style="font-weight:700;color:var(--teal);font-size:1rem;">€ 65</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 28px;border-bottom:1px solid #eef2f1;background:rgba(26,127,117,0.03);">
+            <div>
+              <strong style="font-size:0.9rem;color:var(--charcoal);">Intake & onderzoek na verwijzing</strong>
+              <span style="color:var(--muted);font-size:0.8rem;display:block;">40 minuten</span>
+            </div>
+            <span style="font-weight:700;color:var(--teal);font-size:1rem;">€ 65</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 28px;border-bottom:1px solid #eef2f1;">
+            <div>
+              <strong style="font-size:0.9rem;color:var(--charcoal);">Eenmalig fysiotherapeutisch onderzoek</strong>
+              <span style="color:var(--muted);font-size:0.8rem;display:block;">60 minuten</span>
+            </div>
+            <span style="font-weight:700;color:var(--teal);font-size:1rem;">€ 80</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 28px;border-bottom:1px solid #eef2f1;background:rgba(26,127,117,0.03);">
+            <div>
+              <strong style="font-size:0.9rem;color:var(--charcoal);">Toeslag aan huis</strong>
+            </div>
+            <span style="font-weight:700;color:var(--teal);font-size:1rem;">€ 30</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 28px;border-bottom:1px solid #eef2f1;">
+            <div>
+              <strong style="font-size:0.9rem;color:var(--charcoal);">Niet nagekomen afspraak</strong>
+            </div>
+            <span style="font-weight:700;color:#c0392b;font-size:1rem;">€ 50</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 28px;border-bottom:1px solid #eef2f1;background:rgba(26,127,117,0.03);">
+            <div>
+              <strong style="font-size:0.9rem;color:var(--charcoal);">Eenvoudige korte rapportage</strong>
+            </div>
+            <span style="font-weight:700;color:var(--teal);font-size:1rem;">€ 80</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 28px;">
+            <div>
+              <strong style="font-size:0.9rem;color:var(--charcoal);">Uitgebreid medisch dossier + rapportage</strong>
+            </div>
+            <span style="font-weight:700;color:var(--teal);font-size:1rem;">€ 120</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hijama + Personal Training -->
+      <div style="display:flex;flex-direction:column;gap:24px;">
+
+        <!-- Hijama -->
+        <div style="background:#f8fbfb;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.06);">
+          <div style="background:var(--teal-light);padding:20px 28px;">
+            <h3 style="font-family:'Playfair Display',serif;color:white;font-size:1.2rem;font-weight:700;margin:0;">🩺 Hijama Cupping</h3>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 28px;">
+            <div>
+              <strong style="font-size:0.9rem;color:var(--charcoal);">Prijs per behandeling</strong>
+            </div>
+            <span style="font-weight:700;color:var(--teal);font-size:1.1rem;">€ 60</span>
+          </div>
+        </div>
+
+        <!-- Personal Training -->
+        <div style="background:#f8fbfb;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.06);">
+          <div style="background:var(--charcoal);padding:20px 28px;">
+            <h3 style="font-family:'Playfair Display',serif;color:white;font-size:1.2rem;font-weight:700;margin:0;">💪 Personal Training</h3>
+          </div>
+          <div style="padding:8px 0;">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 28px;border-bottom:1px solid #eef2f1;">
+              <strong style="font-size:0.9rem;color:var(--charcoal);">1 op 1 training</strong>
+              <span style="font-weight:700;color:var(--teal);font-size:1rem;">€ 60</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 28px;border-bottom:1px solid #eef2f1;background:rgba(26,127,117,0.03);">
+              <div>
+                <strong style="font-size:0.9rem;color:var(--charcoal);">10-rittenkaart</strong>
+                <span style="color:var(--teal);font-size:0.78rem;font-weight:600;display:block;">€6 korting per sessie</span>
+              </div>
+              <span style="font-weight:700;color:var(--teal);font-size:1rem;">€ 600</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 28px;border-bottom:1px solid #eef2f1;">
+              <div>
+                <strong style="font-size:0.9rem;color:var(--charcoal);">20-rittenkaart</strong>
+                <span style="color:var(--teal);font-size:0.78rem;font-weight:600;display:block;">€10 korting per sessie</span>
+              </div>
+              <span style="font-weight:700;color:var(--teal);font-size:1rem;">€ 1000</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 28px;">
+              <div>
+                <strong style="font-size:0.9rem;color:var(--charcoal);">Groepstraining (max. 4 pers.)</strong>
+                <span style="color:var(--muted);font-size:0.8rem;display:block;">10-rittenkaart</span>
+              </div>
+              <span style="font-weight:700;color:var(--teal);font-size:1rem;">€ 150</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Betaalinformatie -->
+        <div style="background:#f0faf9;border-radius:16px;padding:20px 24px;border-left:4px solid var(--teal);">
+          <strong style="color:var(--charcoal);font-size:0.9rem;display:block;margin-bottom:8px;">💳 Betaalmogelijkheden</strong>
+          <p style="color:var(--muted);font-size:0.85rem;line-height:1.6;margin:0;">Wij accepteren contant, pin en factuur. Betaling na afloop van de behandeling. Wij declareren direct bij uw zorgverzekeraar.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <div style="text-align:center;">
+      <a href="#afspraak" class="btn-primary">📅 Maak een afspraak</a>
+    </div>
+  </div>
+</section>
 <section class="booking-section" id="afspraak" style="scroll-margin-top:88px;">
   <div style="text-align:center; margin-bottom:56px;">
     <span class="section-label">Online inplannen</span>
@@ -693,12 +808,7 @@
   </div>
 
 
-  <div id="google-cal-bar" style="text-align:center;margin-bottom:24px;">
-    <button id="google-connect-btn" onclick="connectGoogle()" style="background:white;border:1.5px solid #dde4e3;border-radius:10px;padding:10px 20px;font-size:0.88rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:8px;">
-      📅 Koppel Google Agenda
-    </button>
-    <div id="google-status" style="font-size:0.8rem;margin-top:6px;color:#888;">Niet verbonden — tijden worden niet gesynchroniseerd</div>
-  </div>
+  <div id="google-cal-bar" style="text-align:center;margin-bottom:24px;"><button id="google-connect-btn" onclick="connectGoogle()" style="background:white;border:1.5px solid #dde4e3;border-radius:10px;padding:10px 20px;font-size:0.88rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:8px;">📅 Koppel Google Agenda</button><div id="google-status" style="font-size:0.8rem;margin-top:6px;color:#888;">Niet verbonden</div></div>
   <div class="booking-inner">
     <div class="booking-header">
       <h2>Afspraak inplannen</h2>
@@ -982,8 +1092,8 @@
     <p><a href="admin.html" style="color:rgba(255,255,255,0.12);text-decoration:none;font-size:0.72rem;letter-spacing:.06em;">· Medewerkers portaal ·</a></p>
   </div>
 </footer>
-
-
+<!-- Google Identity Services -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 
 <script>
 (function() {
