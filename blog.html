@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Blog — Diasco Fysiotherapie</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--teal:#1a7f75;--teal-light:#2da87a;--teal-dark:#155f58;--charcoal:#1e2a28;--muted:#6b7c79;--bg:#f8fbfb;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--charcoal);}
+nav{background:white;border-bottom:1px solid #e8eeec;padding:0 5%;height:72px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 12px rgba(0,0,0,.06);}
+.nav-logo{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:var(--charcoal);text-decoration:none;}
+.nav-logo span{color:var(--teal);}
+.nav-links{display:flex;gap:28px;list-style:none;}
+.nav-links a{text-decoration:none;color:var(--muted);font-size:.88rem;font-weight:500;transition:color .2s;}
+.nav-links a:hover{color:var(--teal);}
+.btn-nav{background:var(--teal);color:white!important;padding:9px 20px;border-radius:8px;}
+@media(max-width:640px){.nav-links{display:none;}}
+.hero{background:linear-gradient(135deg,var(--charcoal),#2a3d3a);padding:80px 5%;text-align:center;}
+.hero-label{display:inline-block;background:rgba(255,255,255,.1);color:rgba(255,255,255,.7);font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:5px 14px;border-radius:20px;margin-bottom:14px;}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(2rem,4vw,3rem);color:white;margin-bottom:14px;}
+.hero p{color:rgba(255,255,255,.65);font-size:1rem;max-width:500px;margin:0 auto;}
+main{max-width:1120px;margin:0 auto;padding:72px 5%;}
+.featured{display:grid;grid-template-columns:1.6fr 1fr;gap:28px;margin-bottom:56px;}
+.featured-card{background:white;border-radius:22px;overflow:hidden;box-shadow:0 4px 28px rgba(0,0,0,.08);text-decoration:none;color:inherit;display:block;transition:transform .2s,box-shadow .2s;}
+.featured-card:hover{transform:translateY(-4px);box-shadow:0 10px 36px rgba(0,0,0,.13);}
+.feat-img{height:220px;display:flex;align-items:center;justify-content:center;font-size:4rem;}
+.feat-body{padding:28px;}
+.sec-title{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;margin-bottom:28px;display:flex;align-items:center;gap:12px;}
+.sec-title::after{content:'';flex:1;height:2px;background:linear-gradient(90deg,#e2eceb,transparent);}
+.tag{display:inline-block;background:rgba(26,127,117,.1);color:var(--teal);font-size:.7rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:3px 9px;border-radius:6px;margin-bottom:8px;}
+.ftag{background:rgba(45,168,122,.2);color:#1a6b61;}
+.card-title{font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:700;line-height:1.35;margin-bottom:8px;}
+.card-excerpt{color:var(--muted);font-size:.86rem;line-height:1.7;margin-bottom:14px;}
+.card-meta{font-size:.75rem;color:var(--muted);display:flex;justify-content:space-between;align-items:center;border-top:1px solid #eef2f1;padding-top:11px;}
+.read-more{color:var(--teal);font-weight:700;font-size:.8rem;}
+.blog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:22px;margin-bottom:52px;}
+.blog-card{background:white;border-radius:18px;overflow:hidden;box-shadow:0 3px 18px rgba(0,0,0,.07);text-decoration:none;color:inherit;display:block;transition:transform .2s,box-shadow .2s;}
+.blog-card:hover{transform:translateY(-3px);box-shadow:0 8px 26px rgba(0,0,0,.12);}
+.blog-img{height:148px;display:flex;align-items:center;justify-content:center;font-size:2.6rem;}
+.blog-body{padding:18px 20px;}
+.blog-title{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;line-height:1.4;margin-bottom:7px;}
+.blog-excerpt{color:var(--muted);font-size:.81rem;line-height:1.65;margin-bottom:12px;}
+.blog-meta{font-size:.73rem;color:var(--muted);display:flex;justify-content:space-between;border-top:1px solid #eef2f1;padding-top:9px;}
+.c1{background:linear-gradient(135deg,#1a7f75,#2da87a);}
+.c2{background:linear-gradient(135deg,#155f58,#1a7f75);}
+.c3{background:linear-gradient(135deg,#0d4a44,#155f58);}
+.c4{background:linear-gradient(135deg,#2da87a,#3cc48a);}
+.c5{background:linear-gradient(135deg,#1a7f75,#0d6b62);}
+footer{background:var(--charcoal);color:rgba(255,255,255,.4);text-align:center;padding:28px 5%;font-size:.8rem;}
+footer a{color:var(--teal-light);text-decoration:none;}
+@media(max-width:700px){.featured{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="index.html">Dia<span>sco</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html#behandelingen">Behandelingen</a></li>
+    <li><a href="index.html#vergoedingen">Vergoedingen</a></li>
+    <li><a href="index.html#tarieven">Tarieven</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+    <li><a href="index.html#afspraak" class="btn-nav">Afspraak maken</a></li>
+  </ul>
+</nav>
+<div class="hero">
+  <div class="hero-label">Kennis &amp; Informatie</div>
+  <h1>Diasco Blog</h1>
+  <p>24 artikelen over fysiotherapie, herstel en bewegen — geschreven door onze therapeuten, met echte bronnen.</p>
+</div>
+<main>
+
+  <h2 class="sec-title">Meest recent</h2>
+  <div class="featured">
+    <a class="featured-card" href="blog-dry-needling-nek-schouder.html">
+      <div class="feat-img c1">💉</div>
+      <div class="feat-body">
+        <span class="tag ftag">Dry Needling</span>
+        <div class="card-title">Dry needling bij nek- en schouderklachten: wat kunt u verwachten?</div>
+        <p class="card-excerpt">Nek- en schouderklachten horen tot de meest voorkomende klachten waarvoor mensen naar de fysiotherapeut gaan. Dry needling biedt voor veel patiënten snelle en gerichte verlichting.</p>
+        <div class="card-meta"><span>10 maart 2026 · 5 min</span><span class="read-more">Lees artikel →</span></div>
+      </div>
+    </a>
+    <a class="featured-card" href="blog-hijama-bloeddruk-metabolisme.html">
+      <div class="feat-img c2">🩸</div>
+      <div class="feat-body">
+        <span class="tag ftag">Hijama</span>
+        <div class="card-title">Hijama bij hoge bloeddruk en metabole klachten</div>
+        <p class="card-excerpt">Steeds meer mensen met hoge bloeddruk of metabole klachten zoeken aanvullende behandelingen. Wat is er wetenschappelijk bekend over Hijama?</p>
+        <div class="card-meta"><span>10 feb 2026 · 5 min</span><span class="read-more">Lees artikel →</span></div>
+      </div>
+    </a>
+  </div>
+
+  <h2 class="sec-title">Reeks 2 — alle artikelen</h2>
+  <div class="blog-grid">
+
+    <a class="blog-card" href="blog-kniebandletsel-revalidatie.html">
+      <div class="blog-img c3">🦵</div>
+      <div class="blog-body">
+        <span class="tag">Knieblessure</span>
+        <div class="blog-title">Kniebandletsel: van enkelvoudige verstuiking tot kruisbandruptuur</div>
+        <p class="blog-excerpt">De behandeling verschilt sterk per type letsel — maar bij alle kniebandletsels speelt fysiotherapie een onmisbare rol.</p>
+        <div class="blog-meta"><span>13 jan 2026 · 5 min</span><span class="read-more">Lees →</span></div>
+      </div>
+    </a>
+
+    <a class="blog-card" href="blog-heupprothese-voorbereiding.html">
+      <div class="blog-img c4">🏋️</div>
+      <div class="blog-body">
+        <span class="tag">Heupprothese</span>
+        <div class="blog-title">Prehabilitatie: sterker de heupoperatie in voor beter herstel</div>
+        <p class="blog-excerpt">Fysiotherapie vóór uw operatie kan uw herstel aanzienlijk versnellen. Wij leggen uit waarom en hoe.</p>
+        <div class="blog-meta"><span>9 dec 2025 · 5 min</span><span class="read-more">Lees →</span></div>
+      </div>
+    </a>
+
+    <a class="blog-card" href="blog-achillespees-hardlopen.html">
+      <div class="blog-img c5">🏃</div>
+      <div class="blog-body">
+        <span class="tag">Sportrevalidatie</span>
+        <div class="blog-title">Achillespeesklachten bij hardlopers: oorzaak, behandeling en preventie</div>
+        <p class="blog-excerpt">De achillespees is de sterkste pees van het lichaam — en een van de meest blessure-gevoelige bij lopers.</p>
+        <div class="blog-meta"><span>11 nov 2025 · 5 min</span><span class="read-more">Lees →</span></div>
+      </div>
+    </a>
+
+    <a class="blog-card" href="blog-cervicale-mobilisatie-whiplash.html">
+      <div class="blog-img c1">🚗</div>
+      <div class="blog-body">
+        <span class="tag">Mobilisatie</span>
+        <div class="blog-title">Whiplash: wat het is, wat het niet is, en hoe fysiotherapie helpt</div>
+        <p class="blog-excerpt">Whiplash is een van de meest misverstane blessures. De werkelijkheid is genuanceerd — en goed behandelbaar.</p>
+        <div class="blog-meta"><span>8 okt 2025 · 5 min</span><span class="read-more">Lees →</span></div>
+      </div>
+    </a>
+
+    <a class="blog-card" href="blog-personal-training-vrouwen-hormonen.html">
+      <div class="blog-img c2">💪</div>
+      <div class="blog-body">
+        <span class="tag">Personal Training</span>
+        <div class="blog-title">Trainen als vrouw: hoe hormonen uw herstel beïnvloeden</div>
+        <p class="blog-excerpt">De hormonale cyclus, oestrogeen en progesteron beïnvloeden hoe het lichaam reageert op belasting en hoe snel spieren herstellen.</p>
+        <div class="blog-meta"><span>9 sep 2025 · 5 min</span><span class="read-more">Lees →</span></div>
+      </div>
+    </a>
+
+    <a class="blog-card" href="blog-lage-rugpijn-werkplek-ergonomie.html">
+      <div class="blog-img c3">💼</div>
+      <div class="blog-body">
+        <span class="tag">Rugpijn</span>
+        <div class="blog-title">Rugpijn op het werk: ergonomie en beweging als oplossing</div>
+        <p class="blog-excerpt">De oplossing voor werkgerelateerde rugklachten is niet een duurder bureau. Het gaat om beweging en gewoontes.</p>
+        <div class="blog-meta"><span>12 aug 2025 · 5 min</span><span class="read-more">Lees →</span></div>
+      </div>
+    </a>
+
+    <a class="blog-card" href="blog-hijama-pijn-management.html">
+      <div class="blog-img c4">🧬</div>
+      <div class="blog-body">
+        <span class="tag">Hijama</span>
+        <div class="blog-title">Hijama als pijnmanagement: mechanismen en praktijkervaring</div>
+        <p class="blog-excerpt">Hijama wint aan populariteit als aanvullend pijnmanagement. Wij leggen de biologische mechanismen uit.</p>
+        <div class="blog-meta"><span>8 jul 2025 · 5 min</span><span class="read-more">Lees →</span></div>
+      </div>
+    </a>
+
+    <a class="blog-card" href="blog-loopanalyse-blessurepreventie.html">
+      <div class="blog-img c5">👟</div>
+      <div class="blog-body">
+        <span class="tag">Sportrevalidatie</span>
+        <div class="blog-title">Loopanalyse: hoe uw loopstijl blessures voorkomt of veroorzaakt</div>
+        <p class="blog-excerpt">Meer dan de helft van alle hardlopers raakt jaarlijks geblesseerd. Een loopanalyse geeft inzicht en helpt voorkomen.</p>
+        <div class="blog-meta"><span>10 jun 2025 · 5 min</span><span class="read-more">Lees →</span></div>
+      </div>
+    </a>
+
+    <a class="blog-card" href="blog-knieartrose-chirurgie-versus-fysiotherapie.html">
+      <div class="blog-img c1">🏥</div>
+      <div class="blog-body">
+        <span class="tag">Knieartrose</span>
+        <div class="blog-title">Knieoperatie of fysiotherapie? Wat onderzoek zegt over artroscopie</div>
+        <p class="blog-excerpt">Voor de meeste patiënten met knieartrose blijkt de kijkoperatie niet beter te werken dan een nep-operatie. Hoe zit dat?</p>
+        <div class="blog-meta"><span>13 mei 2025 · 5 min</span><span class="read-more">Lees →</span></div>
+      </div>
+    </a>
+
+    <a class="blog-card" href="blog-dry-needling-sportprestatie.html">
+      <div class="blog-img c2">⚡</div>
+      <div class="blog-body">
+        <span class="tag">Dry Needling</span>
+        <div class="blog-title">Dry needling ter verbetering van sportprestaties: mythe of realiteit?</div>
+        <p class="blog-excerpt">Steeds meer sporters zetten dry needling in als prestatiemiddel. Heeft dat wetenschappelijke basis?</p>
+        <div class="blog-meta"><span>8 apr 2025 · 5 min</span><span class="read-more">Lees →</span></div>
+      </div>
+    </a>
+
+  </div>
+
+  <h2 class="sec-title">Reeks 1 — eerdere artikelen</h2>
+  <div class="blog-grid">
+
+    <a class="blog-card" href="blog-dry-needling-triggerpoints.html">
+      <div class="blog-img c1">💉</div>
+      <div class="blog-body"><span class="tag">Dry Needling</span>
+        <div class="blog-title">Dry Needling: hoe werkt het en wat mag u verwachten?</div>
+        <p class="blog-excerpt">Hoe werkt die dunne naald nu precies bij chronische spierpijn en triggerpoints?</p>
+        <div class="blog-meta"><span>3 mrt 2026 · 5 min</span><span class="read-more">Lees →</span></div>
+      </div>
+    </a>
+
+    <a class="blog-card" href="blog-hijama-cupping-fysiotherapie.html">
+      <div class="blog-img c2">🩸</div>
+      <div class="blog-body"><span class="tag">Hijama</span>
+        <div class="blog-title">Hijama Cupping en fysiotherapie: een krachtige combinatie</div>
+        <p class="blog-excerpt">Wat is Hijama precies, hoe werkt het, en wat zegt de wetenschap over de effectiviteit?</p>
+        <div class="blog-meta"><span>3 feb 2026 · 5 min</span><span class="read-more">Lees →</span></div>
+      </div>
+    </a>
+
+    <a class="blog-card" href="blog-knieartrose-oefentherapie.html">
+      <div class="blog-img c3">🦵</div>
+      <div class="blog-body"><span class="tag">Knieartrose</span>
+        <div class="blog-title">Knieartrose: waarom bewegen de beste behandeling is</div>
+        <p class="blog-excerpt">Wetenschappelijk onderzoek laat keer op keer zien dat gericht bewegen de meest effectieve aanpak is.</p>
+        <div class="blog-meta"><span>6 jan 2026 · 5 min</span><span class="read-more">Lees →</span></div>
+      </div>
+    </a>
+
+    <a class="blog-card" href="blog-heupprothese-revalidatie.html">
+      <div class="blog-img c4">🦴</div>
+      <div class="blog-body"><span class="tag">Heupprothese</span>
+        <div class="blog-title">Revalidatie na een heupprothese: zo verloopt uw herstel</div>
+        <p class="blog-excerpt">De kwaliteit van de revalidatie bepaalt in grote mate hoe snel en goed het herstel verloopt.</p>
+        <div class="blog-meta"><span>2 dec 2025 · 5 min</span><span class="read-more">Lees →</span></div>
+      </div>
+    </a>
+
+    <a class="blog-card" href="blog-sportrevalidatie-blessures.html">
+      <div class="blog-img c5">🏃</div>
+      <div class="blog-body"><span class="tag">Sportrevalidatie</span>
+        <div class="blog-title">Sportblessures: sneller én veiliger terug in het veld</div>
+        <p class="blog-excerpt">De juiste revalidatie bepaalt niet alleen hoe snel u terugkeert, maar ook of u opnieuw geblesseerd raakt.</p>
+        <div class="blog-meta"><span>4 nov 2025 · 5 min</span><span class="read-more">Lees →</span></div>
+      </div>
+    </a>
+
+    <a class="blog-card" href="blog-mobilisatie-gewrichten.html">
+      <div class="blog-img c1">🖐️</div>
+      <div class="blog-body"><span class="tag">Mobilisatie</span>
+        <div class="blog-title">Mobilisatie: hoe fysiotherapeuten gewrichten bevrijden van pijn</div>
+        <p class="blog-excerpt">Stijve gewrichten, beperkte beweeglijkheid — mobilisatietechnieken zijn een kernvaardigheid binnen de fysiotherapie.</p>
+        <div class="blog-meta"><span>1 okt 2025 · 5 min</span><span class="read-more">Lees →</span></div>
+      </div>
+    </a>
+
+    <a class="blog-card" href="blog-personal-training-fysiotherapeut.html">
+      <div class="blog-img c2">💪</div>
+      <div class="blog-body"><span class="tag">Personal Training</span>
+        <div class="blog-title">Personal training bij een fysiotherapeut: meer dan sporten</div>
+        <p class="blog-excerpt">De combinatie van bewegingsdeskundigheid en medische kennis maakt het verschil bij blessurepreventie.</p>
+        <div class="blog-meta"><span>2 sep 2025 · 5 min</span><span class="read-more">Lees →</span></div>
+      </div>
+    </a>
+
+    <a class="blog-card" href="blog-chronische-rugpijn.html">
+      <div class="blog-img c3">🔬</div>
+      <div class="blog-body"><span class="tag">Rugpijn</span>
+        <div class="blog-title">Chronische lage rugpijn: oorzaken, mythen en wat echt helpt</div>
+        <p class="blog-excerpt">Lage rugpijn is de meest voorkomende oorzaak van arbeidsongeschiktheid. We ontmaskeren de mythen.</p>
+        <div class="blog-meta"><span>5 aug 2025 · 5 min</span><span class="read-more">Lees →</span></div>
+      </div>
+    </a>
+
+    <a class="blog-card" href="blog-spanningshoofdpijn-nekpijn.html">
+      <div class="blog-img c4">🧠</div>
+      <div class="blog-body"><span class="tag">Nekpijn & Hoofdpijn</span>
+        <div class="blog-title">Spanningshoofdpijn door nekpijn: fysiotherapie helpt</div>
+        <p class="blog-excerpt">Een groot deel van de hoofdpijn vindt zijn oorsprong in nek- en schouderspieren. Behandelbaar!</p>
+        <div class="blog-meta"><span>1 jul 2025 · 5 min</span><span class="read-more">Lees →</span></div>
+      </div>
+    </a>
+
+    <a class="blog-card" href="blog-fysiotherapie-ouderen.html">
+      <div class="blog-img c5">👴</div>
+      <div class="blog-body"><span class="tag">Ouderen & Vitaliteit</span>
+        <div class="blog-title">Fysiotherapie voor ouderen: sterker en zelfstandiger blijven</div>
+        <p class="blog-excerpt">Met gerichte fysiotherapie kunnen ouderen spierkracht en balans behouden — en langer zelfstandig leven.</p>
+        <div class="blog-meta"><span>3 jun 2025 · 5 min</span><span class="read-more">Lees →</span></div>
+      </div>
+    </a>
+
+    <a class="blog-card" href="blog-schouderklachten.html">
+      <div class="blog-img c1">🙋</div>
+      <div class="blog-body"><span class="tag">Schouder</span>
+        <div class="blog-title">Schouderklachten: van rotatorenmanchet tot frozen shoulder</div>
+        <p class="blog-excerpt">Schouderklachten worden vaak verkeerd behandeld. Lees over de meest effectieve aanpak.</p>
+        <div class="blog-meta"><span>5 mei 2025 · 5 min</span><span class="read-more">Lees →</span></div>
+      </div>
+    </a>
+
+    <a class="blog-card" href="blog-hijama-bloedonderzoek-islamitische-geneeskunde.html">
+      <div class="blog-img c2">📜</div>
+      <div class="blog-body"><span class="tag">Hijama</span>
+        <div class="blog-title">De geschiedenis en wetenschappelijke basis van Hijama</div>
+        <p class="blog-excerpt">Hijama kent wortels die duizenden jaren teruggaan. Hoe verhoudt dit zich tot de moderne wetenschap?</p>
+        <div class="blog-meta"><span>1 apr 2025 · 5 min</span><span class="read-more">Lees →</span></div>
+      </div>
+    </a>
+
+  </div>
+</main>
+<footer>
+  <p>© 2026 Diasco Fysiotherapie &nbsp;·&nbsp; <a href="index.html">Home</a> &nbsp;·&nbsp; <a href="privacy.html">Privacy &amp; AVG</a> &nbsp;·&nbsp; <a href="mailto:info@diascofysiotherapie.nl">info@diascofysiotherapie.nl</a></p>
+</footer>
+</body>
+</html>

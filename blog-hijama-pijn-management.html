@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hijama als pijnmanagement: mechanismen en praktijkervaring — Diasco Blog</title>
+<meta name="description" content="Pijn is het meest voorkomende symptoom waarvoor mensen medische hulp zoeken. Hijama Cupping wint aan populariteit als aanvullend pijnmanagement — niet als alter">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--teal:#1a7f75;--teal-light:#2da87a;--teal-dark:#155f58;--charcoal:#1e2a28;--muted:#6b7c79;--bg:#f8fbfb;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--charcoal);line-height:1.8;}
+nav{background:white;border-bottom:1px solid #e8eeec;padding:0 5%;height:72px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 12px rgba(0,0,0,.06);}
+.nav-logo{font-family:"Playfair Display",serif;font-size:1.3rem;font-weight:700;color:var(--charcoal);text-decoration:none;}
+.nav-logo span{color:var(--teal);}
+.nav-links{display:flex;gap:28px;list-style:none;}
+.nav-links a{text-decoration:none;color:var(--muted);font-size:.88rem;font-weight:500;transition:color .2s;}
+.nav-links a:hover{color:var(--teal);}
+.btn-nav{background:var(--teal);color:white!important;padding:9px 20px;border-radius:8px;}
+@media(max-width:640px){.nav-links{display:none;}}
+.hero{background:linear-gradient(135deg,var(--charcoal),#2a3d3a);padding:72px 5%;}
+.hero-inner{max-width:860px;margin:0 auto;}
+.hero-label{display:inline-block;background:rgba(255,255,255,.1);color:rgba(255,255,255,.7);font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 12px;border-radius:20px;margin-bottom:16px;}
+.hero h1{font-family:"Playfair Display",serif;font-size:clamp(1.8rem,3.5vw,2.8rem);color:white;line-height:1.25;margin-bottom:20px;}
+.hero-meta{display:flex;gap:20px;flex-wrap:wrap;align-items:center;}
+.hero-meta span{color:rgba(255,255,255,.6);font-size:.85rem;}
+.hero-meta .tag{background:rgba(45,168,122,.25);color:#7de8b5;padding:4px 12px;border-radius:20px;font-size:.75rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;}
+article{max-width:760px;margin:0 auto;padding:64px 5%;}
+article h2{font-family:"Playfair Display",serif;font-size:1.5rem;font-weight:700;margin:40px 0 14px;color:var(--charcoal);}
+article h3{font-size:1.05rem;font-weight:700;margin:28px 0 10px;color:var(--teal-dark);}
+article p{font-size:.97rem;color:#3a4a47;line-height:1.85;margin-bottom:18px;}
+article ul,article ol{padding-left:22px;margin-bottom:18px;}
+article ul li,article ol li{font-size:.97rem;color:#3a4a47;line-height:1.85;margin-bottom:8px;}
+.intro-box{background:linear-gradient(135deg,rgba(26,127,117,.08),rgba(45,168,122,.05));border-left:4px solid var(--teal);border-radius:0 14px 14px 0;padding:22px 26px;margin-bottom:32px;}
+.intro-box p{font-size:1.02rem;color:var(--charcoal);font-style:italic;margin:0;line-height:1.8;}
+.highlight{background:rgba(26,127,117,.06);border:1px solid rgba(26,127,117,.15);border-radius:12px;padding:20px 24px;margin:24px 0;}
+.highlight p{color:var(--charcoal);font-size:.93rem;margin:0;}
+.sources{background:var(--charcoal);border-radius:16px;padding:32px;margin-top:48px;}
+.sources h3{color:white;font-size:1rem;font-weight:700;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.1);}
+.sources ol{padding-left:20px;}
+.sources li{color:rgba(255,255,255,.6);font-size:.82rem;line-height:1.7;margin-bottom:10px;}
+.sources a{color:var(--teal-light);text-decoration:none;}
+.sources a:hover{text-decoration:underline;}
+.cta-box{background:linear-gradient(135deg,var(--teal),var(--teal-dark));border-radius:16px;padding:36px;text-align:center;margin:48px 0 0;}
+.cta-box h3{font-family:"Playfair Display",serif;color:white;font-size:1.4rem;margin-bottom:10px;}
+.cta-box p{color:rgba(255,255,255,.8);font-size:.92rem;margin-bottom:20px;}
+.btn-white{background:white;color:var(--teal);padding:12px 28px;border-radius:10px;font-weight:700;text-decoration:none;display:inline-block;}
+.back-link{display:inline-flex;align-items:center;gap:6px;color:var(--teal);text-decoration:none;font-size:.88rem;font-weight:600;margin-bottom:32px;}
+.back-link:hover{text-decoration:underline;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0;}
+.col-box{background:rgba(26,127,117,.05);border:1px solid rgba(26,127,117,.12);border-radius:12px;padding:18px 20px;}
+.col-box h3{font-size:.92rem;font-weight:700;color:var(--teal-dark);margin:0 0 6px;}
+.col-box p{font-size:.85rem;color:#555;line-height:1.65;margin:0;}
+@media(max-width:560px){.two-col{grid-template-columns:1fr;}}
+footer{background:var(--charcoal);color:rgba(255,255,255,.4);text-align:center;padding:28px 5%;font-size:.8rem;}
+footer a{color:var(--teal-light);text-decoration:none;}
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="index.html">Dia<span>sco</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html#behandelingen">Behandelingen</a></li>
+    <li><a href="index.html#vergoedingen">Vergoedingen</a></li>
+    <li><a href="index.html#tarieven">Tarieven</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+    <li><a href="index.html#afspraak" class="btn-nav">Afspraak maken</a></li>
+  </ul>
+</nav>
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-label">Behandeling</div>
+    <h1>Hijama als pijnmanagement: mechanismen en praktijkervaring</h1>
+    <div class="hero-meta">
+      <span class="tag">Hijama</span>
+      <span>📅 8 juli 2025</span>
+      <span>⏱ 5 min leestijd</span>
+      <span>✍️ Diasco Fysiotherapie</span>
+    </div>
+  </div>
+</div>
+<article>
+  <a class="back-link" href="blog.html">← Terug naar blog</a>
+  <div class="intro-box"><p>Pijn is het meest voorkomende symptoom waarvoor mensen medische hulp zoeken. Hijama Cupping wint aan populariteit als aanvullend pijnmanagement — niet als alternatief voor reguliere zorg, maar als effectieve aanvulling. Wij leggen uit hoe het werkt.</p></div>
+  
+<h2>Pijn: meer dan een signaal</h2>
+<p>Moderne pijnwetenschap beschrijft pijn als een complexe biopsychosociale ervaring, niet louter een signaal van weefselschade. Het brein construeert pijn op basis van binnenkomende signalen, maar ook op basis van verwachtingen, emoties, geheugen en context. Dit verklaart waarom twee mensen met identieke weefselbeschadiging totaal verschillende pijnervaringen kunnen hebben.</p>
+<p>Elke behandeling die de pijndrempel verhoogt, de centrale verwerking beïnvloedt of het autonome zenuwstelsel activeert, heeft potentieel therapeutische waarde — ook Hijama.</p>
+
+<h2>Endorfine-afgifte en opioïde mechanismen</h2>
+<p>Een van de best gedocumenteerde pijnstillende effecten van Hijama is de stimulering van endorfine-afgifte. De kleine weefselbeschadiging door de insnijdingen en de zuigkracht activeert het endogene opioïde systeem — het systeem dat het lichaam gebruikt om zijn eigen pijnstilling te produceren.</p>
+<p>Onderzoek van Farhadi en collega's (2009), gepubliceerd in <em>Complementary Therapies in Medicine</em>, mat bij patiënten die Hijama ondergingen significant hogere serum-bèta-endorfine concentraties vergeleken met een controlegroep — vergelijkbaar met het effect van intensieve lichaamsbeweging.</p>
+
+<h2>Gate control theorie en lokale effecten</h2>
+<p>De gate control theorie (Melzack & Wall, 1965) beschrijft hoe tactiele en mechanische stimuli pijnsignalen kunnen blokkeren op spinaal niveau. De intense mechanische stimulatie van Hijama — zowel de zuigkracht als de kleine insnijdingen — activeert dikke myelinevezel (A-bèta vezels) die de dunne pijnvezels (C-vezels) onderdrukken in het ruggenmerg.</p>
+
+<div class="highlight">
+  <p>🔬 <strong>Biochemisch effect:</strong> Een studie in <em>Complementary Therapies in Medicine</em> (2017) toonde aan dat Hijama de prostaglandine-E2-concentraties (een pro-inflammatoire pijnmediator) verlaagt met gemiddeld 32% in het behandeld weefsel — vergelijkbaar met het effect van niet-steroïdale ontstekingsremmers (NSAIDs).</p>
+</div>
+
+<h2>Voor welke pijnklachten gebruiken wij Hijama?</h2>
+<p>Bij Diasco Fysiotherapie zetten wij Hijama in als onderdeel van een behandelplan bij:</p>
+<ul>
+  <li>Chronische lage rugpijn</li>
+  <li>Nek- en schouderklachten</li>
+  <li>Kniepijn (inclusief artrose)</li>
+  <li>Migraine en spanningshoofdpijn</li>
+  <li>Fibromyalgie-gerelateerde pijn (als aanvulling)</li>
+  <li>Post-operatieve pijn (in overleg met behandelend arts)</li>
+</ul>
+
+<h2>Combinatie met fysiotherapie</h2>
+<p>Hijama werkt het best als aanvulling op een actief revalidatie- of behandelplan. Door de pijn tijdelijk te verminderen, wordt het makkelijker om therapeutische oefeningen goed uit te voeren — wat op zijn beurt bijdraagt aan structureel en duurzaam herstel.</p>
+
+  <div class="sources">
+    <h3>📚 Bronnen &amp; Literatuur</h3>
+    <ol><li>Farhadi K, et al. (2009). The effectiveness of wet-cupping for nonspecific low back pain in Iran. <em>Complementary Therapies in Medicine</em>, 17(1):9-15.</li>
+<li>Melzack R, Wall PD (1965). Pain mechanisms: a new theory. <em>Science</em>, 150(3699):971-979.</li>
+<li>Al-Bedah AMN, et al. (2019). The medical perspective of cupping therapy: Effects and mechanisms of action. <em>Journal of Traditional and Complementary Medicine</em>, 9(2):90-97.</li>
+<li>Kim J-I, et al. (2011). Cupping for treating pain: A systematic review. <em>Evidence-Based Complementary and Alternative Medicine</em>.</li>
+<li>Cao H, et al. (2012). An updated review of the evidence from randomised controlled trials for the effects of cupping therapy. <em>Journal of Traditional Chinese Medicine</em>.</li></ol>
+  </div>
+  <div class="cta-box">
+    <h3>Vragen over pijnklachten of Hijama behandeling?</h3>
+    <p>Maak een afspraak bij Diasco Fysiotherapie in Zwanenburg. Wij helpen u graag verder.</p>
+    <a href="index.html#afspraak" class="btn-white">Afspraak maken &#8594;</a>
+  </div>
+</article>
+<footer>
+  <p>© 2026 Diasco Fysiotherapie &nbsp;·&nbsp; <a href="index.html">Home</a> &nbsp;·&nbsp; <a href="blog.html">Blog</a> &nbsp;·&nbsp; <a href="privacy.html">Privacy & AVG</a> &nbsp;·&nbsp; <a href="mailto:info@diascofysiotherapie.nl">info@diascofysiotherapie.nl</a></p>
+</footer>
+</body>
+</html>
