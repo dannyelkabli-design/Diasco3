@@ -21,7 +21,7 @@
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
-  html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+  html { scroll-behavior: smooth; scroll-padding-top: 88px; }
 
   body {
     font-family: 'DM Sans', sans-serif;
@@ -389,8 +389,43 @@
     .booking-body, .booking-header { padding: 28px 24px; }
   }
 </style>
+
+<style>
+/* ── TIME SLOTS ─────────────────────────────── */
+.time-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 8px; margin-bottom: 12px; }
+.time-slot { padding: 7px 4px; border-radius: 8px; font-size: 0.82rem; font-weight: 600; text-align: center; border: none; cursor: default; transition: all .15s; }
+.time-slot.free { background: #e8f5f3; color: var(--teal); cursor: pointer; }
+.time-slot.free:hover { background: var(--teal); color: white; transform: translateY(-1px); }
+.time-slot.selected { background: var(--teal); color: white; }
+.time-slot.booked { background: #f5f5f5; color: #bbb; }
+.time-slot.busy { background: #fff3cd; color: #856404; }
+.time-legend { display: flex; gap: 16px; font-size: 0.78rem; margin-top: 8px; }
+.time-legend .leg { display: flex; align-items: center; gap: 4px; }
+.time-legend .leg.free::before { content: ''; display: inline-block; width: 10px; height: 10px; background: #e8f5f3; border-radius: 3px; }
+.time-legend .leg.booked::before { content: ''; display: inline-block; width: 10px; height: 10px; background: #f5f5f5; border-radius: 3px; }
+.time-legend .leg.busy::before { content: ''; display: inline-block; width: 10px; height: 10px; background: #fff3cd; border-radius: 3px; }
+
+/* ── CALENDAR ───────────────────────────────── */
+.cal-cell { padding: 8px 0; text-align: center; border-radius: 8px; font-size: 0.88rem; font-weight: 500; }
+.cal-cell.available { cursor: pointer; color: var(--charcoal); }
+.cal-cell.available:hover { background: #e8f5f3; color: var(--teal); }
+.cal-cell.disabled { color: #ccc; cursor: not-allowed; }
+.cal-cell.selected { background: var(--teal) !important; color: white !important; font-weight: 700; }
+.cal-cell.today { font-weight: 700; color: var(--teal); }
+.cal-cell.empty { visibility: hidden; }
+
+/* ── SUMMARY BOX ────────────────────────────── */
+.summary-box { background: #e8f5f3; border-radius: 10px; padding: 14px 18px; font-size: 0.9rem; color: var(--teal); border-left: 3px solid var(--teal); }
+
+/* ── TOAST ──────────────────────────────────── */
+#toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--charcoal); color: white; padding: 12px 24px; border-radius: 10px; font-size: 0.9rem; font-weight: 500; z-index: 9999; transition: transform .3s ease; pointer-events: none; }
+#toast.show { transform: translateX(-50%) translateY(0); }
+#toast.warn { background: #e67e22; }
+</style>
+
 </head>
 <body>
+<div id="toast"></div>
 
 <!-- NAV -->
 <nav>
@@ -583,13 +618,20 @@
 </section>
 
 <!-- BOOKING MODULE -->
-<section class="booking-section" id="afspraak" style="scroll-margin-top: 80px;">
+<section class="booking-section" id="afspraak" style="scroll-margin-top:88px;">
   <div style="text-align:center; margin-bottom:56px;">
     <span class="section-label">Online inplannen</span>
     <h2 style="font-family:'Playfair Display',serif;font-size:clamp(1.9rem,3vw,2.6rem);font-weight:700;color:var(--charcoal);margin-bottom:12px;">Maak direct een afspraak</h2>
     <p style="color:var(--muted);max-width:520px;margin:0 auto;line-height:1.7;">Kies uw behandeling, selecteer een datum en tijdstip, en ontvang automatisch een uitnodiging voor uw agenda.</p>
   </div>
 
+
+  <div id="google-cal-bar" style="text-align:center;margin-bottom:24px;">
+    <button id="google-connect-btn" onclick="connectGoogle()" style="background:white;border:1.5px solid #dde4e3;border-radius:10px;padding:10px 20px;font-size:0.88rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:8px;">
+      📅 Koppel Google Agenda
+    </button>
+    <div id="google-status" style="font-size:0.8rem;margin-top:6px;color:#888;">Niet verbonden — tijden worden niet gesynchroniseerd</div>
+  </div>
   <div class="booking-inner">
     <div class="booking-header">
       <h2>Afspraak inplannen</h2>
@@ -608,35 +650,35 @@
         <h3 style="font-family:'Playfair Display',serif;margin-bottom:20px;">Kies uw behandeling</h3>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px;" id="treatment-picker">
           <label class="treatment-opt" style="display:flex;align-items:center;gap:12px;border:1.5px solid #dde4e3;border-radius:12px;padding:14px;cursor:pointer;transition:all .15s;">
-            <input type="radio" name="treatment" value="Dry Needling" style="accent-color:var(--teal);">
+            <input type="radio" name="treatment" value="Dry Needling" data-dur="45" style="accent-color:var(--teal);">
             <span><strong>Dry Needling</strong><br><small style="color:var(--muted);">45 min · €65</small></span>
           </label>
           <label class="treatment-opt" style="display:flex;align-items:center;gap:12px;border:1.5px solid #dde4e3;border-radius:12px;padding:14px;cursor:pointer;transition:all .15s;">
-            <input type="radio" name="treatment" value="Mobilisatie">
+            <input type="radio" name="treatment" value="Mobilisatie" data-dur="45">
             <span><strong>Mobilisatie</strong><br><small style="color:var(--muted);">45 min · €65</small></span>
           </label>
           <label class="treatment-opt" style="display:flex;align-items:center;gap:12px;border:1.5px solid #dde4e3;border-radius:12px;padding:14px;cursor:pointer;transition:all .15s;">
-            <input type="radio" name="treatment" value="Knieartrose">
+            <input type="radio" name="treatment" value="Knieartrose" data-dur="60">
             <span><strong>Knieartrose</strong><br><small style="color:var(--muted);">60 min · €80</small></span>
           </label>
           <label class="treatment-opt" style="display:flex;align-items:center;gap:12px;border:1.5px solid #dde4e3;border-radius:12px;padding:14px;cursor:pointer;transition:all .15s;">
-            <input type="radio" name="treatment" value="Heupprothese Revalidatie">
+            <input type="radio" name="treatment" value="Heupprothese Revalidatie" data-dur="60">
             <span><strong>Heupprothese Revalidatie</strong><br><small style="color:var(--muted);">60 min · €80</small></span>
           </label>
           <label class="treatment-opt" style="display:flex;align-items:center;gap:12px;border:1.5px solid #dde4e3;border-radius:12px;padding:14px;cursor:pointer;transition:all .15s;">
-            <input type="radio" name="treatment" value="Hijama Cupping">
+            <input type="radio" name="treatment" value="Hijama Cupping" data-dur="45">
             <span><strong>Hijama Cupping</strong><br><small style="color:var(--muted);">45 min · €60</small></span>
           </label>
           <label class="treatment-opt" style="display:flex;align-items:center;gap:12px;border:1.5px solid #dde4e3;border-radius:12px;padding:14px;cursor:pointer;transition:all .15s;">
-            <input type="radio" name="treatment" value="Sportrevalidatie">
+            <input type="radio" name="treatment" value="Sportrevalidatie" data-dur="60">
             <span><strong>Sportrevalidatie</strong><br><small style="color:var(--muted);">60 min · €75</small></span>
           </label>
           <label class="treatment-opt" style="display:flex;align-items:center;gap:12px;border:1.5px solid #dde4e3;border-radius:12px;padding:14px;cursor:pointer;transition:all .15s;">
-            <input type="radio" name="treatment" value="Personal Training">
+            <input type="radio" name="treatment" value="Personal Training" data-dur="60">
             <span><strong>Personal Training</strong><br><small style="color:var(--muted);">60 min · €70</small></span>
           </label>
           <label class="treatment-opt" style="display:flex;align-items:center;gap:12px;border:1.5px solid #dde4e3;border-radius:12px;padding:14px;cursor:pointer;transition:all .15s;">
-            <input type="radio" name="treatment" value="Intake / Kennismaking">
+            <input type="radio" name="treatment" value="Intake / Kennismaking" data-dur="30">
             <span><strong>Intake / Kennismaking</strong><br><small style="color:var(--muted);">30 min · Gratis</small></span>
           </label>
         </div>
@@ -675,6 +717,7 @@
       <!-- STEP 3 -->
       <div class="booking-step" id="step-3">
         <h3 style="font-family:'Playfair Display',serif;margin-bottom:20px;">Uw gegevens</h3>
+        <div id="booking-summary" style="margin-bottom:20px;"></div>
         <div class="form-row">
           <div class="form-group">
             <label>Voornaam</label>
@@ -873,302 +916,408 @@
   </div>
 </footer>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-// ═══════════════════════════════════════════
-// SHARED STATE
-// ═══════════════════════════════════════════
-var bookings = [];
-var blockedDays = [];   // [{date:'2026-03-20', reason:'Vakantie'}]
-var blockedSlots = [];  // [{date:'2026-03-20', time:'09:00'}]
-var state = { step:1, treatment:'', date:null, time:'', fname:'', lname:'', email:'', phone:'', notes:'' };
-var calYear = new Date().getFullYear();
-var calMonth = new Date().getMonth();
-var monthNames = ['Januari','Februari','Maart','April','Mei','Juni','Juli','Augustus','September','Oktober','November','December'];
 
-function toDateStr(d) {
-  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-}
 
-// ── CALENDAR ──────────────────────────────
-function renderCalendar() {
-  document.getElementById('cal-month-label').textContent = monthNames[calMonth]+' '+calYear;
-  var grid = document.getElementById('cal-grid');
-  grid.innerHTML = '';
-  var firstDay = new Date(calYear,calMonth,1).getDay();
-  var daysInMonth = new Date(calYear,calMonth+1,0).getDate();
-  var offset = (firstDay+6)%7;
-  var today = new Date();
+<script>
+(function() {
+  'use strict';
 
-  for(var i=0;i<offset;i++){
-    var e=document.createElement('div');e.className='date-cell empty';grid.appendChild(e);
+  // ── STATE ──────────────────────────────────────────────────
+  var bookings = JSON.parse(localStorage.getItem('diasco_bookings') || '[]');
+  var state = { step:1, treatment:'', treatmentDur:60, date:null, time:'', fname:'', lname:'', email:'', phone:'', notes:'' };
+  var calYear = new Date().getFullYear();
+  var calMonth = new Date().getMonth();
+  var googleAccessToken = null;
+  var monthNames = ['Januari','Februari','Maart','April','Mei','Juni','Juli','Augustus','September','Oktober','November','December'];
+
+  var GOOGLE_CLIENT_ID = localStorage.getItem('diasco_google_client_id') || '';
+  var CALENDAR_ID = localStorage.getItem('diasco_calendar_id') || 'primary';
+
+  // ── HELPERS ────────────────────────────────────────────────
+  function toDateStr(d) {
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
   }
-  for(var d=1;d<=daysInMonth;d++){
-    (function(day){
-      var el=document.createElement('div');
-      var cellDate=new Date(calYear,calMonth,day);
-      var ds=toDateStr(cellDate);
-      var isToday=cellDate.toDateString()===today.toDateString();
-      var isPast=cellDate<new Date(today.getFullYear(),today.getMonth(),today.getDate());
-      var isSun=cellDate.getDay()===0;
-      var isBlocked=blockedDays.some(function(b){return b.date===ds;});
-      var disabled=isPast||isSun||isBlocked;
-      el.className='date-cell'+(disabled?' disabled':'')+(isToday?' today':'')+(isBlocked?' blocked':'');
-      el.textContent=day;
-      if(isBlocked)el.title='Niet beschikbaar';
-      if(!disabled)el.onclick=function(){selectDate(el,new Date(calYear,calMonth,day));};
-      if(state.date&&state.date.toDateString()===cellDate.toDateString())el.classList.add('selected');
-      grid.appendChild(el);
-    })(d);
+
+  function saveBookings() {
+    localStorage.setItem('diasco_bookings', JSON.stringify(bookings));
   }
-}
 
-function selectDate(el,date){
-  document.querySelectorAll('.date-cell.selected').forEach(function(e){e.classList.remove('selected');});
-  el.classList.add('selected');
-  state.date=date;
-  state.time='';
-  renderTimeSlots();
-}
+  function showToast(msg, type) {
+    var t = document.getElementById('toast');
+    if (!t) return;
+    t.textContent = msg;
+    t.className = 'toast show ' + (type || 'info');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(function(){ t.className = 'toast'; }, 3500);
+  }
 
-function renderTimeSlots(){
-  var times=['08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30'];
-  var container=document.getElementById('time-grid-container');
-  if(!state.date){container.innerHTML='<p style="color:var(--muted);font-size:0.88rem;padding:8px 0;">Kies een datum om tijden te zien.</p>';return;}
-  var ds=toDateStr(state.date);
-  var bookedTimes=bookings.filter(function(b){return b.date===ds;}).map(function(b){return b.time;});
-  var adminBlocked=blockedSlots.filter(function(s){return s.date===ds;}).map(function(s){return s.time;});
-  var demoBusy=['09:00','10:00','11:30','14:00','15:30'];
-  var grid=document.createElement('div');grid.className='time-grid';grid.id='time-grid';
-  times.forEach(function(t){
-    var el=document.createElement('div');
-    var busy=demoBusy.indexOf(t)>-1||bookedTimes.indexOf(t)>-1||adminBlocked.indexOf(t)>-1;
-    el.className='time-slot'+(busy?' busy':'');
-    el.textContent=t;
-    if(!busy)(function(time,elem){elem.onclick=function(){selectTime(elem,time);};})(t,el);
-    if(state.time===t&&!busy)el.classList.add('selected');
-    grid.appendChild(el);
-  });
-  container.innerHTML='';
-  container.appendChild(grid);
-}
+  // ── GOOGLE CALENDAR ────────────────────────────────────────
+  function initGoogleSignIn() {
+    if (!GOOGLE_CLIENT_ID) return;
+    try {
+      google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: handleGoogleToken,
+        auto_select: false
+      });
+    } catch(e) {}
+  }
 
-function selectTime(el,time){
-  document.querySelectorAll('.time-slot.selected').forEach(function(e){e.classList.remove('selected');});
-  el.classList.add('selected');
-  state.time=time;
-}
+  function connectGoogle() {
+    if (!GOOGLE_CLIENT_ID) {
+      var id = prompt('Voer uw Google Client ID in (van console.cloud.google.com):');
+      if (!id) return;
+      GOOGLE_CLIENT_ID = id.trim();
+      localStorage.setItem('diasco_google_client_id', GOOGLE_CLIENT_ID);
+    }
+    var client = google.accounts.oauth2.initTokenClient({
+      client_id: GOOGLE_CLIENT_ID,
+      scope: 'https://www.googleapis.com/auth/calendar',
+      callback: function(resp) {
+        if (resp.error) { showToast('Google verbinding mislukt: ' + resp.error, 'warn'); return; }
+        googleAccessToken = resp.access_token;
+        updateGoogleStatus(true);
+        fetchBusySlots();
+        showToast('✅ Google Agenda verbonden!', 'info');
+      }
+    });
+    client.requestAccessToken();
+  }
 
-function prevMonth(){calMonth--;if(calMonth<0){calMonth=11;calYear--;}renderCalendar();}
-function nextMonth(){calMonth++;if(calMonth>11){calMonth=0;calYear++;}renderCalendar();}
+  function disconnectGoogle() {
+    googleAccessToken = null;
+    updateGoogleStatus(false);
+    showToast('Google Agenda losgekoppeld', 'info');
+  }
 
-// ── BOOKING STEPS ─────────────────────────
-function goStep(n){
-  if(n===2){
-    var sel=document.querySelector('input[name="treatment"]:checked');
-    if(!sel){showToast('Selecteer eerst een behandeling.','warn');return;}
-    state.treatment=sel.value;
-    state.date=null;state.time='';
+  function updateGoogleStatus(connected) {
+    var btn = document.getElementById('google-connect-btn');
+    var status = document.getElementById('google-status');
+    if (!btn) return;
+    if (connected) {
+      btn.textContent = '🔌 Loskoppelen';
+      btn.onclick = disconnectGoogle;
+      if (status) status.innerHTML = '<span style="color:#1a7f75;">✅ Verbonden met Google Agenda</span>';
+    } else {
+      btn.textContent = '📅 Koppel Google Agenda';
+      btn.onclick = connectGoogle;
+      if (status) status.innerHTML = '<span style="color:#888;">Niet verbonden</span>';
+    }
+  }
+
+  var busySlots = []; // [{date:'2026-03-15', time:'09:00'}, ...]
+
+  function fetchBusySlots() {
+    if (!googleAccessToken) return;
+    var now = new Date();
+    var end = new Date(now.getTime() + 60*24*60*60*1000);
+    var url = 'https://www.googleapis.com/calendar/v3/freeBusy';
+    fetch(url, {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + googleAccessToken, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        timeMin: now.toISOString(),
+        timeMax: end.toISOString(),
+        items: [{ id: CALENDAR_ID }]
+      })
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
+      busySlots = [];
+      var periods = (data.calendars && data.calendars[CALENDAR_ID] && data.calendars[CALENDAR_ID].busy) || [];
+      periods.forEach(function(p) {
+        var start = new Date(p.start);
+        var end2 = new Date(p.end);
+        // Mark every 30-min slot in this period as busy
+        var cur = new Date(start);
+        while (cur < end2) {
+          var ds = toDateStr(cur);
+          var ts = String(cur.getHours()).padStart(2,'0') + ':' + String(cur.getMinutes()).padStart(2,'0');
+          busySlots.push({ date: ds, time: ts });
+          cur = new Date(cur.getTime() + 30*60*1000);
+        }
+      });
+      if (state.date) renderTimeSlots(toDateStr(state.date));
+      showToast('Agenda gesynchroniseerd (' + periods.length + ' afspraken)', 'info');
+    })
+    .catch(function(e) { showToast('Fout bij ophalen agenda: ' + e.message, 'warn'); });
+  }
+
+  function addToGoogleCalendar(booking) {
+    if (!googleAccessToken) return;
+    var date = booking.date;
+    var timeParts = booking.time.split(':');
+    var startDt = new Date(date + 'T' + booking.time + ':00');
+    var endDt = new Date(startDt.getTime() + booking.dur * 60000);
+
+    fetch('https://www.googleapis.com/calendar/v3/calendars/' + CALENDAR_ID + '/events', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + googleAccessToken, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        summary: 'Diasco: ' + booking.treatment + ' — ' + booking.fname + ' ' + booking.lname,
+        description: 'Patiënt: ' + booking.fname + ' ' + booking.lname + '\nEmail: ' + booking.email + '\nTel: ' + booking.phone + (booking.notes ? '\nNotitie: ' + booking.notes : ''),
+        location: 'Domineeslaan 87a, Amsterdam',
+        start: { dateTime: startDt.toISOString(), timeZone: 'Europe/Amsterdam' },
+        end: { dateTime: endDt.toISOString(), timeZone: 'Europe/Amsterdam' }
+      })
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(ev) {
+      showToast('✅ Afspraak toegevoegd aan Google Agenda!', 'info');
+    })
+    .catch(function(e) { showToast('Fout bij toevoegen aan agenda: ' + e.message, 'warn'); });
+  }
+
+  // ── CALENDAR RENDER ────────────────────────────────────────
+  function renderCalendar() {
+    var label = document.getElementById('cal-month-label');
+    var grid = document.getElementById('cal-grid');
+    if (!label || !grid) return;
+
+    label.textContent = monthNames[calMonth] + ' ' + calYear;
+    grid.innerHTML = '';
+
+    var today = new Date();
+    today.setHours(0,0,0,0);
+    var firstDay = new Date(calYear, calMonth, 1).getDay();
+    var daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+    var offset = (firstDay + 6) % 7;
+
+    for (var i = 0; i < offset; i++) {
+      var empty = document.createElement('div');
+      empty.className = 'cal-cell empty';
+      grid.appendChild(empty);
+    }
+
+    for (var d = 1; d <= daysInMonth; d++) {
+      var cell = document.createElement('div');
+      var cellDate = new Date(calYear, calMonth, d);
+      var dow = cellDate.getDay();
+      var ds = toDateStr(cellDate);
+      var isPast = cellDate < today;
+      var isWeekend = dow === 0 || dow === 6;
+      var isSelected = state.date && toDateStr(state.date) === ds;
+      var isToday = toDateStr(today) === ds;
+
+      cell.className = 'cal-cell';
+      if (isPast || isWeekend) cell.className += ' disabled';
+      else cell.className += ' available';
+      if (isSelected) cell.className += ' selected';
+      if (isToday) cell.className += ' today';
+
+      cell.textContent = d;
+      if (!isPast && !isWeekend) {
+        (function(date, dateStr) {
+          cell.addEventListener('click', function() {
+            state.date = date;
+            renderCalendar();
+            renderTimeSlots(dateStr);
+          });
+        })(cellDate, ds);
+      }
+      grid.appendChild(cell);
+    }
+  }
+
+  function renderTimeSlots(dateStr) {
+    var container = document.getElementById('time-grid-container');
+    if (!container) return;
+
+    var bookedTimes = bookings.filter(function(b){ return b.date === dateStr; }).map(function(b){ return b.time; });
+    var busyTimes = busySlots.filter(function(b){ return b.date === dateStr; }).map(function(b){ return b.time; });
+
+    var html = '<div class="time-grid">';
+    var startHour = 8, endHour = 17;
+
+    for (var h = startHour; h < endHour; h++) {
+      for (var m = 0; m < 60; m += 30) {
+        var ts = String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+        var isBooked = bookedTimes.indexOf(ts) !== -1;
+        var isBusy = busyTimes.indexOf(ts) !== -1;
+        var isSelected = state.time === ts;
+        var cls = 'time-slot';
+        var label = ts;
+        if (isBooked) { cls += ' booked'; label += ' ✗'; }
+        else if (isBusy) { cls += ' busy'; label += ' 📅'; }
+        else if (isSelected) { cls += ' selected'; }
+        else { cls += ' free'; }
+
+        if (!isBooked && !isBusy) {
+          html += '<button class="' + cls + '" onclick="selectTime(\'' + ts + '\')">' + label + '</button>';
+        } else {
+          html += '<div class="' + cls + '">' + label + '</div>';
+        }
+      }
+    }
+    html += '</div>';
+    html += '<div class="time-legend"><span class="leg free">Beschikbaar</span><span class="leg booked">Geboekt</span>' + (googleAccessToken ? '<span class="leg busy">Google Agenda</span>' : '') + '</div>';
+    container.innerHTML = html;
+  }
+
+  window.selectTime = function(ts) {
+    state.time = ts;
+    if (state.date) renderTimeSlots(toDateStr(state.date));
+  };
+
+  // ── STEP NAVIGATION ────────────────────────────────────────
+  window.goStep = function(n) {
+    if (n === 2) {
+      var sel = document.querySelector('input[name="treatment"]:checked');
+      if (!sel) { showToast('Selecteer eerst een behandeling.', 'warn'); return; }
+      state.treatment = sel.value;
+      state.treatmentDur = parseInt(sel.getAttribute('data-dur') || '60');
+      state.date = null; state.time = '';
+      renderCalendar();
+      document.getElementById('time-grid-container').innerHTML = '<p style="color:var(--muted);font-size:0.88rem;padding:8px 0;">Kies een datum om tijden te zien.</p>';
+    }
+    if (n === 3) {
+      if (!state.date) { showToast('Selecteer eerst een datum.', 'warn'); return; }
+      if (!state.time) { showToast('Selecteer eerst een tijdstip.', 'warn'); return; }
+      // Show summary
+      var sum = document.getElementById('booking-summary');
+      if (sum) {
+        var dayNames = ['zo','ma','di','wo','do','vr','za'];
+        var dn = dayNames[state.date.getDay()];
+        sum.innerHTML = '<div class="summary-box"><strong>' + state.treatment + '</strong><br>' +
+          dn + ' ' + state.date.getDate() + ' ' + monthNames[state.date.getMonth()] + ' ' + state.date.getFullYear() + ' om ' + state.time + '</div>';
+      }
+    }
+    document.querySelectorAll('.booking-step').forEach(function(s){ s.classList.remove('active'); });
+    document.getElementById('step-' + n).classList.add('active');
+    state.step = n;
+    var labels = ['Kies uw behandeling', 'Datum & Tijdstip', 'Uw gegevens'];
+    document.getElementById('step-num').textContent = n;
+    document.getElementById('step-title').textContent = labels[n-1];
+    for (var i = 1; i <= 3; i++) {
+      document.getElementById('prog-' + i).className = 'progress-step' + (i < n ? ' done' : i === n ? ' active' : '');
+    }
+    // Scroll to booking section
+    var section = document.getElementById('afspraak');
+    if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  window.confirmBooking = function() {
+    var fname = document.getElementById('fname').value.trim();
+    var lname = document.getElementById('lname').value.trim();
+    var email = document.getElementById('email').value.trim();
+    if (!fname || !lname) { showToast('Vul uw volledige naam in.', 'warn'); return; }
+    if (!email || !email.includes('@')) { showToast('Vul een geldig e-mailadres in.', 'warn'); return; }
+
+    state.fname = fname; state.lname = lname; state.email = email;
+    state.phone = document.getElementById('phone').value;
+    state.notes = document.getElementById('notes').value;
+
+    var booking = {
+      id: Date.now(),
+      fname: state.fname, lname: state.lname, email: state.email,
+      phone: state.phone, notes: state.notes,
+      treatment: state.treatment, dur: state.treatmentDur,
+      date: toDateStr(state.date), time: state.time,
+      created: new Date().toLocaleString('nl-NL')
+    };
+    bookings.push(booking);
+    saveBookings();
+
+    // Add to Google Calendar if connected
+    if (googleAccessToken) addToGoogleCalendar(booking);
+
+    // Update confirm text
+    var dateStr = state.date.toLocaleDateString('nl-NL', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+    document.getElementById('confirm-text').textContent =
+      state.fname + ', uw afspraak voor ' + state.treatment + ' op ' + dateStr + ' om ' + state.time + ' is bevestigd. U ontvangt een bevestiging op ' + state.email + '.';
+
+    buildCalLinks();
+
+    document.querySelectorAll('.booking-step').forEach(function(s){ s.classList.remove('active'); });
+    document.getElementById('step-success').classList.add('active');
+    document.getElementById('step-num').textContent = '✓';
+    document.getElementById('step-title').textContent = 'Bevestigd!';
+  };
+
+  function buildCalLinks() {
+    var d = state.date;
+    var parts = state.time.split(':');
+    var start = new Date(d.getFullYear(), d.getMonth(), d.getDate(), parseInt(parts[0]), parseInt(parts[1]), 0);
+    var end = new Date(start.getTime() + state.treatmentDur * 60000);
+    var fmt = function(dt) { return dt.toISOString().replace(/-|:|\.\d{3}/g, ''); };
+    var title = encodeURIComponent('Fysiotherapie Diasco: ' + state.treatment);
+    var details = encodeURIComponent('Diasco Fysiotherapie\nDomineeslaan 87a, Amsterdam');
+    var loc = encodeURIComponent('Domineeslaan 87a, Amsterdam');
+    var gLink = document.getElementById('google-cal-link');
+    if (gLink) gLink.href = 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + title + '&dates=' + fmt(start) + '/' + fmt(end) + '&details=' + details + '&location=' + loc;
+    window._icsData = { start:start, end:end, title:'Fysiotherapie Diasco: ' + state.treatment, loc:'Domineeslaan 87a, Amsterdam' };
+  }
+
+  window.addToAppleCal = function(e) {
+    e.preventDefault();
+    var s = window._icsData;
+    if (!s) return;
+    var fmt = function(dt) { return dt.toISOString().replace(/-|:|\.\d{3}/g, ''); };
+    var ics = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Diasco//NL','BEGIN:VEVENT',
+      'DTSTART:' + fmt(s.start), 'DTEND:' + fmt(s.end), 'SUMMARY:' + s.title,
+      'LOCATION:' + s.loc, 'DESCRIPTION:Fysiotherapie afspraak bij Diasco.', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+    var blob = new Blob([ics], { type:'text/calendar' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a'); a.href = url; a.download = 'diasco-afspraak.ics'; a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  window.resetBooking = function() {
+    state = { step:1, treatment:'', treatmentDur:60, date:null, time:'', fname:'', lname:'', email:'', phone:'', notes:'' };
+    document.querySelectorAll('input[name="treatment"]').forEach(function(r){ r.checked = false; });
+    document.getElementById('fname').value = '';
+    document.getElementById('lname').value = '';
+    document.getElementById('email').value = '';
+    document.getElementById('phone').value = '';
+    document.getElementById('notes').value = '';
+    document.querySelectorAll('.booking-step').forEach(function(s){ s.classList.remove('active'); });
+    document.getElementById('step-1').classList.add('active');
+    document.getElementById('step-num').textContent = '1';
+    document.getElementById('step-title').textContent = 'Kies uw behandeling';
+    for (var i = 1; i <= 3; i++) {
+      document.getElementById('prog-' + i).className = 'progress-step' + (i === 1 ? ' active' : '');
+    }
+  };
+
+  window.prevMonth = function() { calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; } renderCalendar(); };
+  window.nextMonth = function() { calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; } renderCalendar(); };
+
+  window.connectGoogle = connectGoogle;
+  window.disconnectGoogle = disconnectGoogle;
+  window.fetchBusySlots = fetchBusySlots;
+
+  // ── INIT ───────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', function() {
     renderCalendar();
-    document.getElementById('time-grid-container').innerHTML='<p style="color:var(--muted);font-size:0.88rem;padding:8px 0;">Kies een datum om tijden te zien.</p>';
-  }
-  if(n===3){
-    if(!state.date){showToast('Selecteer eerst een datum.','warn');return;}
-    if(!state.time){showToast('Selecteer eerst een tijdslot.','warn');return;}
-  }
-  document.querySelectorAll('.booking-step').forEach(function(s){s.classList.remove('active');});
-  document.getElementById('step-'+n).classList.add('active');
-  state.step=n;
-  var labels=['Kies uw behandeling','Datum & Tijdstip','Uw gegevens'];
-  document.getElementById('step-num').textContent=n;
-  document.getElementById('step-title').textContent=labels[n-1];
-  for(var i=1;i<=3;i++){
-    document.getElementById('prog-'+i).className='progress-step'+(i<n?' done':i===n?' active':'');
-  }
-}
+    updateGoogleStatus(false);
 
-function confirmBooking(){
-  var fname=document.getElementById('fname').value.trim();
-  var lname=document.getElementById('lname').value.trim();
-  var email=document.getElementById('email').value.trim();
-  if(!fname||!lname||!email){showToast('Vul uw naam en e-mailadres in.','warn');return;}
-  state.fname=fname;state.lname=lname;state.email=email;
-  state.phone=document.getElementById('phone').value;
-  state.notes=document.getElementById('notes').value;
+    // Auto-init google if client id saved
+    if (GOOGLE_CLIENT_ID) {
+      var checkGoogle = setInterval(function() {
+        if (typeof google !== 'undefined' && google.accounts) {
+          clearInterval(checkGoogle);
+          initGoogleSignIn();
+        }
+      }, 200);
+    }
 
-  var booking={id:Date.now(),fname:state.fname,lname:state.lname,email:state.email,
-    phone:state.phone,notes:state.notes,treatment:state.treatment,
-    date:toDateStr(state.date),time:state.time,
-    created:new Date().toLocaleString('nl-NL')};
-  bookings.push(booking);
-
-  var dateStr=state.date.toLocaleDateString('nl-NL',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-  document.getElementById('confirm-text').textContent=
-    state.fname+', uw afspraak voor '+state.treatment+' op '+dateStr+' om '+state.time+' is bevestigd. U ontvangt een bevestiging op '+state.email+'.';
-
-  buildCalLinks();
-  document.querySelectorAll('.booking-step').forEach(function(s){s.classList.remove('active');});
-  document.getElementById('step-success').classList.add('active');
-  document.getElementById('step-num').textContent='✓';
-  document.getElementById('step-title').textContent='Bevestigd!';
-  renderAdminBookings();
-}
-
-function buildCalLinks(){
-  var d=state.date;
-  var parts=state.time.split(':');
-  var start=new Date(d.getFullYear(),d.getMonth(),d.getDate(),parseInt(parts[0]),parseInt(parts[1]),0);
-  var end=new Date(start.getTime()+60*60*1000);
-  var fmt=function(dt){return dt.toISOString().replace(/-|:|\.\d{3}/g,'');};
-  var title=encodeURIComponent('Fysiotherapie Diasco: '+state.treatment);
-  var details=encodeURIComponent('Diasco Fysiotherapie\nDomineeslaan 87a, Amsterdam');
-  var loc=encodeURIComponent('Domineeslaan 87a, Amsterdam');
-  document.getElementById('google-cal-link').href='https://calendar.google.com/calendar/render?action=TEMPLATE&text='+title+'&dates='+fmt(start)+'/'+fmt(end)+'&details='+details+'&location='+loc;
-  window._icsData={start:start,end:end,title:'Fysiotherapie Diasco: '+state.treatment,loc:'Domineeslaan 87a, Amsterdam'};
-}
-
-function addToAppleCal(e){
-  e.preventDefault();
-  var s=window._icsData;
-  var fmt=function(dt){return dt.toISOString().replace(/-|:|\.\d{3}/g,'');};
-  var ics=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Diasco//NL','BEGIN:VEVENT',
-    'DTSTART:'+fmt(s.start),'DTEND:'+fmt(s.end),'SUMMARY:'+s.title,
-    'LOCATION:'+s.loc,'DESCRIPTION:Fysiotherapie afspraak bij Diasco.','END:VEVENT','END:VCALENDAR'].join('\r\n');
-  var blob=new Blob([ics],{type:'text/calendar'});
-  var url=URL.createObjectURL(blob);
-  var a=document.createElement('a');a.href=url;a.download='diasco-afspraak.ics';a.click();
-  URL.revokeObjectURL(url);
-}
-
-function resetBooking(){
-  state={step:1,treatment:'',date:null,time:'',fname:'',lname:'',email:'',phone:'',notes:''};
-  document.querySelectorAll('.booking-step').forEach(function(s){s.classList.remove('active');});
-  document.getElementById('step-1').classList.add('active');
-  document.querySelectorAll('input[name="treatment"]').forEach(function(i){i.checked=false;});
-  document.querySelectorAll('.treatment-opt').forEach(function(l){l.style.borderColor='#dde4e3';l.style.background='';});
-  document.getElementById('step-num').textContent='1';
-  document.getElementById('step-title').textContent='Kies uw behandeling';
-  for(var i=1;i<=3;i++)document.getElementById('prog-'+i).className='progress-step'+(i===1?' active':'');
-  ['fname','lname','email','phone','notes'].forEach(function(id){document.getElementById(id).value='';});
-  document.getElementById('time-grid-container').innerHTML='<p style="color:var(--muted);font-size:0.88rem;padding:8px 0;">Kies een datum om tijden te zien.</p>';
-}
-
-document.querySelectorAll('.treatment-opt').forEach(function(label){
-  label.addEventListener('click',function(){
-    document.querySelectorAll('.treatment-opt').forEach(function(l){l.style.borderColor='#dde4e3';l.style.background='';});
-    label.style.borderColor='var(--teal)';label.style.background='rgba(26,127,117,0.04)';
+    // Treatment card highlight on select
+    document.querySelectorAll('input[name="treatment"]').forEach(function(radio) {
+      radio.addEventListener('change', function() {
+        document.querySelectorAll('.treatment-opt').forEach(function(opt) {
+          opt.style.border = '1.5px solid #dde4e3';
+          opt.style.background = '';
+        });
+        var label = radio.closest('.treatment-opt') || radio.parentElement;
+        if (label) {
+          label.style.border = '1.5px solid var(--teal)';
+          label.style.background = 'rgba(26,127,117,0.05)';
+        }
+      });
+    });
   });
-});
 
-// ── TOAST ─────────────────────────────────
-function showToast(msg,type){
-  var t=document.getElementById('_toast');
-  if(!t){t=document.createElement('div');t.id='_toast';
-    t.style.cssText='position:fixed;bottom:28px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:10px;font-family:"DM Sans",sans-serif;font-size:0.9rem;font-weight:600;z-index:9999;transition:opacity .3s;box-shadow:0 8px 24px rgba(0,0,0,0.2);pointer-events:none;';
-    document.body.appendChild(t);}
-  t.style.background=type==='warn'?'#e8a84c':'#1a7f75';
-  t.style.color='white';t.textContent=msg;t.style.opacity='1';
-  clearTimeout(t._tmr);t._tmr=setTimeout(function(){t.style.opacity='0';},3200);
-}
+})();
+</script>
 
-// ── ADMIN ─────────────────────────────────
-function adminLogin(){
-  var u=document.getElementById('admin-user').value.trim();
-  var p=document.getElementById('admin-pass').value;
-  if(u==='diasco'&&p==='admin123'){
-    document.getElementById('admin-login-box').style.display='none';
-    document.getElementById('admin-dashboard').style.display='block';
-    renderAdminBookings();renderBlockedList();
-  } else {
-    document.getElementById('admin-error').style.display='block';
-  }
-}
-function adminLogout(){
-  document.getElementById('admin-login-box').style.display='block';
-  document.getElementById('admin-dashboard').style.display='none';
-  document.getElementById('admin-user').value='';
-  document.getElementById('admin-pass').value='';
-  document.getElementById('admin-error').style.display='none';
-}
-document.getElementById('admin-pass').addEventListener('keydown',function(e){if(e.key==='Enter')adminLogin();});
-
-function showAdminTab(name){
-  document.getElementById('panel-afspraken').style.display=name==='afspraken'?'block':'none';
-  document.getElementById('panel-blokkeer').style.display=name==='blokkeer'?'block':'none';
-  document.getElementById('tab-afspraken').className='adm-tab'+(name==='afspraken'?' active':'');
-  document.getElementById('tab-blokkeer').className='adm-tab'+(name==='blokkeer'?' active':'');
-}
-
-function renderAdminBookings(){
-  var list=document.getElementById('afspraken-list');
-  var count=document.getElementById('afspraak-count');
-  count.textContent=bookings.length;
-  if(bookings.length===0){
-    list.innerHTML='<div style="padding:40px;text-align:center;color:rgba(255,255,255,0.3);font-size:0.88rem;">Nog geen afspraken.<br>Ze verschijnen hier automatisch na boeking.</div>';
-    return;
-  }
-  list.innerHTML='';
-  bookings.slice().reverse().forEach(function(b){
-    var row=document.createElement('div');
-    row.style.cssText='padding:16px 20px;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;justify-content:space-between;align-items:flex-start;gap:12px;';
-    row.innerHTML='<div style="flex:1;">'
-      +'<div style="color:white;font-weight:600;font-size:0.88rem;">'+b.fname+' '+b.lname+'</div>'
-      +'<div style="color:rgba(255,255,255,0.45);font-size:0.78rem;margin-top:3px;">📅 '+b.date+' om '+b.time+' · '+b.treatment+'</div>'
-      +'<div style="color:rgba(255,255,255,0.35);font-size:0.75rem;margin-top:2px;">✉️ '+b.email+(b.phone?' · 📞 '+b.phone:'')+'</div>'
-      +(b.notes?'<div style="color:rgba(255,255,255,0.3);font-size:0.75rem;margin-top:4px;font-style:italic;">"'+b.notes+'"</div>':'')
-      +'</div>'
-      +'<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex-shrink:0;">'
-      +'<span style="background:rgba(26,127,117,0.25);color:#2da89b;padding:3px 10px;border-radius:6px;font-size:0.75rem;font-weight:600;">'+b.time+'</span>'
-      +'<button onclick="deleteBooking('+b.id+')" style="background:rgba(255,80,80,0.1);color:#ff6b6b;border:none;padding:5px 10px;border-radius:6px;cursor:pointer;font-size:0.8rem;">✕ Verwijder</button>'
-      +'</div>';
-    list.appendChild(row);
-  });
-}
-
-function deleteBooking(id){
-  bookings=bookings.filter(function(b){return b.id!==id;});
-  renderAdminBookings();
-  if(state.date)renderTimeSlots();
-  showToast('Afspraak verwijderd.','info');
-}
-
-function blockDay(){
-  var d=document.getElementById('block-date').value;
-  var r=document.getElementById('block-reason').value||'Niet beschikbaar';
-  if(!d){showToast('Kies een datum.','warn');return;}
-  if(blockedDays.some(function(b){return b.date===d;})){showToast('Datum al geblokkeerd.','warn');return;}
-  blockedDays.push({date:d,reason:r});
-  renderBlockedList();renderCalendar();
-  document.getElementById('block-date').value='';document.getElementById('block-reason').value='';
-  showToast(d+' geblokkeerd.','info');
-}
-
-function blockSlot(){
-  var d=document.getElementById('block-slot-date').value;
-  var t=document.getElementById('block-slot-time').value;
-  if(!d){showToast('Kies een datum.','warn');return;}
-  if(blockedSlots.some(function(s){return s.date===d&&s.time===t;})){showToast('Al geblokkeerd.','warn');return;}
-  blockedSlots.push({date:d,time:t});
-  renderBlockedList();
-  if(state.date&&toDateStr(state.date)===d)renderTimeSlots();
-  showToast(t+' op '+d+' geblokkeerd.','info');
-}
-
-function unblockDay(idx){blockedDays.splice(idx,1);renderBlockedList();renderCalendar();}
-function unblockSlot(idx){blockedSlots.splice(idx,1);renderBlockedList();if(state.date)renderTimeSlots();}
-
-function renderBlockedList(){
-  var el=document.getElementById('blocked-list');
-  if(blockedDays.length===0&&blockedSlots.length===0){
-    el.innerHTML='<p style="color:rgba(255,255,255,0.3);font-size:0.88rem;">Geen blokkeringen ingesteld.</p>';return;
-  }
-  var html='';
-  blockedDays.forEach(function(b,i){
-    html+='<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);">'
-      +'<div><div style="color:rgba(255,255,255,0.75);font-size:0.85rem;">📅 Dag: <strong>'+b.date+'</strong></div>'
-      +'<div style="color:rgba(255,255,255,0.35);font-size:0.75rem;">'+b.reason+'</div></div>'
-      +'<button onclick="unblockDay('+i+')" style="background:none;border:none;color:rgba(255,100,100,0.6);cursor:pointer;font-size:1rem;padding:4px 8px;border-radius:4px;">✕</button></div>';
-  });
-  blockedSlots.forEach(function(s,i){
-    html+='<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);">'
-      +'<div style="color:rgba(255,255,255,0.75);font-size:0.85rem;">⏰ Slot: <strong>'+s.date+'</strong> om <strong>'+s.time+'</strong></div>'
-      +'<but
+</html>
