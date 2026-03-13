@@ -356,7 +356,13 @@ let outlookEvents = [], outlookBusySlots = {};
 
 // ══ LOCAL DATA ══
 const USERS = { diasco:'admin123', medewerker:'diasco2024' };
-let appointments = JSON.parse(localStorage.getItem('diasco_appts')||'[]');
+let appointments = (function(){
+  var a1 = JSON.parse(localStorage.getItem('diasco_appts')||'[]');
+  var a2 = JSON.parse(localStorage.getItem('diasco_bookings')||'[]');
+  var merged = a1.concat(a2);
+  var seen = {};
+  return merged.filter(function(b){ if(seen[b.id]) return false; seen[b.id]=true; return true; });
+})();
 if(!appointments.length){
   const t=new Date(), fmt=d=>d.toISOString().split('T')[0], ts=fmt(t);
   const tom=new Date(t); tom.setDate(t.getDate()+1);
@@ -368,7 +374,7 @@ if(!appointments.length){
   ];
   saveAppts();
 }
-function saveAppts(){localStorage.setItem('diasco_appts',JSON.stringify(appointments));}
+function saveAppts(){localStorage.setItem('diasco_appts',JSON.stringify(appointments));localStorage.setItem('diasco_bookings',JSON.stringify(appointments));}
 
 // ══ MSAL ══
 function initMSAL(){
