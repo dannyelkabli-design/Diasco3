@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diasco — Medewerkers Portaal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://alcdn.msauth.net/browser/2.39.0/js/msal-browser.min.js"></script>
+<style>
+  :root {
+    --teal:#1a7f75; --teal-light:#2da89b; --teal-dark:#0f5c54;
+    --charcoal:#1c2b2a; --white:#ffffff; --accent:#e8a84c;
+    --red:#e05252; --green:#2da87a; --blue:#0072CE;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'DM Sans',sans-serif;background:var(--charcoal);color:var(--white);min-height:100vh;}
+
+  /* SETUP BANNER */
+  #setup-banner{background:linear-gradient(135deg,rgba(232,168,76,.15),rgba(232,168,76,.05));border-bottom:1px solid rgba(232,168,76,.3);padding:12px 32px;display:flex;align-items:center;gap:12px;font-size:.85rem;color:rgba(255,255,255,.7);}
+  #setup-banner strong{color:var(--accent);}
+  #setup-banner a{color:var(--accent);}
+  .banner-close{margin-left:auto;cursor:pointer;opacity:.5;font-size:18px;}
+
+  /* LOGIN */
+  #login-page{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0f2522,#1c2b2a,#0a3d36);position:relative;overflow:hidden;}
+  #login-page::before{content:'';position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(26,127,117,.15),transparent 70%);top:-100px;right:-100px;}
+  .login-box{background:rgba(255,255,255,.05);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.1);border-radius:24px;padding:52px 48px;width:100%;max-width:420px;position:relative;z-index:1;animation:fadeUp .6s ease;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+  .login-logo{display:flex;align-items:center;gap:12px;margin-bottom:36px;}
+  .login-logo-icon{width:44px;height:44px;background:var(--teal);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:22px;font-weight:700;}
+  .login-logo-text{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:600;}
+  .login-box h2{font-family:'Playfair Display',serif;font-size:1.6rem;margin-bottom:6px;}
+  .login-box>p{color:rgba(255,255,255,.5);font-size:.88rem;margin-bottom:32px;}
+  .field{margin-bottom:18px;}
+  .field label{display:block;font-size:.8rem;font-weight:500;color:rgba(255,255,255,.6);margin-bottom:8px;letter-spacing:.05em;text-transform:uppercase;}
+  .field input{width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:14px 16px;color:white;font-family:'DM Sans',sans-serif;font-size:.95rem;outline:none;transition:border-color .2s;}
+  .field input:focus{border-color:var(--teal-light);background:rgba(255,255,255,.1);}
+  .login-btn{width:100%;background:var(--teal);color:white;border:none;border-radius:10px;padding:15px;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:600;cursor:pointer;margin-top:8px;transition:background .2s;}
+  .login-btn:hover{background:var(--teal-light);}
+  .login-error{background:rgba(224,82,82,.15);border:1px solid rgba(224,82,82,.3);border-radius:8px;padding:10px 14px;color:#ff8a8a;font-size:.85rem;margin-top:14px;display:none;}
+  .back-link{display:block;text-align:center;margin-top:24px;color:rgba(255,255,255,.3);font-size:.82rem;text-decoration:none;transition:color .2s;}
+  .back-link:hover{color:rgba(255,255,255,.6);}
+
+  /* DASHBOARD */
+  #dashboard{display:none;min-height:100vh;}
+  .topbar{background:rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.08);padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px);}
+  .topbar-left{display:flex;align-items:center;gap:16px;}
+  .topbar-logo{display:flex;align-items:center;gap:10px;font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:600;}
+  .topbar-logo-icon{width:32px;height:32px;background:var(--teal);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:15px;font-weight:700;}
+  .topbar-badge{background:rgba(26,127,117,.2);color:var(--teal-light);font-size:.72rem;font-weight:600;padding:3px 10px;border-radius:20px;border:1px solid rgba(26,127,117,.3);}
+  .topbar-right{display:flex;align-items:center;gap:12px;}
+  .topbar-user{font-size:.85rem;color:rgba(255,255,255,.6);}
+  .outlook-connect-btn{display:flex;align-items:center;gap:8px;background:rgba(0,114,206,.15);border:1px solid rgba(0,114,206,.3);color:#5aa8e8;border-radius:8px;padding:7px 12px;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;cursor:pointer;transition:all .2s;}
+  .outlook-connect-btn:hover{background:rgba(0,114,206,.25);}
+  .outlook-connect-btn.connected{background:rgba(45,168,122,.15);border-color:rgba(45,168,122,.3);color:var(--green);}
+  .outlook-connect-btn .dot{width:6px;height:6px;border-radius:50%;background:currentColor;}
+  .logout-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.7);border-radius:8px;padding:7px 14px;font-family:'DM Sans',sans-serif;font-size:.82rem;cursor:pointer;transition:all .2s;}
+  .logout-btn:hover{background:rgba(224,82,82,.15);border-color:rgba(224,82,82,.3);color:#ff8a8a;}
+
+  /* BODY */
+  .dashboard-body{padding:32px;max-width:1400px;margin:0 auto;}
+
+  /* STATS */
+  .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px;}
+  .stat-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:20px 24px;}
+  .stat-label{font-size:.78rem;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;}
+  .stat-value{font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;}
+  .stat-sub{font-size:.78rem;color:var(--teal-light);margin-top:4px;}
+
+  /* GRID */
+  .main-grid{display:grid;grid-template-columns:1fr 360px;gap:24px;}
+  .panel{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:24px;margin-bottom:20px;}
+  .panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+  .panel-title{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:600;}
+
+  /* OUTLOOK PANEL */
+  .outlook-panel{background:linear-gradient(135deg,rgba(0,114,206,.1),rgba(0,114,206,.05));border:1px solid rgba(0,114,206,.2);border-radius:16px;padding:24px;margin-bottom:20px;}
+  .outlook-status-row{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+  .outlook-logo{width:40px;height:40px;background:var(--blue);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;}
+  .outlook-status-text h3{font-size:.95rem;font-weight:600;margin-bottom:2px;}
+  .outlook-status-text p{font-size:.78rem;color:rgba(255,255,255,.45);}
+  .outlook-actions{display:flex;flex-direction:column;gap:8px;}
+  .outlook-action-btn{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.8);border-radius:8px;padding:10px 14px;font-family:'DM Sans',sans-serif;font-size:.85rem;cursor:pointer;transition:all .2s;text-align:left;width:100%;}
+  .outlook-action-btn:hover{background:rgba(0,114,206,.2);border-color:rgba(0,114,206,.3);color:white;}
+  .outlook-action-btn .icon{font-size:16px;}
+
+  /* CALENDAR */
+  .calendar-nav{display:flex;align-items:center;gap:12px;}
+  .cal-nav-btn{width:32px;height:32px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:background .2s;}
+  .cal-nav-btn:hover{background:rgba(255,255,255,.12);}
+  #cal-month-label{font-size:.95rem;font-weight:500;min-width:140px;text-align:center;}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+  .cal-day-name{text-align:center;font-size:.72rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.06em;padding:8px 0;}
+  .cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:8px;font-size:.85rem;cursor:pointer;position:relative;transition:background .15s;color:rgba(255,255,255,.7);}
+  .cal-day:hover{background:rgba(255,255,255,.08);}
+  .cal-day.other-month{color:rgba(255,255,255,.2);}
+  .cal-day.today{background:rgba(26,127,117,.25);color:var(--teal-light);font-weight:600;}
+  .cal-day.selected{background:var(--teal);color:white;font-weight:600;}
+  .cal-day.has-appt::after{content:'';position:absolute;bottom:3px;width:4px;height:4px;border-radius:50%;background:var(--accent);}
+  .cal-day.has-outlook::after{content:'';position:absolute;bottom:3px;width:4px;height:4px;border-radius:50%;background:#5aa8e8;}
+
+  /* SLOTS */
+  .slots-panel{margin-top:20px;}
+  .slots-date-label{font-size:.85rem;color:rgba(255,255,255,.5);margin-bottom:14px;}
+  .slots-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+  .slot{padding:9px 6px;border-radius:8px;text-align:center;font-size:.78rem;font-weight:500;cursor:pointer;border:1px solid transparent;transition:all .15s;}
+  .slot.free{background:rgba(45,168,122,.1);border-color:rgba(45,168,122,.2);color:var(--green);}
+  .slot.free:hover{background:rgba(45,168,122,.2);}
+  .slot.booked{background:rgba(26,127,117,.2);border-color:rgba(26,127,117,.3);color:var(--teal-light);}
+  .slot.outlook-busy{background:rgba(0,114,206,.15);border-color:rgba(0,114,206,.25);color:#5aa8e8;cursor:default;font-size:.72rem;}
+  .slot.blocked{background:rgba(224,82,82,.1);border-color:rgba(224,82,82,.2);color:rgba(255,255,255,.3);cursor:default;text-decoration:line-through;}
+
+  /* SIDEBAR */
+  .sidebar{display:flex;flex-direction:column;gap:0;}
+  .appt-item{display:flex;gap:12px;align-items:flex-start;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.06);}
+  .appt-item:last-child{border-bottom:none;}
+  .appt-time-badge{background:rgba(26,127,117,.15);border:1px solid rgba(26,127,117,.25);border-radius:8px;padding:6px 10px;font-size:.78rem;font-weight:600;color:var(--teal-light);white-space:nowrap;min-width:60px;text-align:center;}
+  .appt-time-badge.outlook-badge{background:rgba(0,114,206,.15);border-color:rgba(0,114,206,.25);color:#5aa8e8;}
+  .appt-info{flex:1;}
+  .appt-name{font-size:.9rem;font-weight:600;margin-bottom:2px;}
+  .appt-treatment{font-size:.78rem;color:rgba(255,255,255,.45);}
+  .appt-sync-badge{font-size:.65rem;background:rgba(0,114,206,.2);color:#5aa8e8;border-radius:4px;padding:1px 5px;margin-left:6px;vertical-align:middle;}
+  .appt-actions{display:flex;gap:6px;}
+  .appt-btn{width:28px;height:28px;border-radius:6px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:rgba(255,255,255,.5);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all .15s;}
+  .appt-btn:hover{background:rgba(224,82,82,.15);color:#ff8a8a;}
+  .appt-btn.confirm:hover{background:rgba(45,168,122,.15);color:var(--green);}
+
+  /* FORM */
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+  .form-field{margin-bottom:12px;}
+  .form-field label{display:block;font-size:.75rem;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;}
+  .form-field input,.form-field select,.form-field textarea{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:10px 12px;color:white;font-family:'DM Sans',sans-serif;font-size:.88rem;outline:none;transition:border-color .2s;}
+  .form-field select option{background:#1c2b2a;}
+  .form-field input:focus,.form-field select:focus,.form-field textarea:focus{border-color:var(--teal-light);}
+  .form-field textarea{resize:vertical;min-height:60px;}
+  .submit-btn{width:100%;background:var(--teal);color:white;border:none;border-radius:8px;padding:11px;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:background .2s;margin-top:4px;}
+  .submit-btn:hover{background:var(--teal-light);}
+  .sync-checkbox-row{display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:.82rem;color:rgba(255,255,255,.5);}
+  .sync-checkbox-row input{width:auto;}
+  .sync-checkbox-row span{color:#5aa8e8;}
+
+  /* MODAL */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:1000;display:none;}
+  .modal{background:#1e2f2e;border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:28px;width:420px;max-width:90vw;animation:fadeUp .25s ease;}
+  .modal h3{font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:6px;}
+  .modal p{color:rgba(255,255,255,.5);font-size:.85rem;margin-bottom:16px;}
+  .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:16px;}
+  .modal-cancel{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.6);border-radius:8px;padding:9px 18px;font-family:'DM Sans',sans-serif;font-size:.88rem;cursor:pointer;}
+  .modal-confirm{background:var(--red);border:none;color:white;border-radius:8px;padding:9px 18px;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;}
+  .modal-save{background:var(--teal);border:none;color:white;border-radius:8px;padding:9px 18px;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;}
+
+  .toast{position:fixed;bottom:28px;right:28px;background:#1e3a38;border:1px solid rgba(45,168,122,.3);color:white;padding:14px 20px;border-radius:10px;font-size:.88rem;z-index:2000;display:none;animation:fadeUp .3s ease;max-width:320px;}
+  .spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.2);border-top-color:white;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:6px;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  code{background:rgba(255,255,255,.1);padding:2px 6px;border-radius:4px;font-size:.82rem;}
+  .setup-steps{font-size:.82rem;color:rgba(255,255,255,.55);line-height:1.9;margin-bottom:4px;}
+  .setup-steps a{color:#5aa8e8;}
+
+  @media(max-width:1100px){.main-grid{grid-template-columns:1fr;}.stats-row{grid-template-columns:repeat(2,1fr);}}
+  @media(max-width:600px){.dashboard-body{padding:16px;}.slots-grid{grid-template-columns:repeat(3,1fr);}}
+</style>
+</head>
+<body>
+
+<div id="setup-banner">
+  ⚙️ <strong>Outlook Sync instellen:</strong> Klik hier om jouw Azure Client ID in te voeren voor automatische Outlook sync.
+  <a href="#" onclick="openSetup();return false;">Configureren →</a>
+  <span class="banner-close" onclick="this.parentElement.style.display='none'">×</span>
+</div>
+
+<!-- LOGIN -->
+<div id="login-page">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="login-logo-icon">D</div>
+      <span class="login-logo-text">Diasco</span>
+    </div>
+    <h2>Welkom terug</h2>
+    <p>Log in op het medewerkers portaal</p>
+    <div class="field"><label>Gebruikersnaam</label><input type="text" id="login-user" placeholder="gebruikersnaam" autocomplete="username"></div>
+    <div class="field"><label>Wachtwoord</label><input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password"></div>
+    <button class="login-btn" onclick="doLogin()">Inloggen →</button>
+    <div class="login-error" id="login-error">Onjuiste gebruikersnaam of wachtwoord</div>
+    <a href="index.html" class="back-link">← Terug naar website</a>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-logo"><div class="topbar-logo-icon">D</div>Diasco</div>
+      <span class="topbar-badge">Medewerkers Portaal</span>
+    </div>
+    <div class="topbar-right">
+      <button class="outlook-connect-btn" id="outlook-connect-btn" onclick="toggleOutlook()">
+        <span class="dot"></span><span id="outlook-btn-label">Outlook verbinden</span>
+      </button>
+      <span class="topbar-user" id="topbar-username"></span>
+      <button class="logout-btn" onclick="doLogout()">Uitloggen</button>
+    </div>
+  </div>
+
+  <div class="dashboard-body">
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-label">Vandaag</div><div class="stat-value" id="stat-today">0</div><div class="stat-sub">afspraken</div></div>
+      <div class="stat-card"><div class="stat-label">Deze week</div><div class="stat-value" id="stat-week">0</div><div class="stat-sub">afspraken</div></div>
+      <div class="stat-card"><div class="stat-label">Deze maand</div><div class="stat-value" id="stat-month">0</div><div class="stat-sub">afspraken</div></div>
+      <div class="stat-card"><div class="stat-label">Outlook</div><div class="stat-value" id="stat-outlook-count" style="font-size:1.4rem">—</div><div class="stat-sub" id="stat-outlook-label">Niet verbonden</div></div>
+    </div>
+
+    <div class="main-grid">
+      <div>
+        <!-- Outlook panel -->
+        <div class="outlook-panel">
+          <div class="outlook-status-row">
+            <div class="outlook-logo">📅</div>
+            <div class="outlook-status-text">
+              <h3 id="outlook-panel-title">Outlook Agenda Sync</h3>
+              <p id="outlook-panel-sub">Verbind met jouw Microsoft Outlook voor live synchronisatie</p>
+            </div>
+          </div>
+          <div class="outlook-actions">
+            <button class="outlook-action-btn" id="btn-connect-outlook" onclick="connectOutlook()">
+              <span class="icon">🔗</span> Verbinden met Outlook / Microsoft 365
+            </button>
+            <button class="outlook-action-btn" id="btn-sync-now" onclick="syncFromOutlook()" style="display:none">
+              <span class="icon">🔄</span> <span id="sync-label">Nu synchroniseren</span>
+            </button>
+            <button class="outlook-action-btn" id="btn-settings" onclick="openSetup()">
+              <span class="icon">⚙️</span> Azure instellingen <span style="font-size:.75rem;color:rgba(255,255,255,.35);margin-left:auto" id="client-id-preview"></span>
+            </button>
+            <button class="outlook-action-btn" id="btn-disconnect" onclick="disconnectOutlook()" style="display:none;color:rgba(255,100,100,.7);">
+              <span class="icon">✕</span> Verbinding verbreken
+            </button>
+          </div>
+        </div>
+
+        <!-- Calendar -->
+        <div class="panel" style="margin-bottom:0">
+          <div class="panel-header">
+            <span class="panel-title">Agenda</span>
+            <div class="calendar-nav">
+              <button class="cal-nav-btn" onclick="changeMonth(-1)">‹</button>
+              <span id="cal-month-label"></span>
+              <button class="cal-nav-btn" onclick="changeMonth(1)">›</button>
+            </div>
+          </div>
+          <div class="cal-grid" id="cal-grid"></div>
+          <div class="slots-panel">
+            <div class="slots-date-label" id="slots-date-label">Selecteer een dag</div>
+            <div class="slots-grid" id="slots-grid"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SIDEBAR -->
+      <div class="sidebar">
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">Afspraken vandaag</span>
+            <span id="sync-spinner" style="display:none"><span class="spinner"></span></span>
+          </div>
+          <div id="todays-appts"></div>
+        </div>
+
+        <div class="panel" style="margin-bottom:0">
+          <div class="panel-header"><span class="panel-title">Nieuwe afspraak</span></div>
+          <div class="form-row">
+            <div class="form-field"><label>Naam patiënt</label><input type="text" id="new-name" placeholder="Volledige naam"></div>
+            <div class="form-field"><label>Telefoon</label><input type="tel" id="new-phone" placeholder="06-12345678"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-field"><label>Datum</label><input type="date" id="new-date"></div>
+            <div class="form-field"><label>Tijd</label>
+              <select id="new-time">
+                <option value="">-- tijd --</option>
+                <option>08:00</option><option>08:30</option><option>09:00</option><option>09:30</option>
+                <option>10:00</option><option>10:30</option><option>11:00</option><option>11:30</option>
+                <option>12:00</option><option>13:00</option><option>13:30</option><option>14:00</option>
+                <option>14:30</option><option>15:00</option><option>15:30</option><option>16:00</option>
+                <option>16:30</option><option>17:00</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-field"><label>Behandeling</label>
+            <select id="new-treatment">
+              <option value="">-- behandeling --</option>
+              <option>Dry Needling</option><option>Mobilisatie</option><option>Knieartrose</option>
+              <option>Heupprothese revalidatie</option><option>Hijama Cupping</option>
+              <option>Sportrevalidatie</option><option>Personal Training</option>
+              <option>Pijneducatie</option><option>Intake consult</option>
+            </select>
+          </div>
+          <div class="form-field"><label>Notities</label><textarea id="new-notes" placeholder="Optionele notities..."></textarea></div>
+          <div class="sync-checkbox-row">
+            <input type="checkbox" id="sync-to-outlook" checked>
+            <label for="sync-to-outlook">📅 <span>Ook toevoegen aan Outlook</span></label>
+          </div>
+          <button class="submit-btn" onclick="addAppointment()">+ Afspraak toevoegen</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE MODAL -->
+<div class="modal-overlay" id="delete-modal">
+  <div class="modal">
+    <h3>Afspraak verwijderen</h3>
+    <p>Weet je zeker? Als Outlook sync actief is, wordt de afspraak ook uit Outlook verwijderd.</p>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeModal('delete-modal')">Annuleren</button>
+      <button class="modal-confirm" onclick="confirmDelete()">Verwijderen</button>
+    </div>
+  </div>
+</div>
+
+<!-- SETUP MODAL -->
+<div class="modal-overlay" id="setup-modal">
+  <div class="modal" style="width:500px;max-width:95vw;">
+    <h3>⚙️ Outlook Sync — Azure instellen</h3>
+    <p>Voer je Microsoft Azure Client ID in. Eenmalig instellen, daarna werkt de sync automatisch.</p>
+    <div class="form-field">
+      <label>Azure App Client ID</label>
+      <input type="text" id="azure-client-id" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" style="font-family:monospace;font-size:.85rem;">
+    </div>
+    <div class="setup-steps">
+      <strong style="color:rgba(255,255,255,.8);">📋 Eenmalige setup (5 minuten):</strong><br>
+      1. Ga naar <a href="https://portal.azure.com" target="_blank">portal.azure.com</a> → log in met je Microsoft account<br>
+      2. Zoek <strong>"App registrations"</strong> → klik <strong>+ New registration</strong><br>
+      3. Naam: <code>Diasco Portaal</code> | Account type: <em>Personal Microsoft accounts</em><br>
+      4. Redirect URI: <code>https://diasco3.vercel.app/admin.html</code> (type: SPA)<br>
+      5. Klik <strong>Register</strong> → kopieer de <strong>Application (client) ID</strong><br>
+      6. Ga naar <strong>API permissions</strong> → Add a permission → Microsoft Graph → Delegated → <strong>Calendars.ReadWrite</strong><br>
+      7. Plak de Client ID hierboven en klik Opslaan
+    </div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeModal('setup-modal')">Sluiten</button>
+      <button class="modal-save" onclick="saveAzureConfig()">Opslaan</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══ CONFIG ══
+let AZURE_CLIENT_ID = localStorage.getItem('diasco_azure_client_id') || '';
+const REDIRECT_URI = window.location.href.split('?')[0].split('#')[0];
+const GRAPH_SCOPES = ['Calendars.ReadWrite','User.Read'];
+let msalInstance = null, outlookAccount = null;
+let outlookEvents = [], outlookBusySlots = {};
+
+// ══ LOCAL DATA ══
+const USERS = { diasco:'admin123', medewerker:'diasco2024' };
+let appointments = JSON.parse(localStorage.getItem('diasco_appts')||'[]');
+if(!appointments.length){
+  const t=new Date(), fmt=d=>d.toISOString().split('T')[0], ts=fmt(t);
+  const tom=new Date(t); tom.setDate(t.getDate()+1);
+  appointments=[
+    {id:1,name:'Ahmed El Amrani',phone:'06-12345678',date:ts,time:'09:00',treatment:'Dry Needling',notes:'',outlookEventId:null},
+    {id:2,name:'Fatima Benali',phone:'06-87654321',date:ts,time:'10:30',treatment:'Knieartrose',notes:'Post-operatief',outlookEventId:null},
+    {id:3,name:'Jan de Vries',phone:'06-11223344',date:ts,time:'14:00',treatment:'Mobilisatie',notes:'',outlookEventId:null},
+    {id:4,name:'Sara Yilmaz',phone:'06-55667788',date:fmt(tom),time:'09:30',treatment:'Hijama Cupping',notes:'',outlookEventId:null},
+  ];
+  saveAppts();
+}
+function saveAppts(){localStorage.setItem('diasco_appts',JSON.stringify(appointments));}
+
+// ══ MSAL ══
+function initMSAL(){
+  if(!AZURE_CLIENT_ID||msalInstance)return;
+  try{
+    msalInstance=new msal.PublicClientApplication({
+      auth:{clientId:AZURE_CLIENT_ID,authority:'https://login.microsoftonline.com/common',redirectUri:REDIRECT_URI},
+      cache:{cacheLocation:'localStorage',storeAuthStateInCookie:false}
+    });
+    msalInstance.handleRedirectPromise().then(r=>{
+      if(r){outlookAccount=r.account;msalInstance.setActiveAccount(outlookAccount);onOutlookConnected();}
+      else{const a=msalInstance.getAllAccounts();if(a.length){outlookAccount=a[0];msalInstance.setActiveAccount(outlookAccount);onOutlookConnected();}}
+    }).catch(e=>console.warn('MSAL redirect:',e));
+  }catch(e){console.warn('MSAL init:',e);}
+}
+
+// ══ AUTH ══
+function doLogin(){
+  const u=document.getElementById('login-user').value.trim(), p=document.getElementById('login-pass').value;
+  if(USERS[u]&&USERS[u]===p){
+    document.getElementById('login-page').style.display='none';
+    document.getElementById('dashboard').style.display='block';
+    document.getElementById('topbar-username').textContent=u;
+    initDashboard();
+  }else{document.getElementById('login-error').style.display='block';}
+}
+function doLogout(){
+  document.getElementById('dashboard').style.display='none';
+  document.getElementById('login-page').style.display='flex';
+  document.getElementById('login-user').value='';
+  document.getElementById('login-pass').value='';
+  document.getElementById('login-error').style.display='none';
+}
+document.getElementById('login-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+document.getElementById('login-user').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+
+// ══ OUTLOOK CONNECT ══
+async function connectOutlook(){
+  if(!AZURE_CLIENT_ID){openSetup();return;}
+  if(!msalInstance)initMSAL();
+  try{
+    showToast('⏳ Outlook venster openen...');
+    const r=await msalInstance.loginPopup({scopes:GRAPH_SCOPES,prompt:'select_account'});
+    outlookAccount=r.account; msalInstance.setActiveAccount(outlookAccount); onOutlookConnected();
+  }catch(e){
+    if(e.errorCode==='popup_window_error'||e.errorCode==='empty_window_error'){
+      msalInstance.loginRedirect({scopes:GRAPH_SCOPES});
+    }else if(e.errorCode!=='user_cancelled'){
+      showToast('❌ Verbinding mislukt: '+((e.message||'').substring(0,60)),true);
+    }
+  }
+}
+
+function onOutlookConnected(){
+  const name=outlookAccount.name||outlookAccount.username;
+  document.getElementById('outlook-btn-label').textContent=name;
+  document.getElementById('outlook-connect-btn').classList.add('connected');
+  document.getElementById('btn-connect-outlook').style.display='none';
+  document.getElementById('btn-sync-now').style.display='flex';
+  document.getElementById('btn-disconnect').style.display='flex';
+  document.getElementById('outlook-panel-title').textContent='✅ Verbonden: '+name;
+  document.getElementById('outlook-panel-sub').textContent='Automatische sync actief — elke 5 minuten';
+  document.getElementById('stat-outlook-label').textContent='Outlook verbonden';
+  showToast('✅ Outlook verbonden als '+name);
+  syncFromOutlook();
+}
+
+function disconnectOutlook(){
+  if(msalInstance&&outlookAccount){
+    try{msalInstance.logoutPopup({account:outlookAccount});}catch(e){msalInstance.logoutRedirect({account:outlookAccount});}
+  }
+  outlookAccount=null; outlookEvents=[]; outlookBusySlots={};
+  document.getElementById('outlook-btn-label').textContent='Outlook verbinden';
+  document.getElementById('outlook-connect-btn').classList.remove('connected');
+  document.getElementById('btn-connect-outlook').style.display='flex';
+  document.getElementById('btn-sync-now').style.display='none';
+  document.getElementById('btn-disconnect').style.display='none';
+  document.getElementById('outlook-panel-title').textContent='Outlook Agenda Sync';
+  document.getElementById('outlook-panel-sub').textContent='Verbind met jouw Microsoft Outlook voor live synchronisatie';
+  document.getElementById('stat-outlook-label').textContent='Niet verbonden';
+  document.getElementById('stat-outlook-count').textContent='—';
+  renderCalendar(); renderSlots(selectedDate);
+}
+
+function toggleOutlook(){if(outlookAccount)disconnectOutlook();else connectOutlook();}
+
+async function getToken(){
+  if(!msalInstance||!outlookAccount)return null;
+  try{const r=await msalInstance.acquireTokenSilent({scopes:GRAPH_SCOPES,account:outlookAccount});return r.accessToken;}
+  catch(e){try{const r=await msalInstance.acquireTokenPopup({scopes:GRAPH_SCOPES});return r.accessToken;}catch(e2){showToast('❌ Sessie verlopen, log opnieuw in',true);return null;}}
+}
+
+// ══ SYNC FROM OUTLOOK ══
+async function syncFromOutlook(){
+  if(!outlookAccount)return;
+  document.getElementById('sync-spinner').style.display='inline';
+  document.getElementById('sync-label').textContent='Synchroniseren...';
+  const token=await getToken();
+  if(!token){document.getElementById('sync-spinner').style.display='none';return;}
+  try{
+    const now=new Date(), end=new Date(); end.setDate(end.getDate()+60);
+    const r=await fetch(
+      `https://graph.microsoft.com/v1.0/me/calendarView?startDateTime=${now.toISOString()}&endDateTime=${end.toISOString()}&$select=subject,start,end,id&$top=150`,
+      {headers:{Authorization:'Bearer '+token}}
+    );
+    if(!r.ok)throw new Error('Graph '+r.status);
+    const data=await r.json();
+    outlookEvents=data.value||[];
+    outlookBusySlots={};
+    outlookEvents.forEach(ev=>{
+      const date=ev.start.dateTime.split('T')[0];
+      const t=ev.start.dateTime.split('T')[1].substring(0,5);
+      const[h,m]=t.split(':').map(Number);
+      const slot=`${String(h).padStart(2,'0')}:${m<30?'00':'30'}`;
+      if(!outlookBusySlots[date])outlookBusySlots[date]=[];
+      if(!outlookBusySlots[date].includes(slot))outlookBusySlots[date].push(slot);
+    });
+    document.getElementById('stat-outlook-count').textContent=outlookEvents.length;
+    document.getElementById('stat-outlook-label').textContent='Events gesynchroniseerd';
+    showToast('🔄 '+outlookEvents.length+' Outlook events gesynchroniseerd');
+    renderCalendar(); renderSlots(selectedDate); renderTodayAppts();
+  }catch(e){showToast('❌ Sync fout: '+e.message,true);}
+  document.getElementById('sync-spinner').style.display='none';
+  document.getElementById('sync-label').textContent='Nu synchroniseren';
+}
+
+// ══ ADD TO OUTLOOK ══
+async function addToOutlook(appt){
+  const token=await getToken(); if(!token)return null;
+  const start=new Date(appt.date+'T'+appt.time+':00');
+  const end=new Date(start.getTime()+60*60*1000);
+  try{
+    const r=await fetch('https://graph.microsoft.com/v1.0/me/events',{
+      method:'POST',
+      headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},
+      body:JSON.stringify({
+        subject:appt.treatment+' — '+appt.name,
+        body:{contentType:'Text',content:'Patiënt: '+appt.name+'\nTelefoon: '+(appt.phone||'-')+'\nNotities: '+(appt.notes||'-')},
+        start:{dateTime:start.toISOString(),timeZone:'Europe/Amsterdam'},
+        end:{dateTime:end.toISOString(),timeZone:'Europe/Amsterdam'},
+        location:{displayName:'Diasco Fysiotherapie Amsterdam'},
+        categories:['Diasco']
+      })
+    });
+    if(!r.ok)throw new Error('status '+r.status);
+    const ev=await r.json(); return ev.id;
+  }catch(e){showToast('⚠️ Outlook sync mislukt: '+e.message,true);return null;}
+}
+
+async function deleteFromOutlook(eid){
+  if(!eid||!outlookAccount)return;
+  const token=await getToken(); if(!token)return;
+  try{await fetch('https://graph.microsoft.com/v1.0/me/events/'+eid,{method:'DELETE',headers:{Authorization:'Bearer '+token}});}
+  catch(e){console.warn('Outlook delete:',e);}
+}
+
+// ══ CALENDAR ══
+let calDate=new Date(), selectedDate=new Date();
+const MONTHS=['Januari','Februari','Maart','April','Mei','Juni','Juli','Augustus','September','Oktober','November','December'];
+const DAYS=['Ma','Di','Wo','Do','Vr','Za','Zo'];
+const TIMES=['08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30','12:00','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00'];
+
+function initDashboard(){
+  if(AZURE_CLIENT_ID){
+    document.getElementById('setup-banner').style.display='none';
+    document.getElementById('client-id-preview').textContent=AZURE_CLIENT_ID.substring(0,8)+'...';
+    initMSAL();
+  }
+  document.getElementById('azure-client-id').value=AZURE_CLIENT_ID;
+  document.getElementById('new-date').value=new Date().toISOString().split('T')[0];
+  renderCalendar(); renderSlots(selectedDate); renderTodayAppts(); updateStats();
+}
+
+function changeMonth(dir){calDate.setMonth(calDate.getMonth()+dir);renderCalendar();}
+
+function renderCalendar(){
+  const grid=document.getElementById('cal-grid');
+  document.getElementById('cal-month-label').textContent=MONTHS[calDate.getMonth()]+' '+calDate.getFullYear();
+  grid.innerHTML=DAYS.map(d=>`<div class="cal-day-name">${d}</div>`).join('');
+  const first=new Date(calDate.getFullYear(),calDate.getMonth(),1);
+  let sd=first.getDay(); sd=sd===0?6:sd-1;
+  const dim=new Date(calDate.getFullYear(),calDate.getMonth()+1,0).getDate();
+  const dip=new Date(calDate.getFullYear(),calDate.getMonth(),0).getDate();
+  const today=new Date();
+  for(let i=sd-1;i>=0;i--)grid.innerHTML+=`<div class="cal-day other-month">${dip-i}</div>`;
+  for(let d=1;d<=dim;d++){
+    const ds=`${calDate.getFullYear()}-${String(calDate.getMonth()+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isT=today.getDate()===d&&today.getMonth()===calDate.getMonth()&&today.getFullYear()===calDate.getFullYear();
+    const isSel=selectedDate.getDate()===d&&selectedDate.getMonth()===calDate.getMonth()&&selectedDate.getFullYear()===calDate.getFullYear();
+    const hasL=appointments.some(a=>a.date===ds);
+    const hasO=outlookBusySlots[ds]&&outlookBusySlots[ds].length>0;
+    let cls='cal-day'+(isT?' today':'')+(isSel?' selected':'')+(hasO?' has-outlook':hasL?' has-appt':'');
+    grid.innerHTML+=`<div class="${cls}" onclick="selectDay(${d})">${d}</div>`;
+  }
+  const rem=(sd+dim)%7; if(rem)for(let i=1;i<=7-rem;i++)grid.innerHTML+=`<div class="cal-day other-month">${i}</div>`;
+}
+
+function selectDay(d){selectedDate=new Date(calDate.getFullYear(),calDate.getMonth(),d);renderCalendar();renderSlots(selectedDate);}
+
+function renderSlots(date){
+  const ds=date.toISOString().split('T')[0];
+  document.getElementById('slots-date-label').textContent=date.toLocaleDateString('nl-NL',{weekday:'long',day:'numeric',month:'long'});
+  const local=appointments.filter(a=>a.date===ds).map(a=>a.time);
+  const busy=outlookBusySlots[ds]||[];
+  const weekend=date.getDay()===0||date.getDay()===6;
+  document.getElementById('slots-grid').innerHTML=TIMES.map(t=>{
+    if(weekend)return`<div class="slot blocked">${t}</div>`;
+    if(local.includes(t))return`<div class="slot booked" title="Diasco afspraak">${t}</div>`;
+    if(busy.includes(t))return`<div class="slot outlook-busy" title="Bezet in Outlook">📅${t}</div>`;
+    return`<div class="slot free" onclick="prefillTime('${ds}','${t}')">${t}</div>`;
+  }).join('');
+}
+
+function prefillTime(date,time){
+  document.getElementById('new-date').value=date;
+  document.getElementById('new-time').value=time;
+  document.querySelector('.sidebar').scrollIntoView({behavior:'smooth'});
+}
+
+// ══ APPOINTMENTS ══
+function renderTodayAppts(){
+  const ts=new Date().toISOString().split('T')[0];
+  const local=appointments.filter(a=>a.date===ts).sort((a,b)=>a.time.localeCompare(b.time));
+  const outlookToday=(outlookEvents||[]).filter(ev=>ev.start&&ev.start.dateTime&&ev.start.dateTime.startsWith(ts));
+  let html='';
+  local.forEach(a=>{
+    html+=`<div class="appt-item">
+      <div class="appt-time-badge">${a.time}</div>
+      <div class="appt-info">
+        <div class="appt-name">${a.name}${a.outlookEventId?'<span class="appt-sync-badge">📅 Outlook</span>':''}</div>
+        <div class="appt-treatment">${a.treatment}</div>
+      </div>
+      <div class="appt-actions">
+        <button class="appt-btn confirm" onclick="showToast('✓ Bevestigd voor ${a.name.split(' ')[0]}')">✓</button>
+        <button class="appt-btn" onclick="deleteAppt(${a.id})">✕</button>
+      </div>
+    </div>`;
+  });
+  outlookToday.forEach(ev=>{
+    if(appointments.some(a=>a.outlookEventId===ev.id))return;
+    const time=ev.start.dateTime.split('T')[1].substring(0,5);
+    html+=`<div class="appt-item">
+      <div class="appt-time-badge outlook-badge">${time}</div>
+      <div class="appt-info">
+        <div class="appt-name">${ev.subject}<span class="appt-sync-badge">Outlook</span></div>
+        <div class="appt-treatment">Uit Outlook agenda</div>
+      </div>
+    </div>`;
+  });
+  document.getElementById('todays-appts').innerHTML=html||'<p style="color:rgba(255,255,255,.3);font-size:.85rem;text-align:center;padding:16px 0">Geen afspraken vandaag</p>';
+}
+
+async function addAppointment(){
+  const name=document.getElementById('new-name').value.trim();
+  const phone=document.getElementById('new-phone').value.trim();
+  const date=document.getElementById('new-date').value;
+  const time=document.getElementById('new-time').value;
+  const treatment=document.getElementById('new-treatment').value;
+  const notes=document.getElementById('new-notes').value;
+  const sync=document.getElementById('sync-to-outlook').checked;
+  if(!name||!date||!time||!treatment){showToast('⚠️ Vul alle verplichte velden in',true);return;}
+  if(appointments.find(a=>a.date===date&&a.time===time)){showToast('⚠️ Tijdslot al bezet',true);return;}
+  const appt={id:Date.now(),name,phone,date,time,treatment,notes,outlookEventId:null};
+  if(sync&&outlookAccount){
+    showToast('⏳ Toevoegen aan Outlook...');
+    appt.outlookEventId=await addToOutlook(appt);
+    showToast(appt.outlookEventId?'✅ Opgeslagen + gesynchroniseerd met Outlook':'✅ Opgeslagen (Outlook sync mislukt)');
+  }else{showToast('✅ Afspraak toegevoegd voor '+name);}
+  appointments.push(appt); saveAppts();
+  ['new-name','new-phone','new-notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('new-time').value='';
+  document.getElementById('new-treatment').value='';
+  renderCalendar();renderSlots(selectedDate);renderTodayAppts();updateStats();
+}
+
+let deleteId=null;
+function deleteAppt(id){deleteId=id;document.getElementById('delete-modal').style.display='flex';}
+function closeModal(id){document.getElementById(id).style.display='none';if(id==='delete-modal')deleteId=null;}
+
+async function confirmDelete(){
+  const appt=appointments.find(a=>a.id===deleteId);
+  if(appt?.outlookEventId&&outlookAccount){await deleteFromOutlook(appt.outlookEventId);showToast('🗑️ Verwijderd uit portaal + Outlook');}
+  else showToast('🗑️ Afspraak verwijderd');
+  appointments=appointments.filter(a=>a.id!==deleteId);
+  saveAppts();closeModal('delete-modal');
+  renderCalendar();renderSlots(selectedDate);renderTodayAppts();updateStats();
+}
+
+function updateStats(){
+  const ts=new Date().toISOString().split('T')[0], now=new Date();
+  const ws=new Date(now); ws.setDate(now.getDate()-now.getDay()+1);
+  const we=new Date(ws); we.setDate(ws.getDate()+6);
+  document.getElementById('stat-today').textContent=appointments.filter(a=>a.date===ts).length;
+  document.getElementById('stat-week').textContent=appointments.filter(a=>{const d=new Date(a.date);return d>=ws&&d<=we;}).length;
+  document.getElementById('stat-month').textContent=appointments.filter(a=>{const d=new Date(a.date);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();}).length;
+}
+
+// ══ SETUP ══
+function openSetup(){document.getElementById('setup-modal').style.display='flex';}
+function saveAzureConfig(){
+  const id=document.getElementById('azure-client-id').value.trim();
+  if(!id||!id.includes('-')){showToast('⚠️ Voer een geldig Client ID in',true);return;}
+  AZURE_CLIENT_ID=id;
+  localStorage.setItem('diasco_azure_client_id',id);
+  msalInstance=null;
+  closeModal('setup-modal');
+  document.getElementById('setup-banner').style.display='none';
+  document.getElementById('client-id-preview').textContent=id.substring(0,8)+'...';
+  initMSAL();
+  showToast('✅ Azure configuratie opgeslagen — klik "Verbinden met Outlook"');
+}
+
+function showToast(msg,isError=false){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.style.borderColor=isError?'rgba(224,82,82,.3)':'rgba(45,168,122,.3)';
+  t.style.display='block';
+  clearTimeout(window._tt);
+  window._tt=setTimeout(()=>t.style.display='none',3500);
+}
+
+// Auto-sync elke 5 minuten
+setInterval(()=>{if(outlookAccount)syncFromOutlook();},5*60*1000);
+</script>
+</body>
+</html>
