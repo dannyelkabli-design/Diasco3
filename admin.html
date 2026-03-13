@@ -744,11 +744,11 @@ CREATE POLICY "allow_all" ON blocked_slots FOR ALL USING (true) WITH CHECK (true
 // ═══════════════════════════════════════════════════════════
 // SUPABASE CLIENT
 // ═══════════════════════════════════════════════════════════
-let supabase = null;
+let dbClient = null;
 
 function initSupabase(url, key) {
   try {
-    supabase = window.supabase.createClient(url, key);
+    dbClient = window.supabase.createClient(url, key);
     return true;
   } catch(e) {
     console.error('Supabase init error:', e);
@@ -757,9 +757,9 @@ function initSupabase(url, key) {
 }
 
 async function supabaseAvailable() {
-  if (!supabase) return false;
+  if (!dbClient) return false;
   try {
-    const { error } = await supabase.from('afspraken').select('id').limit(1);
+    const { error } = await dbClient.from('afspraken').select('id').limit(1);
     return !error;
   } catch { return false; }
 }
@@ -784,7 +784,7 @@ let appointments = [];
 
 async function loadAppointments() {
   if (await supabaseAvailable()) {
-    const { data, error } = await supabase.from('afspraken').select('*').order('date').order('time');
+    const { data, error } = await dbClient.from('afspraken').select('*').order('date').order('time');
     if (!error && data) {
       appointments = data;
       // Also sync to localStorage for website booking visibility
@@ -815,7 +815,7 @@ async function saveAppointment(appt) {
       treatment: appt.treatment || '',
       notes: appt.notes || ''
     };
-    const { data, error } = await supabase.from('afspraken').insert(row).select().single();
+    const { data, error } = await dbClient.from('afspraken').insert(row).select().single();
     if (!error && data) {
       appointments.push(data);
       syncToLocal();
@@ -831,7 +831,7 @@ async function saveAppointment(appt) {
 
 async function deleteAppointment(id) {
   if (await supabaseAvailable()) {
-    await supabase.from('afspraken').delete().eq('id', id);
+    await dbClient.from('afspraken').delete().eq('id', id);
   }
   appointments = appointments.filter(a => a.id !== id);
   syncToLocal();
@@ -849,7 +849,7 @@ let blockedSlots = {}; // { "2026-03-15": ["09:00","10:00"] }
 
 async function loadBlockedSlots() {
   if (await supabaseAvailable()) {
-    const { data, error } = await supabase.from('blocked_slots').select('*');
+    const { data, error } = await dbClient.from('blocked_slots').select('*');
     if (!error && data) {
       blockedSlots = {};
       data.forEach(row => {
@@ -869,26 +869,26 @@ async function saveBlocked() {
 
 async function persistBlockSlot(date, time) {
   if (await supabaseAvailable()) {
-    await supabase.from('blocked_slots').upsert({ date, time }, { onConflict: 'date,time' });
+    await dbClient.from('blocked_slots').upsert({ date, time }, { onConflict: 'date,time' });
   }
 }
 
 async function persistUnblockSlot(date, time) {
   if (await supabaseAvailable()) {
-    await supabase.from('blocked_slots').delete().eq('date', date).eq('time', time);
+    await dbClient.from('blocked_slots').delete().eq('date', date).eq('time', time);
   }
 }
 
 async function persistBlockAllSlots(date, times) {
   if (await supabaseAvailable()) {
     const rows = times.map(t => ({ date, time: t }));
-    await supabase.from('blocked_slots').upsert(rows, { onConflict: 'date,time' });
+    await dbClient.from('blocked_slots').upsert(rows, { onConflict: 'date,time' });
   }
 }
 
 async function persistUnblockAllSlots(date) {
   if (await supabaseAvailable()) {
-    await supabase.from('blocked_slots').delete().eq('date', date);
+    await dbClient.from('blocked_slots').delete().eq('date', date);
   }
 }
 
