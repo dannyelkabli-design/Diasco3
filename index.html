@@ -1432,7 +1432,7 @@
       <h4>Contact</h4>
       <div class="contact-item"><span>📍</span><span>Domineeslaan 87a<br>Zwanenburg, 1161 BW<br><small style="color:rgba(255,255,255,0.5);">🅿️ Gratis parkeren voor de deur</small></span></div>
       <div class="contact-item"><span>📞</span><span><a href="tel:+31681048317" style="color:inherit;text-decoration:none;">+31 6 81048317</a></span></div>
-      <div class="contact-item"><span>✉️</span><span><a href="mailto:info&#64;diascofysiotherapie.nl" style="color:inherit;text-decoration:none;">info&#64;diascofysiotherapie&#46;nl</a><br><a href="mailto:m&#46;s-fysio&#64;outlook.com" style="color:inherit;text-decoration:none;">m&#46;s-fysio&#64;outlook&#46;com</a></span></div>
+      <div class="contact-item"><span>✉️</span><span><a href="/cdn-cgi/l/email-protection#0f66616960292c393b346b666e7c6c6069767c66607b676a7d6e7f666a216163" style="color:inherit;text-decoration:none;">info&#64;diascofysiotherapie&#46;nl</a><br><a href="/cdn-cgi/l/email-protection#d8b5fefbeceee3abf5bea1abb1b7fefbeeece3b7adacb4b7b7b3f6bbb7b5" style="color:inherit;text-decoration:none;">m&#46;s-fysio&#64;outlook&#46;com</a></span></div>
       <div class="contact-item"><span>🕐</span><span>Ma–Vr: 08:00–19:00<br>Za: 09:00–14:00</span></div>
     </div>
   </div>
@@ -1448,7 +1448,7 @@
      ═══════════════════════════════════════════════════════════ -->
 
 <!-- Google Identity Services -->
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><!-- Google Calendar integratie uitgeschakeld -->
+<!-- cloudflare email decode --><!-- Google Calendar integratie uitgeschakeld -->
 
 <script>
 (function() {
@@ -1844,4 +1844,20 @@
     // Treatment card highlight on select
     document.querySelectorAll('input[name="treatment"]').forEach(function(radio) {
       radio.addEventListener('change', function() {
-        document.querySelectorAll('.treatment-opt').forEach(f
+        document.querySelectorAll('.treatment-opt').forEach(function(opt) {
+          opt.style.border = '1.5px solid #dde4e3';
+          opt.style.background = '';
+        });
+        var label = radio.closest('.treatment-opt') || radio.parentElement;
+        if (label) {
+          label.style.border = '1.5px solid var(--teal)';
+          label.style.background = 'rgba(26,127,117,0.05)';
+        }
+      });
+    });
+  });
+
+})();
+</script>
+</body>
+</html>
